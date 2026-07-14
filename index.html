@@ -468,7 +468,7 @@ a{color:inherit;text-decoration:none}
   <div class="info-inner">
     <a class="info-address" href="#" onclick="openLocModal(event)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      La Défense — Sortie 4 Métro
+      La Défense · Sortie 4 Métro
     </a>
     <button class="info-time" onclick="openTimePicker()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -1579,7 +1579,7 @@ function getSmartUpsell(addedItem) {
     if (formule1) {
       return {
         emoji: '💡',
-        text: `<strong>Formule 1 à ${formatPrice(formule1.prix)}</strong> — sandwich + 2 feuilletés + boisson`,
+        text: `<strong>Formule 1 à ${formatPrice(formule1.prix)}</strong> · sandwich + 2 feuilletés + boisson`,
         action: () => { cart = cart.filter(c => c.id !== addedItem); addToCart(formule1.id); },
         btn: 'Passer en formule'
       };
@@ -1591,7 +1591,7 @@ function getSmartUpsell(addedItem) {
       const d = desserts[Math.floor(Math.random() * desserts.length)];
       return {
         emoji: '🍮',
-        text: `Finissez en douceur ! <strong>${d.nom}</strong> — ${formatPrice(d.prix)}`,
+        text: `Finissez en douceur ! <strong>${d.nom}</strong> · ${formatPrice(d.prix)}`,
         action: () => addToCart(d.id),
         btn: `+ ${formatPrice(d.prix)}`
       };
@@ -1610,7 +1610,7 @@ function getSmartUpsell(addedItem) {
     if (ayran) {
       return {
         emoji: '🥛',
-        text: `Accompagnez avec un <strong>Ayran</strong> — yaourt salé rafraîchissant ${formatPrice(ayran.prix)}`,
+        text: `Accompagnez avec un <strong>Ayran</strong> · yaourt salé rafraîchissant ${formatPrice(ayran.prix)}`,
         action: () => addToCart(ayran.id),
         btn: `+ ${formatPrice(ayran.prix)}`
       };
