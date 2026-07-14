@@ -1063,6 +1063,7 @@ function renderMenu() {
     html += '<div class="menu-grid">';
     items.forEach(item => {
       const qty = getCartQty(item.id);
+      const isFormule = !!FORMULE_CONFIG[item.nom]; // formule = pas de stepper par id (géré dans le panier)
       html += `
         <div class="menu-card ${!item.disponible ? 'menu-card-unavailable' : ''}" data-id="${item.id}" onclick="${item.disponible ? `addToCart(${item.id})` : ''}">
           <div class="menu-card-visual">
@@ -1072,7 +1073,7 @@ function renderMenu() {
             }
             ${!item.disponible ? '<div class="unavailable-badge">Bientôt disponible</div>' : ''}
           </div>
-          ${qty > 0 ? `
+          ${qty > 0 && !isFormule ? `
           <div class="menu-card-stepper">
             <button onclick="event.stopPropagation();changeQty(${item.id},-1)" ${!item.disponible ? 'disabled' : ''}>&minus;</button>
             <span>${qty}</span>
@@ -1132,12 +1133,13 @@ function updateItemQuantity(itemId) {
   const qty = getCartQty(itemId);
   const item = menuItems.find(i => i.id === itemId);
   if (!item) return;
+  const isFormule = !!FORMULE_CONFIG[item.nom]; // formule = jamais de stepper par id (géré dans le panier)
 
   // Chercher ou créer le stepper container
   let stepperContainer = card.querySelector('.menu-card-stepper');
   let addButton = card.querySelector('.menu-card-add');
 
-  if (qty > 0) {
+  if (qty > 0 && !isFormule) {
     // Afficher le stepper
     if (!stepperContainer) {
       // Créer le stepper si il n'existe pas
