@@ -3069,8 +3069,8 @@ function renderOrderCard(order, statusClass, dateStr, timeStr, statusEmoji, stat
     const hasCats = !(grouped.size === 1 && grouped.has('__none__'));
 
     // Couleurs pastel par catégorie
-    const catBg = {'Formules':'#fef9c3','Sandwichs':'#fef3c7','Grillades':'#fee2e2','Plateaux':'#fff7ed','Entrées Froides':'#ecfdf5','Entrées Chaudes':'#fff1f2','Desserts':'#fdf4ff','Boissons':'#dbeafe','Sauces':'#f0fdf4'};
-    const catColor = {'Formules':'#854d0e','Sandwichs':'#92400e','Grillades':'#991b1b','Plateaux':'#9a3412','Entrées Froides':'#065f46','Entrées Chaudes':'#9f1239','Desserts':'#7e22ce','Boissons':'#1e40af','Sauces':'#14532d'};
+    const catBg = {'Exclu Web':'#ffedd5','Formules':'#fef9c3','Sandwichs':'#fef3c7','Grillades':'#fee2e2','Plateaux':'#fff7ed','Entrées Froides':'#ecfdf5','Entrées Chaudes':'#fff1f2','Desserts':'#fdf4ff','Boissons':'#dbeafe','Sauces':'#f0fdf4'};
+    const catColor = {'Exclu Web':'#9a3412','Formules':'#854d0e','Sandwichs':'#92400e','Grillades':'#991b1b','Plateaux':'#9a3412','Entrées Froides':'#065f46','Entrées Chaudes':'#9f1239','Desserts':'#7e22ce','Boissons':'#1e40af','Sauces':'#14532d'};
 
     const renderItem = i => {
       const qty = i.qty || i.quantite || 1;
