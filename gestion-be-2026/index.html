@@ -1482,7 +1482,9 @@ let clientOrderCounts = {};
 let clientOrderCountsAt = 0;
 
 async function loadClientOrderCounts(force = false) {
-  // Cache 30s : loadOrders est rappelé par le realtime + le polling, inutile de refetcher à chaque fois
+  // Cache 30s. ⚠️ loadOrders() n'est appelé QU'À l'init et au pull-to-refresh : le realtime et
+  // le polling font leurs propres requêtes. Sans refreshClientCounts() ci-dessous, la map
+  // resterait figée à l'état du démarrage sur une tablette kiosque qui tourne des jours.
   if (!force && Date.now() - clientOrderCountsAt < 30000) return;
   try {
     const {data, error} = await sb.from('clients').select('email,nombre_commandes');
@@ -1494,6 +1496,13 @@ async function loadClientOrderCounts(force = false) {
   } catch (e) {
     console.warn('Fidélité client indisponible:', e);
   }
+}
+
+// À appeler quand une commande entre dans la liste : le compteur du client vient de changer.
+// Fire-and-forget (ne rejette jamais, cf. try/catch ci-dessus) : ne bloque aucun handler,
+// et re-rend une fois la map à jour pour que le badge affiche le bon rang.
+function refreshClientCounts() {
+  loadClientOrderCounts(true).then(() => debouncedRenderOrders());
 }
 
 function getClientOrderBadge(order, size) {
@@ -2389,6 +2398,7 @@ async function showDashboard() {
     if (oldIds !== newIds) {
       orders = newOrders;
       debouncedRenderOrders();
+      refreshClientCounts(); // filet si le realtime est tombé : la liste a bougé, les compteurs aussi
       updateTopbarStats();
 
       // NOTE: Pas de son ici, seulement via Realtime
@@ -3898,6 +3908,7 @@ function subscribeRealtime() {
       if (isDisplayable && isVisibleDate) {
         orders.unshift(payload.new);
         debouncedRenderOrders();
+        refreshClientCounts(); // le rang de fidélité du client vient de changer
         updateTopbarStats();
         playAlert(); // Son seulement pour commandes affichables ET visibles
 
@@ -3945,6 +3956,7 @@ function subscribeRealtime() {
       if ((fullOrder.statut === 'payee' || fullOrder.statut === 'acceptee') && idx === -1) {
         console.log('🔔 Nouvelle commande:', fullOrder.numero, fullOrder.statut);
         orders.unshift(fullOrder);
+        refreshClientCounts(); // le rang de fidélité du client vient de changer
         playAlert();
         if (currentTab !== 'orders') {
           newOrdersCount++;
