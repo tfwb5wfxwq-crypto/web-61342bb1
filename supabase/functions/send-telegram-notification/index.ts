@@ -1,4 +1,5 @@
 // Edge Function: Envoyer notification Telegram pour nouvelle commande
+// (affiche le client + son rang de fidélité, cf. getClientInfo plus bas)
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
