@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://beyrouth.express',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
@@ -29,6 +29,17 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 1
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
+  }
+
+  // 🔒 Auth service_role obligatoire — comparaison directe avec la clé (pas de décodage JWT forgeable)
+  const authHeader = req.headers.get('Authorization')
+  const token = authHeader?.replace('Bearer ', '').trim()
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  if (!token || !serviceRoleKey || token !== serviceRoleKey) {
+    return new Response(
+      JSON.stringify({ error: 'Non autorisé - service_role requis' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   }
 
   try {

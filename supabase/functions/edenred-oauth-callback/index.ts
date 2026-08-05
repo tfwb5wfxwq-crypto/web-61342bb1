@@ -34,6 +34,29 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 1
   }
 }
 
+// Alerte INTERNE (14/07/2026) : prévient l'admin sur Telegram quand un client Edenred (titre-resto)
+// n'a PAS pu payer. Copie du helper de create-payment. Jamais bloquant.
+async function notifyAdminBlocked(reason: string, info: { orderNum?: string, name?: string, phone?: string, email?: string, total?: number }) {
+  try {
+    const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+    const chatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')
+    if (!botToken || !chatId) return
+    const euros = (info.total != null) ? (info.total / 100).toFixed(2) + ' EUR' : '?'
+    const text =
+      `⚠️ Paiement Edenred bloqué — un client n'a pas pu payer\n` +
+      `Raison : ${reason}\n` +
+      `Client : ${info.name || '?'} — ${info.phone || '?'} (${info.email || '?'})\n` +
+      `Panier : ${euros} — commande ${info.orderNum || '?'}\n` +
+      `👉 Tu peux le rappeler pour récupérer la commande.`
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text })
+    })
+  } catch (e) {
+    console.error('notifyAdminBlocked (edenred) failed:', e)
+  }
+}
+
 // 🔒 SÉCURITÉ : Vérifier si le restaurant est ouvert (7j/7 11h30-21h00)
 function isOpenNow(): boolean {
   const now = new Date()
@@ -43,9 +66,8 @@ function isOpenNow(): boolean {
   const m = parisTime.getMinutes()
   const nowMin = h * 60 + m
 
-  // Tous les jours de 11h30 (690 min) à 22h00 (1320 min) - TEMP TESTING EDENRED
-  // ⚠️ RAPPEL : Cartes resto interdites samedi/dimanche (bloqué côté client), seule CB acceptée
-  return nowMin >= 690 && nowMin <= 1320
+  // Lun-Ven 11h30 (690 min) à 21h00 (1260 min)
+  return nowMin >= 690 && nowMin <= 1260
 }
 
 serve(async (req) => {
@@ -73,8 +95,16 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // ===== VALIDATION CSRF : Vérifier que le state existe et correspond au numéro de commande =====
-    if (state) {
+    // ===== VALIDATION CSRF : state OBLIGATOIRE depuis toutes les versions client =====
+    if (!state) {
+      console.error('❌ State CSRF manquant — requête rejetée')
+      return new Response(
+        JSON.stringify({ error: 'Token de sécurité manquant' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    {
       const { data: storedState, error: stateError } = await supabase
         .from('oauth_states')
         .select('order_num, expires_at')
@@ -121,14 +151,12 @@ serve(async (req) => {
       // Supprimer le state (usage unique)
       await supabase.from('oauth_states').delete().eq('state', state)
       console.log(`✅ Validation CSRF OK pour commande ${orderNum}`)
-    } else {
-      console.warn('⚠️ Pas de state fourni (ancienne version client ?)')
     }
 
     // ===== VALIDATION MONTANT : Recalculer côté serveur pour éviter manipulation =====
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
-      .select('items')
+      .select('items, client_prenom, client_email, client_telephone')
       .eq('numero', orderNum)
       .maybeSingle()
 
@@ -140,16 +168,23 @@ serve(async (req) => {
       )
     }
 
+    // Infos client pour l'alerte admin (14/07/2026)
+    const cInfo = { orderNum, name: orderData.client_prenom, phone: orderData.client_telephone, email: orderData.client_email, total }
+
     const items = orderData.items
     if (items && items.length > 0) {
       // Récupérer les prix des items depuis menu_items
+      // FIX (14/07/2026) : dédoublonner les ids (2 formules identiques = même id → .in()
+      // ne renvoie qu'une ligne). Même bug que create-payment. Le recalcul (.find) gère les doublons.
       const itemIds = items.map((i: any) => i.id)
+      const uniqueItemIds = [...new Set(itemIds)]
       const { data: menuData } = await supabase
         .from('menu_items')
         .select('id, prix, nom')
-        .in('id', itemIds)
+        .in('id', uniqueItemIds)
 
-      if (!menuData || menuData.length !== itemIds.length) {
+      if (!menuData || menuData.length !== uniqueItemIds.length) {
+        await notifyAdminBlocked('Un plat du panier n\'existe plus en base', cInfo)
         return new Response(
           JSON.stringify({ error: 'Certains plats ne sont plus au menu. Veuillez créer une nouvelle commande.' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -173,6 +208,7 @@ serve(async (req) => {
       const clientTotal = total // déjà en centimes
       if (Math.abs(serverTotal - clientTotal) > 1) {
         console.error('❌ MONTANT INVALIDE:', { serverTotal, clientTotal, diff: Math.abs(serverTotal - clientTotal) })
+        await notifyAdminBlocked('Montant du panier obsolete (prix change)', cInfo)
         return new Response(
           JSON.stringify({
             error: 'Le montant de la commande a changé. Veuillez actualiser la page et créer une nouvelle commande.'
@@ -214,6 +250,7 @@ serve(async (req) => {
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text()
       console.error('❌ Erreur échange code OAuth:', tokenResponse.status, errorText)
+      await notifyAdminBlocked(`Echec connexion Edenred (OAuth ${tokenResponse.status})`, cInfo)
 
       let errorDetails = errorText
       try {
@@ -270,6 +307,7 @@ serve(async (req) => {
     if (!paymentResponse.ok) {
       const errorText = await paymentResponse.text()
       console.error('❌ Erreur création paiement Edenred:', paymentResponse.status, errorText)
+      await notifyAdminBlocked(`Edenred refuse la creation du paiement (${paymentResponse.status})`, cInfo)
 
       let edenredError = errorText
       try {
@@ -300,6 +338,7 @@ serve(async (req) => {
     // Vérifier le statut de la réponse Edenred
     if (paymentData.meta?.status !== 'succeeded') {
       console.error('❌ Paiement Edenred échoué:', paymentData)
+      await notifyAdminBlocked('Paiement Edenred refuse (non succeeded)', cInfo)
 
       // Annuler la commande (paiement échoué)
       await supabase
@@ -322,6 +361,7 @@ serve(async (req) => {
 
     if (!captureId || transactionStatus !== 'captured') {
       console.error('❌ Transaction non capturée:', paymentData)
+      await notifyAdminBlocked('Transaction Edenred non capturee', cInfo)
 
       // Annuler la commande (transaction non capturée)
       await supabase
@@ -384,26 +424,39 @@ serve(async (req) => {
       if (acceptError) {
         console.error('Erreur auto-accept:', acceptError)
       } else {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+        const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+
         // Envoyer email d'acceptation
         try {
-          await supabase.functions.invoke('send-order-confirmation', {
-            body: { orderId: updatedOrder[0].id }
+          const emailResp = await fetch(`${supabaseUrl}/functions/v1/send-order-confirmation`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: updatedOrder[0].id })
           })
-          console.log(`📧 Email d'acceptation envoyé pour ${orderNum}`)
+          const emailResult = await emailResp.json().catch(() => ({}))
+          if (!emailResp.ok) {
+            console.error('❌ Erreur envoi email confirmation:', emailResp.status, JSON.stringify(emailResult))
+          } else {
+            console.log(`📧 Email d'acceptation envoyé pour ${orderNum}`)
+          }
         } catch (emailError) {
           console.error('Erreur envoi email acceptation:', emailError)
         }
 
         // 📱 Envoyer notification Telegram
         try {
-          await supabase.functions.invoke('send-telegram-notification', {
-            body: {
+          await fetch(`${supabaseUrl}/functions/v1/send-telegram-notification`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
               orderNumber: updatedOrder[0].numero,
               pickupTime: updatedOrder[0].heure_retrait || 'Dès que possible',
               total: updatedOrder[0].total.toFixed(2),
               paymentMethod: 'edenred',
-              items: updatedOrder[0].items || []
-            }
+              items: updatedOrder[0].items || [],
+              note: updatedOrder[0].note || null
+            })
           })
           console.log(`📱 Notification Telegram envoyée pour ${orderNum}`)
         } catch (telegramError) {
@@ -415,14 +468,19 @@ serve(async (req) => {
     else if (updatedOrder && updatedOrder[0]) {
       const reason = !autoAcceptEnabled ? 'Auto-accept désactivé' : 'Restaurant fermé'
       console.log(`⏸️ ${reason} → en attente validation manuelle`)
-      try {
-        const emailResponse = await supabase.functions.invoke('send-payment-confirmation', {
-          headers: { Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
-          body: { orderId: updatedOrder[0].id }
-        })
 
-        if (emailResponse.error) {
-          console.error('Erreur envoi email paiement:', emailResponse.error)
+      const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+      const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+
+      try {
+        const emailResp = await fetch(`${supabaseUrl}/functions/v1/send-payment-confirmation`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: updatedOrder[0].id })
+        })
+        const emailResult = await emailResp.json().catch(() => ({}))
+        if (!emailResp.ok) {
+          console.error('❌ Erreur envoi email paiement:', emailResp.status, JSON.stringify(emailResult))
         } else {
           console.log(`📧 Email de confirmation paiement envoyé pour ${orderNum}`)
         }
@@ -432,14 +490,16 @@ serve(async (req) => {
 
       // 📱 Envoyer notification Telegram
       try {
-        await supabase.functions.invoke('send-telegram-notification', {
-          body: {
+        await fetch(`${supabaseUrl}/functions/v1/send-telegram-notification`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
             orderNumber: updatedOrder[0].numero,
             pickupTime: updatedOrder[0].heure_retrait || 'Dès que possible',
             total: updatedOrder[0].total.toFixed(2),
             paymentMethod: 'edenred',
             items: updatedOrder[0].items || []
-          }
+          })
         })
         console.log(`📱 Notification Telegram envoyée pour ${orderNum}`)
       } catch (telegramError) {

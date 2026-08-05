@@ -262,7 +262,7 @@ function generateInvoiceHTML(order: any): string {
         <p>
           <strong>A Beyrouth</strong><br>
           PAPA (SARL)<br>
-          4 Esplanade du Général de Gaulle<br>
+          4 Esplanade du Général de Gaulle, 
           92400 Courbevoie<br>
           <span style="font-size:12px;color:#999;">SIRET : 830 675 047 RCS Nanterre<br>TVA : FR93 830 675 047</span>
         </p>

@@ -1,5 +1,6 @@
 // Edge Function: Envoyer email de test
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { sendEmailViaBrevo } from '../_shared/brevo-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -21,123 +22,119 @@ serve(async (req) => {
       )
     }
 
-    // Template email test (même design que commande confirmée)
     const emailHtml = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="only light">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    :root { color-scheme: light; }
+    .email-header-bg { background-color: #000000 !important; }
+  </style>
   <title>Test Email - A Beyrouth</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f5f5;">
-  <div style="max-width: 600px; margin: 0 auto; background: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;">
+<body bgcolor="#f5f5f5" style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f5" style="background:#f5f5f5;">
+    <tr>
+      <td align="center" bgcolor="#f5f5f5" style="background:#f5f5f5;padding:0;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 
-    <!-- Header avec logo -->
-    <div style="padding: 32px 24px; border-bottom: 1px solid #e0e0e0; text-align: center;">
-      <div style="background: #1a1a1a; border-radius: 12px; padding: 20px; display: inline-block; margin-bottom: 12px;">
-        <div style="display: inline-flex; align-items: center; gap: 12px;">
-          <img src="https://beyrouth.express/img/logo-olives.svg" alt="Falafels" style="height: 50px; width: auto; vertical-align: middle;">
-          <img src="https://beyrouth.express/img/logo-text.svg" alt="Beyrouth Express" style="height: 45px; width: auto; vertical-align: middle;">
-        </div>
-      </div>
-      <div style="font-size: 13px; color: #666; margin-top: 12px;">Retrait · Restaurant Libanais La Défense</div>
-    </div>
+          <!-- Header fond noir avec logo -->
+          <tr>
+            <td class="email-header-bg" bgcolor="#000000" style="background:#000000;padding:8px 24px;text-align:center;">
+              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
+            </td>
+          </tr>
 
-    <!-- Titre principal -->
-    <div style="padding: 32px 24px 24px 24px;">
-      <div style="font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px;">Email de test</div>
-      <div style="font-size: 14px; color: #666; line-height: 1.5;">Ceci est un email de test pour vérifier le design et la délivrabilité.</div>
-    </div>
+          <!-- Contenu principal -->
+          <tr>
+            <td style="padding:24px 20px;background:#ffffff;">
 
-    <!-- Info principale -->
-    <div style="padding: 0 24px 24px 24px;">
-      <div style="background: #fafafa; border-left: 3px solid #D4A853; padding: 16px 20px; border-radius: 2px;">
-        <div style="font-size: 13px; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Numéro de test</div>
-        <div style="font-size: 28px; font-weight: 700; font-family: 'Courier New', monospace; color: #1a1a1a; letter-spacing: 2px;">1234 AB</div>
-      </div>
-    </div>
+              <!-- Statut -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+                <tr>
+                  <td style="background:#f0fdf4;padding:16px 20px;">
+                    <span style="font-size:16px;font-weight:600;color:#166534;">✅ Email de test</span>
+                  </td>
+                </tr>
+              </table>
 
-    <!-- Récapitulatif exemple -->
-    <div style="padding: 0 24px 24px 24px;">
-      <div style="font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Exemple de commande</div>
-      <table style="width: 100%; border-collapse: collapse;">
-        <tr style="border-bottom: 1px solid #f0f0f0;">
-          <td style="padding: 12px 0; font-size: 14px; color: #1a1a1a;">2× Falafel</td>
-          <td style="padding: 12px 0; text-align: right; font-size: 14px; color: #1a1a1a; font-weight: 500;">16.00€</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f0f0f0;">
-          <td style="padding: 12px 0; font-size: 14px; color: #1a1a1a;">1× Houmous</td>
-          <td style="padding: 12px 0; text-align: right; font-size: 14px; color: #1a1a1a; font-weight: 500;">5.50€</td>
-        </tr>
-        <tr style="border-top: 1px solid #f0f0f0;">
-          <td style="padding: 12px 0; font-size: 13px; color: #888;">Total HT</td>
-          <td style="padding: 12px 0; text-align: right; font-size: 14px; color: #1a1a1a;">19.55€</td>
-        </tr>
-        <tr style="border-bottom: 1px solid #f0f0f0;">
-          <td style="padding: 8px 0; font-size: 13px; color: #888;">TVA 10%</td>
-          <td style="padding: 8px 0; text-align: right; font-size: 14px; color: #1a1a1a;">1.95€</td>
-        </tr>
-        <tr style="border-top: 2px solid #1a1a1a;">
-          <td style="padding: 16px 0 0 0; font-size: 16px; color: #1a1a1a; font-weight: 600;">Total TTC</td>
-          <td style="padding: 16px 0 0 0; text-align: right; font-size: 18px; color: #1a1a1a; font-weight: 700;">21.50€</td>
-        </tr>
-      </table>
-    </div>
+              <!-- Numéro test -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Commande de test</td>
+                        <td style="text-align:right;font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#1a1a1a;">1234 AB</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
 
-    <!-- Adresse retrait -->
-    <div style="padding: 0 24px 32px 24px;">
-      <div style="font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Lieu de retrait</div>
-      <div style="font-size: 14px; color: #1a1a1a; line-height: 1.6; margin-bottom: 8px;">
-        <strong>A Beyrouth</strong><br>
-        4 Esplanade du Général de Gaulle<br>
-        92400 Courbevoie (La Défense)
-      </div>
-      <a href="https://maps.google.com/?q=4+Esplanade+du+Général+de+Gaulle+92400+Courbevoie" style="font-size: 14px; color: #D4A853; text-decoration: none; font-weight: 500;">→ Voir sur Google Maps</a>
-    </div>
+              <p style="font-size:14px;color:#666;line-height:1.6;margin:0 0 20px 0;">
+                Ceci est un email de test pour vérifier le rendu (header noir, design, délivrabilité).
+              </p>
 
-    <!-- Footer -->
-    <div style="background: #fafafa; padding: 24px; border-top: 1px solid #e0e0e0; text-align: center;">
-      <div style="font-size: 12px; color: #888; line-height: 1.6;">
-        À bientôt chez A Beyrouth<br>
-        <a href="https://beyrouth.express" style="color: #D4A853; text-decoration: none; margin-top: 8px; display: inline-block;">beyrouth.express</a>
-      </div>
-    </div>
+              <!-- Adresse -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <div style="font-size:13px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Lieu de retrait</div>
+                    <div style="font-size:14px;color:#1a1a1a;line-height:1.6;">
+                      A Beyrouth<br>
+                      4 Esplanade du Général de Gaulle, 
+                      92400 Courbevoie (La Défense)
+                    </div>
+                  </td>
+                </tr>
+              </table>
 
-  </div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td bgcolor="#f5f5f5" style="background:#f5f5f5;padding:20px;border-top:1px solid #e0e0e0;text-align:center;">
+              <p style="margin:0 0 12px 0;font-size:12px;color:#888;line-height:1.6;">
+                Retrouvez-nous sur
+              </p>
+              <a href="https://www.instagram.com/abeyrouth.ladefense" style="display:inline-block;background:#1a1a1a;color:#ffffff;text-decoration:none;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:500;">
+                📷 @abeyrouth.ladefense
+              </a>
+              <p style="margin:16px 0 0 0;font-size:11px;color:#aaa;">
+                <a href="https://beyrouth.express" style="color:#D4A853;text-decoration:none;">beyrouth.express</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
-</html>
-    `
+</html>`
 
-    // Envoyer l'email via Resend
-    const resendApiKey = Deno.env.get('RESEND_API_KEY')
-
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${resendApiKey}`
-      },
-      body: JSON.stringify({
-        from: 'A Beyrouth <commande@beyrouth.express>',
-        to: email,
-        subject: '✅ Test Email - A Beyrouth',
-        html: emailHtml,
-        reply_to: 'contact@beyrouth.express'
-      })
+    const result = await sendEmailViaBrevo({
+      to: email,
+      subject: '✅ Test Email - A Beyrouth',
+      html: emailHtml,
+      from: { email: 'commande@beyrouth.express', name: 'A Beyrouth' },
+      replyTo: 'contact@beyrouth.express'
     })
 
-    const emailResult = await emailResponse.json()
-
-    if (!emailResponse.ok) {
-      console.error('Erreur envoi email:', emailResult)
-      throw new Error('Erreur envoi email')
+    if (!result.success) {
+      throw new Error(result.error || 'Erreur envoi email')
     }
 
     console.log(`✅ Email de test envoyé à ${email}`)
 
     return new Response(
-      JSON.stringify({ success: true, emailId: emailResult.id }),
+      JSON.stringify({ success: true, emailId: result.messageId }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 

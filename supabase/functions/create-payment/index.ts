@@ -56,6 +56,31 @@ function parsePickupTime(pickup: string): Date | null {
   return targetDate
 }
 
+// Alerte INTERNE (14/07/2026) : prévient l'admin sur Telegram quand un client n'a PAS pu payer,
+// avec son nom + téléphone + la raison, pour qu'on puisse le rappeler et sauver la vente.
+// Rien de plus n'est montré au client (aucune surface d'attaque en plus). Jamais bloquant.
+async function notifyAdminBlocked(reason: string, info: { orderNum?: string, name?: string, phone?: string, email?: string, total?: number }) {
+  try {
+    const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+    const chatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')
+    if (!botToken || !chatId) return
+    const euros = (info.total != null) ? (info.total / 100).toFixed(2) + ' EUR' : '?'
+    const text =
+      `⚠️ Paiement bloqué — un client n'a pas pu payer\n` +
+      `Raison : ${reason}\n` +
+      `Client : ${info.name || '?'} — ${info.phone || '?'} (${info.email || '?'})\n` +
+      `Panier : ${euros} — commande ${info.orderNum || '?'}\n` +
+      `👉 Tu peux le rappeler pour récupérer la commande.`
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text })
+    })
+  } catch (e) {
+    console.error('notifyAdminBlocked failed (non bloquant):', e)
+  }
+}
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
 
@@ -80,6 +105,27 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
+
+    // ===== RATE LIMITING : max 5 VRAIES sessions de paiement par email en 10 min =====
+    // FIX (14/07/2026) : on ne compte QUE les pending ayant réellement démarré un paiement
+    // (paygreen_transaction_id non nul). Avant, les tentatives échouées AVANT PayGreen
+    // (ex. panier bloqué) comptaient aussi → un client qui réessayait s'auto-bloquait 10 min.
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString()
+    const { count: recentOrdersCount } = await supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('client_email', email)
+      .eq('statut', 'pending')
+      .not('paygreen_transaction_id', 'is', null)
+      .gte('created_at', tenMinutesAgo)
+
+    if ((recentOrdersCount ?? 0) >= 5) {
+      await notifyAdminBlocked('Trop de tentatives (rate-limit 5 sessions de paiement / 10 min)', { orderNum, name, phone, email, total })
+      return new Response(
+        JSON.stringify({ error: 'Trop de tentatives. Veuillez patienter 10 minutes avant de réessayer.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     // ===== VALIDATION #0 : PAUSE INDÉFINIE =====
     const { data: indefinitePauseData } = await supabase
@@ -130,59 +176,73 @@ serve(async (req) => {
     }
 
     // ===== VALIDATION #2 : MENU DISPONIBLE =====
-    if (items && items.length > 0) {
-      const itemIds = items.map((i: any) => i.id)
-      const { data: menuData } = await supabase
-        .from('menu_items')
-        .select('id, disponible, nom')
-        .in('id', itemIds)
-
-      // Vérifier que tous les items existent
-      if (!menuData || menuData.length !== itemIds.length) {
-        return new Response(
-          JSON.stringify({ error: 'Certains plats ne sont plus au menu. Actualisez la page.' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      // Vérifier que tous les items sont disponibles
-      const unavailableItems = menuData.filter(i => !i.disponible)
-      if (unavailableItems.length > 0) {
-        return new Response(
-          JSON.stringify({
-            error: `Le plat "${unavailableItems[0].nom}" n'est plus disponible. Actualisez la page.`
-          }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      // VALIDATION CRITIQUE : Recalculer le montant côté serveur pour éviter manipulation
-      let serverTotal = 0
-      items.forEach((item: any) => {
-        const menuItem = menuData.find(m => m.id === item.id)
-        if (!menuItem) {
-          throw new Error(`Item invalide: ${item.id}`)
-        }
-        serverTotal += menuItem.prix * (item.qty || 1)
-      })
-
-      // Arrondir à 2 décimales
-      serverTotal = Math.round(serverTotal * 100) / 100
-
-      // Vérifier que le montant client correspond (tolérance 0.02€ pour arrondi)
-      const clientTotal = total / 100 // total est en centimes
-      if (Math.abs(serverTotal - clientTotal) > 0.02) {
-        console.error('MONTANT INVALIDE:', { serverTotal, clientTotal, diff: Math.abs(serverTotal - clientTotal) })
-        return new Response(
-          JSON.stringify({
-            error: 'Le montant de la commande a changé. Veuillez actualiser la page et réessayer.'
-          }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      console.log('✅ Validation montant OK:', { serverTotal, clientTotal })
+    // SÉCURITÉ : items obligatoire — refuse toute commande sans articles (évite bypass montant)
+    if (!items || items.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'La commande ne contient aucun article.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
+
+    const itemIds = items.map((i: any) => i.id)
+    // FIX (13/07/2026) : dédoublonner les ids. Deux lignes du même plat (ex. 2 formules
+    // identiques à garnitures différentes) partagent le même id ; .in() ne renvoie qu'UNE
+    // ligne, donc comparer à items.length rejetait à tort la commande ("Certains plats ne
+    // sont plus au menu"). On compare au nombre d'ids DISTINCTS.
+    const uniqueItemIds = [...new Set(itemIds)]
+    const { data: menuData } = await supabase
+      .from('menu_items')
+      .select('id, disponible, nom, prix')
+      .in('id', uniqueItemIds)
+
+    // Vérifier que tous les items existent
+    if (!menuData || menuData.length !== uniqueItemIds.length) {
+      await notifyAdminBlocked('Un plat du panier n\'existe plus en base', { orderNum, name, phone, email, total })
+      return new Response(
+        JSON.stringify({ error: 'Certains plats ne sont plus au menu. Actualisez la page.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Vérifier que tous les items sont disponibles
+    const unavailableItems = menuData.filter(i => !i.disponible)
+    if (unavailableItems.length > 0) {
+      await notifyAdminBlocked(`Plat indisponible : ${unavailableItems[0].nom}`, { orderNum, name, phone, email, total })
+      return new Response(
+        JSON.stringify({
+          error: `Le plat "${unavailableItems[0].nom}" n'est plus disponible. Actualisez la page.`
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // VALIDATION CRITIQUE : Recalculer le montant côté serveur pour éviter manipulation
+    let serverTotal = 0
+    items.forEach((item: any) => {
+      const menuItem = menuData.find(m => m.id === item.id)
+      if (!menuItem) {
+        throw new Error(`Item invalide: ${item.id}`)
+      }
+      serverTotal += menuItem.prix * (item.qty || 1)
+    })
+
+    // Arrondir à 2 décimales
+    serverTotal = Math.round(serverTotal * 100) / 100
+
+    // Vérifier que le montant client correspond (tolérance 0.02€ pour arrondi)
+    const clientTotal = total / 100 // total est en centimes
+    if (Math.abs(serverTotal - clientTotal) > 0.02) {
+      console.error('MONTANT INVALIDE:', { serverTotal, clientTotal, diff: Math.abs(serverTotal - clientTotal) })
+      await notifyAdminBlocked('Montant du panier obsolète (prix changé côté serveur)', { orderNum, name, phone, email, total })
+      return new Response(
+        JSON.stringify({
+          error: 'Le montant de la commande a changé. Veuillez actualiser la page et réessayer.'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log('✅ Validation montant OK:', { serverTotal, clientTotal })
 
     // Étape 1 : Obtenir un JWT token depuis l'Auth API
     const authResponse = await fetch(`https://api.paygreen.fr/auth/authentication/${PAYGREEN_SHOP_ID}/secret-key`, {
@@ -197,6 +257,7 @@ serve(async (req) => {
     if (!authResponse.ok) {
       const errorText = await authResponse.text()
       console.error('Erreur Auth Paygreen:', authResponse.status, errorText)
+      await notifyAdminBlocked(`PayGreen injoignable — auth ${authResponse.status} (panne systeme)`, { orderNum, name, phone, email, total })
       return new Response(
         JSON.stringify({ error: `Auth Paygreen (${authResponse.status}): ${errorText}` }),
         { status: authResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -208,6 +269,7 @@ serve(async (req) => {
 
     if (!jwtToken) {
       console.error('JWT token non reçu:', authData)
+      await notifyAdminBlocked('PayGreen : JWT non recu (panne systeme)', { orderNum, name, phone, email, total })
       return new Response(
         JSON.stringify({ error: 'JWT token non reçu de PayGreen' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -257,6 +319,7 @@ serve(async (req) => {
     if (!paygreenResponse.ok) {
       const errorText = await paygreenResponse.text()
       console.error('Erreur Paygreen:', paygreenResponse.status, errorText)
+      await notifyAdminBlocked(`PayGreen refuse la creation du paiement (${paygreenResponse.status})`, { orderNum, name, phone, email, total })
 
       // Essayer de parser l'erreur JSON de Paygreen
       let paygreenError = errorText
@@ -289,6 +352,7 @@ serve(async (req) => {
 
     if (!transactionId || !objectSecret) {
       console.error('Données PayGreen invalides:', paygreenData)
+      await notifyAdminBlocked('PayGreen : reponse invalide (pas de transaction)', { orderNum, name, phone, email, total })
       return new Response(
         JSON.stringify({
           error: 'Réponse PayGreen invalide',

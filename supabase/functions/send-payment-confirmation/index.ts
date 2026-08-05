@@ -151,7 +151,7 @@ serve(async (req) => {
                       92400 Courbevoie (La Défense)<br>
                       <span style="font-size:12px;color:#888;">Sortie 4 du métro La Défense</span>
                     </div>
-                    <a href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">
+                    <a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">
                       ${tr.openMaps}
                     </a>
                   </td>

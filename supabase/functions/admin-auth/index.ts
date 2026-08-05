@@ -58,7 +58,7 @@ serve(async (req) => {
           attempts: rateLimit.attempts,
           blocked_until: blockUntil.toISOString(),
           last_attempt: now.toISOString()
-        })
+        }, { onConflict: 'ip_address,endpoint' })
 
       return new Response(
         JSON.stringify({ success: false, error: 'Trop de tentatives. Réessayez dans 1 heure.' }),
@@ -180,7 +180,7 @@ serve(async (req) => {
           attempts: newAttempts,
           last_attempt: now.toISOString(),
           blocked_until: null
-        })
+        }, { onConflict: 'ip_address,endpoint' })
 
       console.log(`❌ Tentative échouée ${newAttempts}/5 pour IP ${clientIp}`)
 

@@ -28,6 +28,29 @@ serve(async (_req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // ===== Nettoyage des commandes FANTÔMES (ajout 14/07/2026) =====
+    // Pending SANS aucune session de paiement (ni PayGreen ni Edenred), vieilles de >1h :
+    // le paiement n'a jamais démarré (abandon, ou blocage AVANT PayGreen). Un vrai payeur a
+    // toujours un paygreen_transaction_id en quelques secondes. On les annule pour éviter
+    // (a) l'accumulation invisible en base, (b) le rate-limit qui bloquait un client réessayant.
+    // Isolé du reste : ne touche QUE des pending sans transaction, >1h.
+    try {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+      const { count: ghostCancelled } = await supabase
+        .from('orders')
+        .update(
+          { statut: 'cancelled', cancellation_reason: 'abandon (paiement jamais démarré)' },
+          { count: 'exact' }
+        )
+        .eq('statut', 'pending')
+        .is('paygreen_transaction_id', null)
+        .is('edenred_payment_id', null)
+        .lt('created_at', oneHourAgo)
+      if (ghostCancelled) console.log(`🧹 Monitor: ${ghostCancelled} commande(s) fantôme(s) annulée(s)`)
+    } catch (e) {
+      console.error('⚠️ Nettoyage fantômes échoué (non bloquant):', e)
+    }
+
     // Commandes pending avec un ID PayGreen, créées il y a plus de 2 min
     const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString()
 

@@ -73,9 +73,11 @@ serve(async (req) => {
   try {
     const body = await req.text()
 
-    // Log la signature pour debug (sans rejeter si invalide)
+    // Vérification HMAC — si valide, on fait confiance directement (comme Stripe/PayPal)
+    // Si absent ou invalide, on re-vérifie via API PayGreen ci-dessous
     const signature = req.headers.get('signature')
     const webhookHmac = Deno.env.get('PAYGREEN_WEBHOOK_HMAC')
+    let hmacValid = false
 
     if (signature && webhookHmac) {
       try {
@@ -90,19 +92,17 @@ serve(async (req) => {
         } catch {
           sigBytes = new Uint8Array(signature.match(/.{1,2}/g)!.map(b => parseInt(b, 16)))
         }
-        const isValid = await crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(body))
-        if (isValid) {
-          console.log('✅ Signature HMAC valide')
+        hmacValid = await crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(body))
+        if (hmacValid) {
+          console.log('✅ Signature HMAC valide — traitement direct sans re-vérification API')
         } else {
-          // ⚠️ HMAC invalide (clé PayGreen peut avoir changé) — on continue quand même
-          // La vraie sécurité est la vérification directe via API PayGreen ci-dessous
-          console.warn('⚠️ Signature HMAC invalide (clé peut avoir changé) — vérification via API PayGreen')
+          console.warn('⚠️ Signature HMAC invalide — re-vérification via API PayGreen')
         }
       } catch (e) {
-        console.warn('⚠️ Erreur vérification HMAC:', e.message, '— on continue via API')
+        console.warn('⚠️ Erreur vérification HMAC:', e.message, '— re-vérification via API')
       }
     } else if (!signature) {
-      console.warn('⚠️ Webhook sans signature HMAC — vérification via API PayGreen')
+      console.warn('⚠️ Webhook sans signature HMAC — re-vérification via API PayGreen')
     }
 
     const webhookData = JSON.parse(body)
@@ -154,9 +154,8 @@ serve(async (req) => {
       })
     }
 
-    // 🔒 VÉRIFICATION DIRECTE PAYGREEN — source de vérité absolue
-    // On vérifie le paiement chez PayGreen, indépendamment du HMAC
-    if (isSuccess && paymentOrderId) {
+    // Re-vérification API PayGreen uniquement si HMAC absent ou invalide
+    if (isSuccess && paymentOrderId && !hmacValid) {
       const pgVerification = await verifyPaymentWithPaygreen(paymentOrderId)
       if (!pgVerification) {
         console.error(`❌ Impossible de vérifier le paiement ${paymentOrderId} chez PayGreen`)

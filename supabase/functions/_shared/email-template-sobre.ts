@@ -148,7 +148,7 @@ export function generateSobreEmail(type: 'confirmation' | 'payment' | 'reminder'
       <div style="font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Lieu de retrait</div>
       <div style="font-size: 14px; color: #1a1a1a; line-height: 1.6; margin-bottom: 8px;">
         <strong>A Beyrouth</strong><br>
-        4 Esplanade du Général de Gaulle<br>
+        4 Esplanade du Général de Gaulle, 
         92400 Courbevoie (La Défense)
       </div>
       <a href="https://maps.google.com/?q=4+Esplanade+du+Général+de+Gaulle+92400+Courbevoie" style="font-size: 14px; color: #D4A853; text-decoration: none; font-weight: 500;">→ Voir sur Google Maps</a>

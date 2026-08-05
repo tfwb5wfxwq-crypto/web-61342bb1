@@ -36,10 +36,12 @@ serve(async (req) => {
     )
 
     // Supprimer commandes tests (<1€, avant 14 mars, email test)
+    // FIX (14/07/2026) : total.lt.100 => total.lt.1. Les montants sont en EUROS,
+    // donc lt.100 effaçait quasi TOUTES les vraies commandes (20-45€) au moindre appel.
     const { data, error, count } = await supabase
       .from('orders')
       .delete({ count: 'exact' })
-      .or('total.lt.100,created_at.lt.2026-03-14,client_email.eq.ldvk@me.com')
+      .or('total.lt.1,created_at.lt.2026-03-14,client_email.eq.ldvk@me.com')
 
     if (error) {
       console.error('❌ Erreur DELETE orders:', error)

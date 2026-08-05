@@ -13,6 +13,19 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Vérification du secret CRON
+  const cronSecret = Deno.env.get('CRON_SECRET')
+  if (cronSecret) {
+    const authHeader = req.headers.get('Authorization') || ''
+    const token = authHeader.replace('Bearer ', '').trim()
+    if (token !== cronSecret) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+  }
+
   try {
     console.log('🗄️  Démarrage archivage automatique des commandes anciennes...')
 

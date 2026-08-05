@@ -176,9 +176,9 @@ serve(async (req) => {
                                 <div style="font-size:10px;color:#777777;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;">${tr.wherePickup}</div>
                                 <div style="font-size:16px;color:#ffffff;font-weight:800;margin-bottom:6px;font-family:Georgia,serif;">A Beyrouth</div>
                                 <div style="height:1px;background:#333333;margin-bottom:10px;"></div>
-                                <div style="font-size:12px;color:#aaaaaa;line-height:1.7;margin-bottom:10px;">4 Esplanade du<br>Général de Gaulle<br>92400 Courbevoie</div>
+                                <div style="font-size:12px;color:#aaaaaa;line-height:1.7;margin-bottom:10px;">4 Esplanade du Général de Gaulle, 92400 Courbevoie</div>
                                 <div style="font-size:11px;color:#666666;margin-bottom:16px;">${tr.metro}</div>
-                                <a href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="display:block;background:#E65100;color:#ffffff;text-decoration:none;padding:10px 0;border-radius:7px;font-weight:600;font-size:12px;text-align:center;">${tr.viewMaps}</a>
+                                <a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="display:block;background:#E65100;color:#ffffff;text-decoration:none;padding:10px 0;border-radius:7px;font-weight:600;font-size:12px;text-align:center;">${tr.viewMaps}</a>
                               </td>
                             </tr>
                           </table>
