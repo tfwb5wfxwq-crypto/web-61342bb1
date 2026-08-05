@@ -1,5 +1,51 @@
 // Edge Function: Envoyer notification Telegram pour nouvelle commande
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+// Le message part en parse_mode Markdown : un prénom contenant _ * [ ou ` ferait
+// échouer TOUTE la notification (400 "can't parse entities"). On neutralise.
+function safeMd(txt: string): string {
+  return txt.replace(/[_*`\[\]]/g, ' ').trim()
+}
+
+// Récupère le prénom du client + son nombre total de commandes (fidélité).
+// Fait ici plutôt que chez les 5 appelants (webhook PayGreen, Edenred, monitor) :
+// un seul endroit à maintenir. Toute erreur est avalée → la notif part quand même.
+async function getClientInfo(orderNumber: string): Promise<{ prenom: string | null, count: number | null }> {
+  const empty = { prenom: null, count: null }
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (!supabaseUrl || !serviceKey || !orderNumber) return empty
+
+    const supabase = createClient(supabaseUrl, serviceKey)
+
+    const { data: order } = await supabase
+      .from('orders')
+      .select('client_prenom, client_email')
+      .eq('numero', orderNumber)
+      .maybeSingle()
+
+    if (!order) return empty
+    if (!order.client_email) return { prenom: order.client_prenom || null, count: null }
+
+    // clients.nombre_commandes est maintenu par le trigger update_client_stats, qui a déjà
+    // tourné au passage en "payee" → le compteur inclut la commande en cours ("2e" = sa 2e).
+    const { data: client } = await supabase
+      .from('clients')
+      .select('nombre_commandes')
+      .eq('email', order.client_email)
+      .maybeSingle()
+
+    return {
+      prenom: order.client_prenom || null,
+      count: typeof client?.nombre_commandes === 'number' ? client.nombre_commandes : null
+    }
+  } catch (e) {
+    console.error('⚠️ Lookup client échoué (notif envoyée sans le nom):', e)
+    return empty
+  }
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -40,11 +86,22 @@ serve(async (req) => {
     // Note client (si présente)
     const noteSection = note ? `\n\n⚠️ *Note client* : ${note}` : ''
 
+    // Client + fidélité (ligne omise si le lookup n'a rien donné)
+    const { prenom, count } = await getClientInfo(orderNumber)
+    let clientSection = ''
+    const prenomSafe = prenom ? safeMd(prenom) : ''
+    if (prenomSafe) {
+      const rang = count && count >= 1
+        ? (count === 1 ? ' (1re commande)' : ` (${count}e commande)`)
+        : ''
+      clientSection = `\n👤 *Client* : ${prenomSafe}${rang}`
+    }
+
     // Message Telegram avec emoji et formatage
     const message = `
 🆕 *NOUVELLE COMMANDE*
 
-📦 *Commande* : \`${orderNumber}\`
+📦 *Commande* : \`${orderNumber}\`${clientSection}
 ⏰ *Retrait* : ${pickupTime || 'Dès que possible'}
 💰 *Total* : *${total}€*
 💳 *Paiement* : ${paymentMethod === 'edenred' ? '🎫 Edenred' : '💳 PayGreen'}

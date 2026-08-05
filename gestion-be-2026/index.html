@@ -1474,6 +1474,43 @@ let orderFilter = 'all'; // Filter: all, nouvelles, retard, urgentes, normales, 
 let currentTab = 'orders';
 let newOrdersCount = 0; // Compteur de nouvelles commandes non vues (badge sur onglet "En cours")
 
+// ===== FIDÉLITÉ CLIENT (badge "1re / 2e / 5e" à côté du prénom) =====
+// Source = clients.nombre_commandes, maintenu automatiquement par le trigger Postgres
+// update_client_stats (compte les statuts payee/acceptee/en_preparation/prete/recuperee).
+// Le compteur INCLUT la commande affichée : "2e" = c'est sa deuxième commande.
+let clientOrderCounts = {};
+let clientOrderCountsAt = 0;
+
+async function loadClientOrderCounts(force = false) {
+  // Cache 30s : loadOrders est rappelé par le realtime + le polling, inutile de refetcher à chaque fois
+  if (!force && Date.now() - clientOrderCountsAt < 30000) return;
+  try {
+    const {data, error} = await sb.from('clients').select('email,nombre_commandes');
+    if (error || !data) return; // échec silencieux : le badge disparaît, les commandes s'affichent normalement
+    const map = {};
+    data.forEach(c => { if (c.email) map[c.email.toLowerCase()] = c.nombre_commandes || 0; });
+    clientOrderCounts = map;
+    clientOrderCountsAt = Date.now();
+  } catch (e) {
+    console.warn('Fidélité client indisponible:', e);
+  }
+}
+
+function getClientOrderBadge(order, size) {
+  const email = (order.client_email || '').toLowerCase();
+  const n = email ? clientOrderCounts[email] : undefined;
+  if (!n || n < 1) return ''; // donnée absente → rien, plutôt qu'un faux "1re"
+  const label = n === 1 ? '1re' : n + 'e';
+  const skin = n >= 5
+    ? 'background:#fdf3d7;color:#8a6d1f;border:1px solid #e8d08a;'   // fidèle
+    : n >= 2
+      ? 'background:#eef0f2;color:#4b5563;border:1px solid #dfe3e7;' // revient
+      : 'background:#f8f9fa;color:#9ca3af;border:1px solid #edeff1;'; // première commande
+  const pad = size === 'lg' ? 'padding:3px 10px;font-size:0.78rem;' : 'padding:1px 7px;font-size:0.68rem;';
+  const title = n === 1 ? 'Première commande' : `${n} commandes au total`;
+  return `<span title="${title}" style="${skin}${pad}border-radius:20px;font-weight:700;line-height:1.5;white-space:nowrap;flex-shrink:0;">${label}</span>`;
+}
+
 // ===== SETTINGS =====
 let clickCollectEnabled = true;
 let autoAcceptOrders = false;
@@ -2438,12 +2475,16 @@ async function loadOrders() {
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   sevenDaysAgo.setHours(0, 0, 0, 0); // ⚠️ FIX: Inclure toute la journée du 7e jour (pas juste depuis l'heure actuelle)
 
-  const {data} = await sb.from('orders')
-    .select('*')
-    .in('statut', ['payee', 'acceptee', 'en_preparation', 'prete'])
-    .or('archived.is.null,archived.eq.false')  // Exclure les commandes archivées
-    .gte('created_at', sevenDaysAgo.toISOString())  // 7 derniers jours max
-    .order('created_at', {ascending: false});
+  // Les compteurs de fidélité se chargent en parallèle : aucune latence ajoutée
+  const [{data}] = await Promise.all([
+    sb.from('orders')
+      .select('*')
+      .in('statut', ['payee', 'acceptee', 'en_preparation', 'prete'])
+      .or('archived.is.null,archived.eq.false')  // Exclure les commandes archivées
+      .gte('created_at', sevenDaysAgo.toISOString())  // 7 derniers jours max
+      .order('created_at', {ascending: false}),
+    loadClientOrderCounts()
+  ]);
   orders = data || [];
   debouncedRenderOrders();
   updateTopbarStats();
@@ -3138,7 +3179,10 @@ function renderOrderCard(order, statusClass, dateStr, timeStr, statusEmoji, stat
 
         <!-- Nom client : flex:1 pour pousser le reste à droite -->
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.98rem;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(order.client_prenom) || 'Client'}</div>
+          <div style="display:flex;align-items:center;gap:6px;min-width:0;">
+            <span style="font-size:0.98rem;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(order.client_prenom) || 'Client'}</span>
+            ${getClientOrderBadge(order)}
+          </div>
           <div style="font-size:0.73rem;color:#888;margin-top:1px;">${escapeHtml(order.client_telephone) || ''}</div>
           ${!isHistory ? `<div id="timer-${order.id}" style="font-size:0.68rem;color:#aaa;margin-top:2px;font-style:italic;">${getElapsedTime(order)}</div>` : ''}
           ${!isHistory && order.reminder_sent_at ? (() => {
@@ -4459,8 +4503,9 @@ async function showCompletedOrderDetails(orderId) {
         <div style="margin-bottom:24px;">
           <div style="font-size:0.85rem;color:#888;margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">👤 Client</div>
           <div style="background:#fafafa;padding:16px;border-radius:8px;">
-            <div style="margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
               <span style="font-weight:600;color:#1a1a1a;">${escapeHtml(order.client_prenom || 'Client')}</span>
+              ${getClientOrderBadge(order, 'lg')}
             </div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
               <span style="font-size:0.85rem;color:#666;">📧</span>
@@ -4864,6 +4909,7 @@ function renderCompletedOrderLine(order) {
           <span style="color:#9ca3af;font-size:0.85rem;font-weight:600;">${timeStr}</span>
           <span style="font-family:'Courier New',monospace;font-weight:700;font-size:0.95rem;color:#1f2937;">${escapeHtml(order.numero || 'N/A')}</span>
           <span style="color:#6b7280;font-size:0.9rem;">${prenom}</span>
+          ${getClientOrderBadge(order)}
         </div>
         <span style="font-weight:700;font-size:1.05rem;color:#1f2937;">${total} €</span>
       </div>
