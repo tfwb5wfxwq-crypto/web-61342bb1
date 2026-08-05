@@ -3,10 +3,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Le message part en parse_mode Markdown : un prénom contenant _ * [ ou ` ferait
-// échouer TOUTE la notification (400 "can't parse entities"). On neutralise.
-function safeMd(txt: string): string {
-  return txt.replace(/[_*`\[\]]/g, ' ').trim()
+// Le message part en parse_mode Markdown (legacy). Doc Telegram : les caractères _ * ` [
+// doivent être précédés d'un backslash hors entité. Un seul non apparié dans une note
+// client ou un nom de plat suffit à faire rejeter le message entier en 400 "can't parse
+// entities" → Paco n'est PAS notifié, sans retry ni alerte. Vérifié contre l'API réelle.
+// On échappe plutôt que de supprimer : une note d'allergie ne doit rien perdre.
+// Le backslash lui-même est dans la classe, sinon il échapperait le caractère suivant.
+function safeMd(txt: unknown): string {
+  return String(txt ?? '').replace(/([\\_*`\[])/g, '\\$1')
 }
 
 // Récupère le prénom du client + son nombre total de commandes (fidélité).
@@ -76,21 +80,21 @@ serve(async (req) => {
     const itemsList = items && items.length > 0
       ? items.map((item: any) => {
           const qty = item.quantite || item.qty || 1
-          let line = `• ${qty}x ${item.nom}`
+          let line = `• ${qty}x ${safeMd(item.nom)}`
           if (item.isFormule && item.components && item.components.length > 0) {
-            line += `\n  ↳ ${item.components.join(' · ')}`
+            line += `\n  ↳ ${item.components.map((c: any) => safeMd(c)).join(' · ')}`
           }
           return line
         }).join('\n')
       : 'Aucun détail'
 
-    // Note client (si présente)
-    const noteSection = note ? `\n\n⚠️ *Note client* : ${note}` : ''
+    // Note client (si présente) — texte libre saisi par le client, donc échappé
+    const noteSection = note ? `\n\n⚠️ *Note client* : ${safeMd(note)}` : ''
 
     // Client + fidélité (ligne omise si le lookup n'a rien donné)
     const { prenom, count } = await getClientInfo(orderNumber)
     let clientSection = ''
-    const prenomSafe = prenom ? safeMd(prenom) : ''
+    const prenomSafe = prenom ? safeMd(prenom.trim()) : ''
     if (prenomSafe) {
       const rang = count && count >= 1
         ? (count === 1 ? ' (1re commande)' : ` (${count}e commande)`)
