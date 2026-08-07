@@ -186,7 +186,7 @@ serve(async (req) => {
                     <div style="font-size:20px;margin-bottom:6px;">⭐⭐⭐⭐⭐</div>
                     <div style="font-size:14px;font-weight:700;color:#1565C0;margin-bottom:4px;">${tr.yourReviewMatters}</div>
                     <div style="font-size:12px;color:#1976D2;margin-bottom:14px;line-height:1.4;">${tr.rateUs}</div>
-                    <a href="https://maps.app.goo.gl/mKChLAAquBDL2C5c6" target="_blank" style="display:inline-block;background:#1976D2;color:#fff;text-decoration:none;padding:10px 22px;border-radius:7px;font-weight:600;font-size:13px;">
+                    <a href="https://g.page/r/CVVy4iE1igTkEBE/review" target="_blank" style="display:inline-block;background:#1976D2;color:#fff;text-decoration:none;padding:10px 22px;border-radius:7px;font-weight:600;font-size:13px;">
                       ${tr.leaveReview}
                     </a>
                   </td>

@@ -96,7 +96,7 @@ serve(async (req) => {
 
     // Liens externes (utiliser le token sécurisé)
     const invoicePdfUrl = `https://beyrouth.express/facture?token=${order.invoice_token}`
-    const googleReviewUrl = 'https://maps.app.goo.gl/mKChLAAquBDL2C5c6'
+    const googleReviewUrl = 'https://g.page/r/CVVy4iE1igTkEBE/review'
     const instagramUrl = 'https://www.instagram.com/a_beyrouth/'
 
     // Template email (Gmail-compatible - pas de SVG, pas de gradients, pas de flexbox)

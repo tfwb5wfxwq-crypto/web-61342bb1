@@ -41,7 +41,10 @@ export const emailI18n = {
 
     // Google review (footer)
     yourReviewMatters: 'Votre avis compte !',
-    rateUs: 'Mettez-nous 5 étoiles sur Google 🙏',
+    // Les 5 etoiles restent en visuel juste au-dessus. On ne demande PAS de note
+    // chiffree : Google interdit d'orienter la notation et supprime les avis obtenus
+    // ainsi, voire sanctionne la fiche.
+    rateUs: 'Votre retour nous aide énormément 🙏',
     leaveReview: '🌟 Laisser un avis',
 
     // Email subjects
@@ -87,7 +90,7 @@ export const emailI18n = {
 
     // Google review (footer)
     yourReviewMatters: 'Your opinion matters!',
-    rateUs: 'Give us 5 stars on Google 🙏',
+    rateUs: 'Your feedback helps us enormously 🙏',
     leaveReview: '🌟 Leave a review',
 
     // Email subjects
