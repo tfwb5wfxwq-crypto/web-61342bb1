@@ -3126,6 +3126,28 @@ function updateTimingBar() {
   const dot = document.getElementById('timingDot');
   const text = document.getElementById('timingText');
 
+  // Fermeture temporaire declaree depuis la tablette : aucun creneau n'a de sens.
+  // Sans ce garde, getAsapTime() renvoyait bêtement "heure courante + 5 min", d'ou
+  // des libelles absurdes du type "Aujourd'hui 1h00" en pleine nuit. On grise le
+  // selecteur au lieu d'inventer une heure. La logique de commande n'est pas
+  // touchee : addToCart() bloquait deja, et continue de bloquer.
+  if (window.indefinitePause === true) {
+    const label = document.getElementById('timingPickLabel');
+    const btn = label ? label.closest('button') : null;
+    if (dot) dot.classList.add('closed');
+    if (text) text.innerHTML = 'Fermé <small>· Réouverture prochaine</small>';
+    if (label) label.textContent = 'Indisponible';
+    if (btn) { btn.disabled = true; btn.style.opacity = '.45'; btn.style.cursor = 'default'; }
+    selectedPickup = '';
+    const pt = document.getElementById('pickupTime');
+    if (pt) pt.value = '';
+    return;
+  }
+  // Retour a la normale quand le restaurant rouvre : on rend le bouton actif.
+  const lbl0 = document.getElementById('timingPickLabel');
+  const btn0 = lbl0 ? lbl0.closest('button') : null;
+  if (btn0 && btn0.disabled) { btn0.disabled = false; btn0.style.opacity = ''; btn0.style.cursor = ''; }
+
   if (open) {
     if (dot) dot.classList.remove('closed');
     const now = new Date();
