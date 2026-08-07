@@ -1024,6 +1024,11 @@ function subscribeRealtime() {
       // Mettre à jour l'UI immédiatement
       updateOpenStatus();
       generateTimeSlots();
+      // Indispensable dans les DEUX sens : c'est updateTimingBar() qui grise le
+      // selecteur pendant la pause et qui le REACTIVE au retour. Sans cet appel,
+      // un client ayant la page ouverte garderait un bouton grise apres la
+      // reouverture, jusqu'a rechargement de la page.
+      updateTimingBar();
     })
     .subscribe((status) => {
       console.log('📡 Realtime indefinite pause status:', status);
