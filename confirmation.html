@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
+
+<!-- Google Analytics 4 — c'est ICI que se mesure la conversion (voir trackPurchase()
+     en bas de page). Script async : sans lui la page fonctionne a l'identique. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-X4CLSYXFN5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-X4CLSYXFN5');
+</script>
+
 <title data-i18n="confirmation.title">Commande confirmée | Beyrouth Express</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -416,8 +427,44 @@ function isPickupTimePassed(pickupTime) {
 }
 
 // Mettre à jour l'affichage selon le statut
+// --- Mesure de conversion Google Analytics ---------------------------------
+// Seuls ces statuts valent une vente. "pending" = paiement pas encore confirme,
+// annulee/remboursee = pas de vente. Compter "pending" ferait croire a Google
+// Ads que des paniers abandonnes sont des commandes.
+const GA4_STATUTS_PAYES = ['payee', 'acceptee', 'en_preparation', 'prete', 'recuperee'];
+
+// Appelee a chaque rafraichissement (chargement, polling 5 s, verification 30 s) :
+// le verrou localStorage garantit qu'une commande n'est comptee QU'UNE SEULE fois,
+// meme si le client recharge la page ou revient voir ou en est sa commande.
+// Tout est sous try/catch : cette mesure ne doit JAMAIS empecher l'affichage.
+function trackPurchase(order) {
+  try {
+    if (!order || typeof gtag !== 'function') return;
+    if (!GA4_STATUTS_PAYES.includes(order.statut)) return;
+    if (!order.numero || typeof order.total !== 'number') return;
+
+    const cle = 'ga4_purchase_' + order.numero;
+    if (localStorage.getItem(cle)) return;
+    localStorage.setItem(cle, '1');
+
+    gtag('event', 'purchase', {
+      transaction_id: order.numero,
+      value: order.total,
+      currency: 'EUR',
+      items: (order.items || []).map(it => ({
+        item_name: it.nom,
+        price: it.prix,
+        quantity: it.qty
+      }))
+    });
+  } catch (e) {
+    console.warn('GA4 purchase non envoye:', e);
+  }
+}
+
 function updateDisplay(order) {
   orderData = order;
+  trackPurchase(order);
 
   const icon = document.getElementById('statusIcon');
   const title = document.getElementById('statusTitle');
