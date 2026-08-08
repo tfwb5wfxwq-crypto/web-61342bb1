@@ -24,6 +24,21 @@
       console.warn('GA4 ' + nom + ' non envoye:', e);
     }
   }
+
+  // Clic sur le numero de telephone : pour un restaurant, un appel EST une
+  // commande potentielle. GA4 ne compte pas les liens "tel:" dans ses clics
+  // sortants (il ne suit que le http/https), sans ceci les appels venus d'une
+  // pub seraient invisibles. Delegation sur document : couvre aussi les liens
+  // tel: qu'on ajouterait plus tard, sans y retoucher.
+  document.addEventListener('click', function (e) {
+    try {
+      var cible = e.target;
+      if (!cible || typeof cible.closest !== 'function') return;
+      if (cible.closest('a[href^="tel:"]')) ga4('contact', { method: 'telephone' });
+    } catch (err) {
+      console.warn('GA4 contact non envoye:', err);
+    }
+  }, true);
 </script>
 
 <!-- SEO de base -->

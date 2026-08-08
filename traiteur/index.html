@@ -13,6 +13,16 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-X4CLSYXFN5');
+
+  // Meme helper blinde que sur le site principal : une erreur de mesure ne doit
+  // jamais empecher l'envoi d'une demande de devis.
+  function ga4(nom, params) {
+    try {
+      if (typeof gtag === 'function') gtag('event', nom, params || {});
+    } catch (e) {
+      console.warn('GA4 ' + nom + ' non envoye:', e);
+    }
+  }
 </script>
 
 <title>Traiteur Libanais La Défense | Beyrouth Express</title>
@@ -618,6 +628,16 @@ document.getElementById('traiteurForm').addEventListener('submit', async (e) => 
     }
 
     // Succès
+    // Mesure : une demande de devis traiteur est un prospect a forte valeur.
+    // Placee APRES le response.ok, donc jamais comptee si l'envoi a echoue.
+    // Volontairement sans "value" : le budget saisi est une intention du
+    // prospect, pas une vente ; l'inclure gonflerait le retour sur investissement.
+    ga4('generate_lead', {
+      currency: 'EUR',
+      type_evenement: data.type || undefined,
+      nombre_personnes: parseInt(data.personnes) || undefined
+    });
+
     showToast('Demande envoyée ! Vous recevrez un email de confirmation. Réponse sous 48h.', 'success');
     e.target.reset();
     btn.textContent = 'Demande envoyée ✓';
