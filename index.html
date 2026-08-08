@@ -13,6 +13,17 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-X4CLSYXFN5');
+
+  // Envoi d'un evenement de mesure. Volontairement blinde : une erreur de
+  // mesure ne doit JAMAIS casser le panier ni le paiement. En cas de pepin
+  // on log dans la console et la commande continue normalement.
+  function ga4(nom, params) {
+    try {
+      if (typeof gtag === 'function') gtag('event', nom, params || {});
+    } catch (e) {
+      console.warn('GA4 ' + nom + ' non envoye:', e);
+    }
+  }
 </script>
 
 <!-- SEO de base -->
@@ -1257,6 +1268,21 @@ function addToCart(itemId) {
   }
   haptic.trigger('success'); // Vibration ajout panier
   saveCart(); updateCartUI(); updateItemQuantity(itemId);
+
+  // Mesure : quel plat est mis au panier. Compare a l'evenement purchase, cela
+  // dit quel plat attire mais ne se vend pas (photo, prix, description a revoir).
+  ga4('add_to_cart', {
+    currency: 'EUR',
+    value: item.prix,
+    items: [{
+      item_id: String(item.id),
+      item_name: item.nom,
+      item_category: categories.find(c => c.id === item.categorie_id)?.nom || undefined,
+      price: item.prix,
+      quantity: 1
+    }]
+  });
+
   if (isNew) showUpsellBubble(itemId);
 }
 
@@ -1420,6 +1446,22 @@ function addFormuleToCart() {
   saveCart();
   updateCartUI();
   renderMenu();
+
+  // Meme mesure que addToCart : les formules sont une part importante des
+  // ventes, les oublier fausserait tout le classement des plats.
+  // ATTENTION : a placer AVANT closeFormuleModal(), qui remet currentFormule a null.
+  ga4('add_to_cart', {
+    currency: 'EUR',
+    value: currentFormule.prix,
+    items: [{
+      item_id: String(currentFormule.id),
+      item_name: currentFormule.nom,
+      item_category: 'Formule',
+      price: currentFormule.prix,
+      quantity: 1
+    }]
+  });
+
   closeFormuleModal();
   showToast('Formule ajoutée au panier !', 'success');
 }
@@ -2001,6 +2043,20 @@ function setPaymentFlag(value) {
 
 function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, name, phone, pickup) {
   currentPaymentData = { paymentOrderId, objectSecret, orderNum, total, email, name, phone, pickup };
+
+  // Mesure : le client arrive sur l'ecran de paiement. C'est la derniere marche
+  // avant purchase ; l'ecart entre les deux mesure l'abandon AU PAIEMENT, a ne
+  // pas confondre avec l'abandon de panier (add_to_cart -> begin_checkout).
+  ga4('begin_checkout', {
+    currency: 'EUR',
+    value: total,
+    items: cart.map(c => ({
+      item_id: String(c.id),
+      item_name: c.nom,
+      price: c.prix,
+      quantity: c.qty
+    }))
+  });
 
   // Fermer le panier et afficher la section paiement
   toggleCart();
