@@ -8,9 +8,9 @@ const translations = {
   fr: {
     // SEO & Meta
     meta: {
-      title: "A Beyrouth — Restaurant Libanais La Défense | Click & Collect",
+      title: "Restaurant Libanais La Défense - A Beyrouth | Click & Collect",
       description: "Restaurant libanais A Beyrouth à La Défense Courbevoie. Commandez en ligne : shawarma, mezze, grillades, falafel. Retrait express 15 min. Cartes restaurant acceptées (Swile, Ticket Restaurant, Conecs).",
-      ogTitle: "A Beyrouth — Restaurant Libanais La Défense",
+      ogTitle: "A Beyrouth · Restaurant Libanais La Défense",
       ogDescription: "Cuisine libanaise authentique à La Défense. Commandez en ligne, retirez en 15 min. Cartes restaurant acceptées.",
       cuisine: "Libanaise",
       paymentMethods: "Carte bancaire, Swile, Ticket Restaurant, Restoflash, Conecs"
@@ -76,7 +76,7 @@ const translations = {
 
     // Confirmation Page
     confirmation: {
-      title: "Commande confirmée — Beyrouth Express",
+      title: "Commande confirmée | Beyrouth Express",
       paymentValidated: "Paiement validé !",
       orderRegistered: "Votre commande a été enregistrée",
       pickupTime: "Retrait prévu",
@@ -99,7 +99,6 @@ const translations = {
     // Admin
     admin: {
       login: "Entrez le code admin pour accéder",
-      completed: "Terminées",
       completedOrders: "Commandes terminées",
       noCompleted: "Aucune commande terminée",
       toggleDishes: "Activez/désactivez des plats individuellement. Les changements sont visibles instantanément chez les clients.",
@@ -120,7 +119,6 @@ const translations = {
     // Emails
     email: {
       orderConfirmed: "Commande confirmée",
-      preparing: "On prépare votre commande",
       number: "Numéro",
       seeyouSoon: "À bientôt !",
       paymentConfirmed: "Paiement confirmé",
@@ -152,7 +150,7 @@ const translations = {
       viewRoute: "📍 Voir l'itinéraire",
       preparingCare: "🍽️ On prépare votre commande avec soin",
       questions: "Des questions ? contact@beyrouth.express",
-      beyrouthDesc: "A Beyrouth — Cuisine libanaise authentique"
+      beyrouthDesc: "A Beyrouth · Cuisine libanaise authentique"
     },
 
     // Catering
@@ -161,7 +159,7 @@ const translations = {
       customBuffets: "Buffets personnalisés pour événements pro et privés",
       delivery: "Livraison et installation possible (La Défense & environs)",
       vegOptions: "Options végétariennes et vegan",
-      pricing: "À partir de 18€/pers — Minimum 10 personnes",
+      pricing: "À partir de 18€/pers · Minimum 10 personnes",
       formIntro: "Remplissez ce formulaire et nous vous répondrons sous 48h avec un devis personnalisé",
       professional: "Événement professionnel",
       private: "Célébration privée",
@@ -175,14 +173,14 @@ const translations = {
       name: "Votre nom",
       firstName: "Prénom",
       lastName: "Nom",
-      email: "Votre email",
+      email: "Email",
       phone: "Téléphone",
       company: "Nom de la société",
       eventType: "Type d'événement",
       guests: "Nombre de personnes",
-      date: "Date souhaitée",
+      date: "Date de l'événement",
       message: "Votre message",
-      submit: "Envoyer",
+      submit: "Envoyer ma demande",
       generateInvoice: "Générer ma facture",
       enterOrderNumber: "Entrez votre numéro de commande"
     },
@@ -208,9 +206,9 @@ const translations = {
   en: {
     // SEO & Meta
     meta: {
-      title: "A Beyrouth — Lebanese Restaurant La Défense | Click & Collect",
+      title: "Lebanese Restaurant La Défense - A Beyrouth | Click & Collect",
       description: "A Beyrouth Lebanese restaurant in La Défense Courbevoie. Order online: shawarma, mezze, grills, falafel. Express pickup 15 min. Restaurant vouchers accepted (Swile, Ticket Restaurant, Conecs).",
-      ogTitle: "A Beyrouth — Lebanese Restaurant La Défense",
+      ogTitle: "A Beyrouth · Lebanese Restaurant La Défense",
       ogDescription: "Authentic Lebanese cuisine in La Défense. Order online, pick up in 15 min. Restaurant vouchers accepted.",
       cuisine: "Lebanese",
       paymentMethods: "Credit card, Swile, Ticket Restaurant, Restoflash, Conecs"
@@ -276,7 +274,7 @@ const translations = {
 
     // Confirmation Page
     confirmation: {
-      title: "Order Confirmed — Beyrouth Express",
+      title: "Order Confirmed | Beyrouth Express",
       paymentValidated: "Payment validated!",
       orderRegistered: "Your order has been registered",
       pickupTime: "Scheduled pickup",
@@ -299,7 +297,6 @@ const translations = {
     // Admin
     admin: {
       login: "Enter admin code to access",
-      completed: "Completed",
       completedOrders: "Completed orders",
       noCompleted: "No completed orders",
       toggleDishes: "Enable/disable dishes individually. Changes are visible instantly to customers.",
@@ -320,7 +317,6 @@ const translations = {
     // Emails
     email: {
       orderConfirmed: "Order confirmed",
-      preparing: "We're preparing your order",
       number: "Number",
       seeyouSoon: "See you soon!",
       paymentConfirmed: "Payment confirmed",
@@ -352,7 +348,7 @@ const translations = {
       viewRoute: "📍 View route",
       preparingCare: "🍽️ We're preparing your order with care",
       questions: "Questions? contact@beyrouth.express",
-      beyrouthDesc: "A Beyrouth — Authentic Lebanese cuisine"
+      beyrouthDesc: "A Beyrouth · Authentic Lebanese cuisine"
     },
 
     // Catering
@@ -361,7 +357,7 @@ const translations = {
       customBuffets: "Custom buffets for professional and private events",
       delivery: "Delivery and setup available (La Défense & surroundings)",
       vegOptions: "Vegetarian and vegan options",
-      pricing: "From €18/person — Minimum 10 people",
+      pricing: "From €18/person · Minimum 10 people",
       formIntro: "Fill out this form and we'll get back to you within 48h with a personalized quote",
       professional: "Professional event",
       private: "Private celebration",
@@ -375,14 +371,14 @@ const translations = {
       name: "Your name",
       firstName: "First name",
       lastName: "Last name",
-      email: "Your email",
+      email: "Email",
       phone: "Phone",
       company: "Company name",
       eventType: "Event type",
       guests: "Number of guests",
-      date: "Desired date",
+      date: "Event date",
       message: "Your message",
-      submit: "Submit",
+      submit: "Send my request",
       generateInvoice: "Generate invoice",
       enterOrderNumber: "Enter your order number"
     },
@@ -429,8 +425,10 @@ function initLanguage() {
     currentLang = savedLang;
   } else {
     // 2. Détection automatique navigateur
+    // 11/08/2026 : on n ECRIT PLUS la langue detectee. Avant, un premier passage
+    // avec un navigateur anglais figeait l anglais POUR TOUJOURS, comme si l on
+    // avait clique. Seul un choix explicite (setLanguage) doit etre memorise.
     currentLang = detectBrowserLanguage();
-    localStorage.setItem('beyrouth_lang', currentLang);
   }
 
   return currentLang;
@@ -510,9 +508,24 @@ function applyTranslations() {
   document.documentElement.lang = currentLang;
 
   // Mettre à jour les meta tags
-  document.title = t('meta.title');
-  const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) metaDesc.content = t('meta.description');
+  // 11/08/2026 : NE PLUS ecraser le titre ni la meta description par defaut.
+  // Ces 3 lignes s appliquaient a TOUTE page chargeant ce fichier, sans balise :
+  //   · l accueil « Restaurant Libanais La Defense - A Beyrouth | Click & Collect »
+  //     devenait « A Beyrouth · Restaurant Libanais La Defense | ... » ;
+  //   · la page TRAITEUR perdait son propre titre « Traiteur Libanais La Defense »
+  //     au profit de celui de l accueil : perte seche de referencement sur la
+  //     requete « traiteur libanais la defense ».
+  // Desormais il faut que la page le demande, en declarant sa PROPRE cle :
+  //   <html lang="fr" data-i18n-title="meta.title" data-i18n-desc="meta.description">
+  // Aucune page ne le fait aujourd hui -> title et meta restent intacts.
+  const racine = document.documentElement;
+  const cleTitre = racine && racine.getAttribute && racine.getAttribute('data-i18n-title');
+  if (cleTitre) document.title = t(cleTitre);
+  const cleDesc = racine && racine.getAttribute && racine.getAttribute('data-i18n-desc');
+  if (cleDesc) {
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.content = t(cleDesc);
+  }
 }
 
 // Export pour utilisation dans les autres scripts
