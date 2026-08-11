@@ -178,6 +178,24 @@ a{color:inherit;text-decoration:none}
 .brand-logo-text{display:block!important;line-height:1.05}
 .brand-dot{display:inline-block;color:var(--gold);font-size:1.2em;line-height:1;vertical-align:baseline;margin-right:2px;font-style:normal}
 .header-right{display:flex;align-items:center;gap:14px}
+/* ===== SELECTEUR DE LANGUE (etape 7, 11/08/2026) ===== */
+.lang-switch{display:inline-flex;align-items:center;gap:2px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:3px;flex:0 0 auto}
+.lang-switch button{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:0;
+  border-radius:16px;background:transparent;color:rgba(255,255,255,.55);font:inherit;
+  font-size:.66rem;font-weight:600;letter-spacing:.03em;cursor:pointer;line-height:1;
+  transition:background .2s ease,color .2s ease}
+.lang-switch button:hover{color:#fff;background:rgba(255,255,255,.09)}
+.lang-switch button[aria-current="true"]{background:#fff;color:#1a1a1a}
+.lang-switch .dr{font-size:12px;line-height:1}
+.lang-switch button:focus-visible{outline:2px solid var(--gold,#D4AF37);outline-offset:2px}
+/* Mesure sur le site : a 390 px la zone droite occupe deja 358 px sur 390.
+   Sans ce retour a la ligne, l ajout du selecteur faisait deborder la page de
+   63 px. Le wrap corrige AUSSI un defaut anterieur : a 360 px le site debordait
+   deja de 11 px, et de 51 px a 320 px, a cause de cette meme zone saturee. */
+@media(max-width:640px){
+  .header-right{flex-wrap:wrap;justify-content:flex-end;row-gap:7px}
+}
 .header-mode-active{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg, var(--gold) 0%, #B8956A 100%);color:#1a1a1a;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);font-size:.7rem;font-weight:700;letter-spacing:0.2px;text-decoration:none;box-shadow:0 3px 15px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.2);white-space:nowrap}
 .header-mode-link{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:rgba(255,255,255,0.7);padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);font-size:.7rem;font-weight:600;letter-spacing:0.2px;text-decoration:none;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .header-mode-link:hover{border-color:rgba(212,175,55,0.4);background:rgba(255,255,255,0.12);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
@@ -465,7 +483,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260811f"></script>
+<script src="i18n.js?v=20260811g"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -524,7 +542,7 @@ window.T = function (cle, secours) {
           <circle cx="12" cy="12" r="10"/>
           <path d="M12 6v6l4 2"/>
         </svg>
-        Click & Collect
+        <span data-i18n="nav.orderNow">Click &amp; Collect</span>
       </span>
       <a class="header-mode-link" href="traiteur/">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -533,6 +551,10 @@ window.T = function (cle, secours) {
         </svg>
         Traiteur
       </a>
+      <div class="lang-switch" role="group" aria-label="Langue / Language">
+        <button type="button" onclick="choisirLangue('fr')" data-lang-btn="fr" aria-current="true" aria-label="Français"><span class="dr">🇫🇷</span>FR</button>
+        <button type="button" onclick="choisirLangue('en')" data-lang-btn="en" aria-label="English"><span class="dr">🇬🇧</span>EN</button>
+      </div>
       <div class="header-status" id="headerStatus">
         <span class="dot"></span>
         <span id="statusText">Ouvert</span>
@@ -547,7 +569,7 @@ window.T = function (cle, secours) {
   <div class="info-inner">
     <a class="info-address" href="#" onclick="openLocModal(event)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      La Défense · Sortie 4 Métro
+      <span data-i18n="confirmation.metroShort">La Défense · Sortie 4 Métro</span>
     </a>
     <button class="info-time" onclick="openTimePicker()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -565,7 +587,7 @@ window.T = function (cle, secours) {
 <div class="timepicker-overlay" id="tpOverlay" onclick="closeTimePicker()"></div>
 <div class="timepicker-sheet" id="tpSheet">
   <div class="timepicker-handle"></div>
-  <div class="timepicker-title">Heure de retrait</div>
+  <div class="timepicker-title" data-i18n="cart.pickupTime">Heure de retrait</div>
   <button class="timepicker-asap" id="tpAsap" onclick="selectTime('asap')">
     <span data-i18n="timepicker.asap">Dès que possible</span>
     <span class="timepicker-asap-sub" data-i18n="timepicker.prep15min">~15 min de préparation</span>
@@ -579,10 +601,10 @@ window.T = function (cle, secours) {
 <div class="timepicker-overlay" id="formuleOverlay" onclick="closeFormuleModal()"></div>
 <div class="timepicker-sheet" id="formuleSheet">
   <div class="timepicker-handle"></div>
-  <div class="timepicker-title" id="formuleTitle">Personnalisez votre formule</div>
+  <div class="timepicker-title" id="formuleTitle" data-i18n="menu.customize">Personnalisez votre formule</div>
   <div id="formuleComponents" style="padding:10px 0"></div>
   <button class="cart-checkout-btn" id="formuleAddBtn" onclick="addFormuleToCart()" disabled>
-    Ajouter au panier
+    <span data-i18n="cart.addToCart">Ajouter au panier</span>
   </button>
 </div>
 
@@ -594,7 +616,7 @@ window.T = function (cle, secours) {
 <!-- MENU LOADER -->
 <div id="menuLoader" class="menu-loader">
   <div class="spinner"></div>
-  <p>Chargement du menu...</p>
+  <p data-i18n="menu.loading">Chargement du menu...</p>
 </div>
 
 <!-- MENU -->
@@ -659,7 +681,7 @@ window.T = function (cle, secours) {
         </label>
       </div>
       <button class="cart-checkout-btn" id="cartSubmit" onclick="submitOrder()">
-        Passer la commande
+        <span data-i18n="cart.placeOrder">Passer la commande</span>
       </button>
       <p class="cart-pay-info" data-i18n="cart.securePayment">Paiement en ligne sécurisé (CB, carte restaurant)</p>
     </div>
@@ -922,15 +944,21 @@ function getNextOpenSlot() {
   const nowMin = h * 60 + m;
   const today = BUSINESS_HOURS.find(s => s[0] === day);
   if (today && nowMin < today[1] * 60 + today[2]) {
-    return {jour: JOURS[day], h: today[1], m: today[2]};
+    return {jour: nomJour(day), h: today[1], m: today[2]};
   }
   for (let i = 1; i <= 7; i++) {
     const d = (day + i) % 7;
     const slot = BUSINESS_HOURS.find(s => s[0] === d);
-    if (slot) return {jour: JOURS[d], h: slot[1], m: slot[2]};
+    if (slot) return {jour: nomJour(d), h: slot[1], m: slot[2]};
   }
   return null;
 }
+
+// Jours et heures traduits, sur le meme principe que la page traiteur : le code
+// raisonne en INDEX (getDay()), jamais en texte, donc rien ne peut casser.
+const JOURS_CLES = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+function nomJour(d) { return T('days.' + JOURS_CLES[d], JOURS[d]); }
+function hhmm(h, m) { return h + T('timepicker.hourSep', 'h') + (m ? String(m).padStart(2,'0') : '00'); }
 
 function updateOpenStatus() {
   const statusEl = document.getElementById('headerStatus');
@@ -945,23 +973,23 @@ function updateOpenStatus() {
   // ⚠️ PAUSE INDÉFINIE - Bloquer complètement le site
   if (window.indefinitePause === true) {
     statusEl.classList.add('closed');
-    textEl.textContent = 'Fermé';
-    hoursEl.textContent = '· Fermeture temporaire';
+    textEl.textContent = T('timepicker.closed', 'Fermé');
+    hoursEl.textContent = '· ' + T('timepicker.tempClosure', 'Fermeture temporaire');
     return false;
   }
 
   const open = isOpenNow();
   if (open) {
     statusEl.classList.remove('closed');
-    textEl.textContent = 'Ouvert';
+    textEl.textContent = T('timepicker.open', 'Ouvert');
     const now = new Date();
     const slot = BUSINESS_HOURS.find(s => s[0] === now.getDay());
-    hoursEl.textContent = `· jusqu'à ${slot[3]}h${slot[4] ? String(slot[4]).padStart(2,'0') : '00'}`;
+    hoursEl.textContent = `· ${T('timepicker.until', "jusqu'à")} ${hhmm(slot[3], slot[4])}`;
   } else {
     statusEl.classList.add('closed');
-    textEl.textContent = 'Fermé';
+    textEl.textContent = T('timepicker.closed', 'Fermé');
     const next = getNextOpenSlot();
-    hoursEl.textContent = next ? `· ${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}` : '';
+    hoursEl.textContent = next ? `· ${next.jour} ${hhmm(next.h, next.m)}` : '';
   }
 
   // Mettre à jour la disponibilité des cartes resto (appelé toutes les minutes)
@@ -1552,6 +1580,41 @@ function descPlat(item) {
   return ((estAnglais() && item.description_en) ? item.description_en : item.description) || '';
 }
 
+// ===== BASCULE DE LANGUE (etape 7, 11/08/2026) =====
+// Le dictionnaire ne retraduit tout seul que les elements porteurs de
+// data-i18n. Tout ce qui est FABRIQUE par le JS (le menu, le panier, le
+// statut d ouverture) doit etre redessine, sinon on obtiendrait une page a
+// moitie traduite. C est fait ici, une fois pour toutes.
+function rafraichirApresLangue() {
+  try { if (typeof renderMenu === 'function') renderMenu(); } catch (e) {}
+  try { if (typeof updateCartUI === 'function') updateCartUI(); } catch (e) {}
+  try { if (typeof updateOpenStatus === 'function') updateOpenStatus(); } catch (e) {}
+  try { if (typeof renderCategories === 'function') renderCategories(); } catch (e) {}
+  try { if (typeof generateTimeSlots === 'function') generateTimeSlots(); } catch (e) {}
+  // etat visuel des deux boutons
+  try {
+    var courante = (window.i18n && window.i18n.get) ? window.i18n.get() : 'fr';
+    document.querySelectorAll('[data-lang-btn]').forEach(function (b) {
+      if (b.getAttribute('data-lang-btn') === courante) b.setAttribute('aria-current', 'true');
+      else b.removeAttribute('aria-current');
+    });
+  } catch (e) {}
+}
+
+function choisirLangue(code) {
+  try {
+    if (window.i18n && window.i18n.set) window.i18n.set(code);   // memorise + applique les data-i18n
+  } catch (e) {}
+  rafraichirApresLangue();
+}
+
+// i18n emet languageChanged : on s y branche aussi, au cas ou la langue serait
+// changee ailleurs que par les deux boutons.
+window.addEventListener('languageChanged', rafraichirApresLangue);
+// Au chargement : la langue vient du navigateur ou du choix memorise, il faut
+// donc mettre les boutons dans le bon etat et redessiner si ce n est pas le FR.
+document.addEventListener('DOMContentLoaded', function () { setTimeout(rafraichirApresLangue, 0); });
+
 function updateCartUI() {
   // 🔒 FIX #79: Arrondir à chaque étape pour éviter floating point errors (0.1 + 0.2 = 0.30000000004)
   const total = cart.reduce((s, c) => Math.round((s + c.prix * c.qty) * 100) / 100, 0);
@@ -1695,7 +1758,7 @@ function renderSuggestions() {
   const titleEl = suggestEl.querySelector('.cart-suggest-title');
   if (!cartCatIds.has(7)) titleEl.textContent = T('cart.drinkWithThat', 'Une boisson avec ça ?');
   else if (!cartCatIds.has(6)) titleEl.textContent = 'Un dessert pour finir ?';
-  else titleEl.textContent = 'Vous aimerez aussi';
+  else titleEl.textContent = T('confirmation.youMayLike', 'Vous aimerez aussi');
   suggestEl.style.display = '';
   listEl.innerHTML = suggestions.map(s => {
     const visual = s.image_url
@@ -2022,7 +2085,7 @@ async function submitOrder() {
 
     // Mettre à jour le texte du spinner (pas btn.textContent qui écrase le HTML)
     const btnSpan = btn.querySelector('span');
-    if (btnSpan) btnSpan.textContent = 'Ouverture du paiement...';
+    if (btnSpan) btnSpan.textContent = T('cart.openingPayment', 'Ouverture du paiement...');
 
     // Appeler l'Edge Function pour créer la session Paygreen
     const {data, error} = await sb.functions.invoke('create-payment', {
@@ -2095,7 +2158,7 @@ async function submitOrder() {
       : T('errors.beforePayment', "Votre commande n'a pas pu être enregistrée. Vous n'avez pas été débité. Réessayez dans un instant, ou appelez-nous au 01 47 74 88 12.");
     showToast(errorMsg, 'error');
     btn.disabled = false;
-    btn.textContent = 'Passer la commande';
+    btn.textContent = T('cart.placeOrder', 'Passer la commande');
     // 🔒 FIX #1: Reset flag pour permettre retry
     setPaymentFlag(false);
     if (sb) await sb.from('orders').delete().eq('numero', orderNum);
@@ -2646,7 +2709,7 @@ function initPayGreen(method) {
 
     // Réactiver bouton commande
     document.getElementById('cartSubmit').disabled = false;
-    document.getElementById('cartSubmit').textContent = 'Passer la commande';
+    document.getElementById('cartSubmit').textContent = T('cart.placeOrder', 'Passer la commande');
 
   } catch (e) {
     console.error('Erreur init PayGreen:', e);
@@ -2736,7 +2799,7 @@ async function initEdenred() {
     const cartSubmit = document.getElementById('cartSubmit');
     if (cartSubmit) {
       cartSubmit.disabled = false;
-      cartSubmit.textContent = 'Passer la commande';
+      cartSubmit.textContent = T('cart.placeOrder', 'Passer la commande');
     }
   }
 }
@@ -3101,10 +3164,10 @@ async function showConfirmation(orderNum) {
           <p style="font-size:0.75rem;color:#E65100;margin:0 0 8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📍 Où récupérer</p>
           <p style="font-weight:600;color:var(--dark);margin:0 0 4px;">A Beyrouth</p>
           <p style="font-size:0.9rem;color:#666;margin:0 0 8px;">4 Esplanade du Général de Gaulle<br>92400 Courbevoie (La Défense)</p>
-          <p style="font-size:0.85rem;color:#888;margin:0 0 10px;">Sortie 4 du métro La Défense</p>
+          <p style="font-size:0.85rem;color:#888;margin:0 0 10px;" data-i18n="confirmation.metro">Sortie 4 du métro La Défense</p>
           <a href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#E65100;color:white;border-radius:8px;text-decoration:none;font-size:0.85rem;font-weight:600;transition:all 0.2s;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Ouvrir dans Google Maps
+            <span data-i18n="confirmation.openMaps">Ouvrir dans Google Maps</span>
           </a>
         </div>
 
@@ -3127,7 +3190,7 @@ async function showConfirmation(orderNum) {
   if (document.getElementById('cartSubmit')) {
     renderMenu();
     document.getElementById('cartSubmit').disabled = false;
-    document.getElementById('cartSubmit').textContent = 'Passer la commande';
+    document.getElementById('cartSubmit').textContent = T('cart.placeOrder', 'Passer la commande');
     ['clientNote'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     const optin = document.getElementById('optinPromos'); if (optin) optin.checked = true;
   }
@@ -3708,10 +3771,10 @@ window.addEventListener('beforeunload', () => {
     <div class="loc-body">
       <p class="loc-name">A Beyrouth</p>
       <p class="loc-addr">4 Esplanade du Général de Gaulle<br>92400 Courbevoie (La Défense)</p>
-      <p class="loc-note">Sortie 4 du métro La Défense</p>
+      <p class="loc-note" data-i18n="confirmation.metro">Sortie 4 du métro La Défense</p>
       <a class="loc-btn" href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" rel="noopener">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Ouvrir dans Google Maps
+        <span data-i18n="confirmation.openMaps">Ouvrir dans Google Maps</span>
       </a>
     </div>
   </div>

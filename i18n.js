@@ -63,6 +63,7 @@ const translations = {
       optin: "Me tenir informé des offres et promotions",
       securePayment: "Paiement en ligne sécurisé (CB, carte restaurant)",
       payNow: "Payer",
+      openingPayment: "Ouverture du paiement...",
       orderNow: "Commander maintenant",
       // Ajouts etape 6 (bloc panier). Les valeurs FR sont copiees a l identique
       // depuis index.html : aucun texte francais ne change a l ecran.
@@ -111,6 +112,10 @@ const translations = {
       whereToPickup: "Où récupérer",
       address: "4 Esplanade du Général de Gaulle<br>92400 Courbevoie (La Défense)",
       metro: "Sortie 4 du métro La Défense",
+      openMaps: "Ouvrir dans Google Maps",
+      seeCart: "Voir le panier",
+      metroShort: "La Défense · Sortie 4 Métro",
+      youMayLike: "Vous aimerez aussi",
       examining: "Le restaurant examine votre commande.<br>Vous recevrez un email dès validation.",
       emailSent: "Email envoyé",
       willNotify: "Vous serez notifié dès validation",
@@ -387,6 +392,7 @@ const translations = {
       optin: "Keep me informed of offers and promotions",
       securePayment: "Secure online payment (credit card, restaurant voucher)",
       payNow: "Pay Now",
+      openingPayment: "Opening payment...",
       orderNow: "Order Now",
       // Ajouts etape 6 (bloc panier)
       tempClosed: "Click & collect is temporarily closed.\nReopening soon.",
@@ -433,6 +439,10 @@ const translations = {
       whereToPickup: "Where to pick up",
       address: "4 Esplanade du Général de Gaulle<br>92400 Courbevoie (La Défense)",
       metro: "Metro Exit 4 La Défense",
+      openMaps: "Open in Google Maps",
+      seeCart: "View cart",
+      metroShort: "La Défense · Metro exit 4",
+      youMayLike: "You may also like",
       examining: "The restaurant is reviewing your order.<br>You will receive an email upon confirmation.",
       emailSent: "Email sent",
       willNotify: "You will be notified upon confirmation",

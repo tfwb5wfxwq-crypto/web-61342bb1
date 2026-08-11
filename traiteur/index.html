@@ -118,6 +118,24 @@ a{color:inherit;text-decoration:none}
 .brand-logo-text{display:block!important;line-height:1.05}
 .brand-dot{display:inline-block;color:var(--gold);font-size:1.2em;line-height:1;vertical-align:baseline;margin-right:2px;font-style:normal}
 .header-right{display:flex;align-items:center;gap:14px}
+/* ===== SELECTEUR DE LANGUE (etape 7, 11/08/2026) ===== */
+.lang-switch{display:inline-flex;align-items:center;gap:2px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:3px;flex:0 0 auto}
+.lang-switch button{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border:0;
+  border-radius:16px;background:transparent;color:rgba(255,255,255,.55);font:inherit;
+  font-size:.66rem;font-weight:600;letter-spacing:.03em;cursor:pointer;line-height:1;
+  transition:background .2s ease,color .2s ease}
+.lang-switch button:hover{color:#fff;background:rgba(255,255,255,.09)}
+.lang-switch button[aria-current="true"]{background:#fff;color:#1a1a1a}
+.lang-switch .dr{font-size:12px;line-height:1}
+.lang-switch button:focus-visible{outline:2px solid var(--gold,#D4AF37);outline-offset:2px}
+/* Mesure sur le site : a 390 px la zone droite occupe deja 358 px sur 390.
+   Sans ce retour a la ligne, l ajout du selecteur faisait deborder la page de
+   63 px. Le wrap corrige AUSSI un defaut anterieur : a 360 px le site debordait
+   deja de 11 px, et de 51 px a 320 px, a cause de cette meme zone saturee. */
+@media(max-width:640px){
+  .header-right{flex-wrap:wrap;justify-content:flex-end;row-gap:7px}
+}
 .header-mode-active{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg, var(--gold) 0%, #B8956A 100%);color:#1a1a1a;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);font-size:.7rem;font-weight:700;letter-spacing:0.2px;text-decoration:none;box-shadow:0 3px 15px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.2);white-space:nowrap}
 .header-mode-link{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:rgba(255,255,255,0.7);padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);font-size:.7rem;font-weight:600;letter-spacing:0.2px;text-decoration:none;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .header-mode-link:hover{border-color:rgba(212,175,55,0.4);background:rgba(255,255,255,0.12);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
@@ -312,7 +330,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="../i18n.js?v=20260811f"></script>
+<script src="../i18n.js?v=20260811g"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -381,6 +399,10 @@ window.T = function (cle, secours) {
         </svg>
         Traiteur
       </span>
+      <div class="lang-switch" role="group" aria-label="Langue / Language">
+        <button type="button" onclick="choisirLangue('fr')" data-lang-btn="fr" aria-current="true" aria-label="Français"><span class="dr">🇫🇷</span>FR</button>
+        <button type="button" onclick="choisirLangue('en')" data-lang-btn="en" aria-label="English"><span class="dr">🇬🇧</span>EN</button>
+      </div>
       <div class="header-status" id="headerStatus">
         <span class="dot"></span>
         <span id="statusText">Ouvert</span>
@@ -639,6 +661,41 @@ function enPause() {
   if (window.indefinitePause === undefined && new Date() < REOUVERTURE) return true;
   return false;
 }
+
+// ===== BASCULE DE LANGUE (etape 7, 11/08/2026) =====
+// Le dictionnaire ne retraduit tout seul que les elements porteurs de
+// data-i18n. Tout ce qui est FABRIQUE par le JS (le menu, le panier, le
+// statut d ouverture) doit etre redessine, sinon on obtiendrait une page a
+// moitie traduite. C est fait ici, une fois pour toutes.
+function rafraichirApresLangue() {
+  try { if (typeof renderMenu === 'function') renderMenu(); } catch (e) {}
+  try { if (typeof updateCartUI === 'function') updateCartUI(); } catch (e) {}
+  try { if (typeof updateOpenStatus === 'function') updateOpenStatus(); } catch (e) {}
+  try { if (typeof renderCategories === 'function') renderCategories(); } catch (e) {}
+  try { if (typeof generateTimeSlots === 'function') generateTimeSlots(); } catch (e) {}
+  // etat visuel des deux boutons
+  try {
+    var courante = (window.i18n && window.i18n.get) ? window.i18n.get() : 'fr';
+    document.querySelectorAll('[data-lang-btn]').forEach(function (b) {
+      if (b.getAttribute('data-lang-btn') === courante) b.setAttribute('aria-current', 'true');
+      else b.removeAttribute('aria-current');
+    });
+  } catch (e) {}
+}
+
+function choisirLangue(code) {
+  try {
+    if (window.i18n && window.i18n.set) window.i18n.set(code);   // memorise + applique les data-i18n
+  } catch (e) {}
+  rafraichirApresLangue();
+}
+
+// i18n emet languageChanged : on s y branche aussi, au cas ou la langue serait
+// changee ailleurs que par les deux boutons.
+window.addEventListener('languageChanged', rafraichirApresLangue);
+// Au chargement : la langue vient du navigateur ou du choix memorise, il faut
+// donc mettre les boutons dans le bon etat et redessiner si ce n est pas le FR.
+document.addEventListener('DOMContentLoaded', function () { setTimeout(rafraichirApresLangue, 0); });
 
 function updateOpenStatus() {
   const statusEl = document.getElementById('headerStatus');
