@@ -321,7 +321,28 @@ h1.blue { color: var(--blue); }
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260811c"></script>
+<script src="i18n.js?v=20260811d"></script>
+<script>
+// Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
+// Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
+// ne se charge pas (coupure reseau, cache, blocage). On ne fait donc JAMAIS
+// confiance a i18n : le second argument est le texte francais en dur, et il
+// s affiche tel quel si quoi que ce soit manque.
+//   T('cart.formulaAdded', 'Formule ajoutée au panier !')
+//   T('cart.removedUnavailable', secours, noms, pluriel)   <- cles fonctions
+window.T = function (cle, secours) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  try {
+    if (window.i18n && typeof window.i18n.t === 'function') {
+      var v = window.i18n.t(cle);
+      if (typeof v === 'function') v = v.apply(null, args);
+      // t() renvoie la cle elle meme quand elle est introuvable : on refuse.
+      if (typeof v === 'string' && v !== cle && v.length) return v;
+    }
+  } catch (e) { /* on retombe sur le francais, jamais d erreur a l ecran */ }
+  return (typeof secours === 'function') ? secours.apply(null, args) : secours;
+};
+</script>
 
 </head>
 <body>
@@ -535,7 +556,7 @@ function updateDisplay(order) {
     if (autoAcceptEnabled) {
       // Auto-accept ON : validation automatique imminente
       title.textContent = 'Validation automatique...';
-      subtitle.textContent = 'Votre commande va être confirmée dans quelques instants';
+      subtitle.textContent = T('confirmation.willConfirmSoon', 'Votre commande va être confirmée dans quelques instants');
 
       banner.innerHTML = `
         <div class="status-banner waiting">
@@ -568,12 +589,12 @@ function updateDisplay(order) {
           </div>
           <div class="live-indicator">
             <div class="live-dot"></div>
-            <span>Cette page se met à jour automatiquement</span>
+            <span>${T('confirmation.autoRefresh', 'Cette page se met à jour automatiquement')}</span>
           </div>
         </div>
       `;
 
-      emailMsg.innerHTML = '✉️ <strong>Email envoyé</strong><br><span class="email-sub">Vous serez notifié dès validation</span>';
+      emailMsg.innerHTML = '✉️ <strong>' + T('confirmation.emailSent', 'Email envoyé') + '</strong><br><span class="email-sub">' + T('confirmation.willNotify', 'Vous serez notifié dès validation') + '</span>';
     }
 
   } else if (effectiveStatus === 'acceptee') {
@@ -581,13 +602,13 @@ function updateDisplay(order) {
     icon.classList.add('green');
     icon.textContent = '✓';
     title.classList.add('green');
-    title.textContent = 'Commande acceptée !';
-    subtitle.textContent = 'Votre commande est en préparation';
+    title.textContent = T('confirmation.orderAcceptedExcl', 'Commande acceptée !');
+    subtitle.textContent = T('confirmation.beingPrepared', 'Votre commande est en préparation');
 
     const rawHeure = order.heure_retrait || ''
     let heureText;
     if (!rawHeure || rawHeure === 'asap' || rawHeure === 'ASAP') {
-      heureText = 'dès que possible';
+      heureText = T('confirmation.asapLower', 'dès que possible');
     } else if (/^Aujourd'hui\s+/i.test(rawHeure)) {
       const heure = rawHeure.replace(/^Aujourd'hui\s+/i, '');
       heureText = `à <strong>${heure}</strong>`;
@@ -603,82 +624,82 @@ function updateDisplay(order) {
     banner.innerHTML = `
       <div class="status-banner accepted">
         <div class="status-banner-icon">👨‍🍳</div>
-        <div class="status-banner-title">Préparation en cours</div>
-        <div class="status-banner-text">Votre commande sera prête ${heureText}</div>
+        <div class="status-banner-title">${T('confirmation.preparing', 'Préparation en cours')}</div>
+        <div class="status-banner-text">${T('confirmation.willBeReady', 'Votre commande sera prête')} ${heureText}</div>
       </div>
     `;
 
-    emailMsg.innerHTML = '✉️ <strong>Commande acceptée</strong>';
+    emailMsg.innerHTML = '✉️ <strong>' + T('confirmation.orderAccepted', 'Commande acceptée') + '</strong>';
 
   } else if (effectiveStatus === 'prete') {
     // Prête à récupérer
     icon.classList.add('blue');
     icon.textContent = '🎉';
     title.classList.add('blue');
-    title.textContent = 'Commande prête !';
-    subtitle.textContent = 'Venez la récupérer';
+    title.textContent = T('confirmation.commandReady', 'Commande prête !');
+    subtitle.textContent = T('confirmation.comePickUp', 'Venez la récupérer');
 
     banner.innerHTML = `
       <div class="status-banner ready">
         <div class="status-banner-icon">🎉</div>
-        <div class="status-banner-title">Votre commande est prête !</div>
-        <div class="status-banner-text">Vous pouvez venir la récupérer au restaurant</div>
+        <div class="status-banner-title">${T('confirmation.orderReady', 'Votre commande est prête !')}</div>
+        <div class="status-banner-text">${T('confirmation.canPickup', 'Vous pouvez venir la récupérer au restaurant')}</div>
       </div>
     `;
 
-    emailMsg.innerHTML = '<strong>Commande prête !</strong><br><span class="email-sub">Venez la récupérer chez A Beyrouth</span>';
+    emailMsg.innerHTML = '<strong>' + T('confirmation.commandReady', 'Commande prête !') + '</strong><br><span class="email-sub">' + T('confirmation.pickupNow', 'Venez la récupérer chez A Beyrouth') + '</span>';
 
   } else if (effectiveStatus === 'recuperee') {
     // Récupérée
     icon.classList.add('green');
     icon.textContent = '✅';
     title.classList.add('green');
-    title.textContent = 'Bon appétit !';
-    subtitle.textContent = 'Commande récupérée';
+    title.textContent = T('confirmation.enjoyMeal', 'Bon appétit !');
+    subtitle.textContent = T('confirmation.orderPickedUp', 'Commande récupérée');
 
     banner.innerHTML = `
       <div class="status-banner accepted">
         <div class="status-banner-icon">✅</div>
-        <div class="status-banner-title">Merci pour votre commande !</div>
-        <div class="status-banner-text">À très bientôt chez A Beyrouth 🧆</div>
+        <div class="status-banner-title">${T('confirmation.thanksForOrder', 'Merci pour votre commande !')}</div>
+        <div class="status-banner-text">${T('confirmation.seeyouSoon', 'À très bientôt chez A Beyrouth 🧆')}</div>
       </div>
     `;
 
-    emailMsg.innerHTML = '<strong>Merci et à bientôt !</strong>';
+    emailMsg.innerHTML = '<strong>' + T('confirmation.thankYouSoon', 'Merci et à bientôt !') + '</strong>';
 
   } else if (effectiveStatus === 'cancelled') {
     icon.classList.add('orange');
     icon.textContent = '❌';
     title.className = 'orange';
-    title.textContent = 'Commande annulée';
-    subtitle.textContent = 'Remboursement en cours';
+    title.textContent = T('confirmation.orderCancelled', 'Commande annulée');
+    subtitle.textContent = T('confirmation.refundInProgress', 'Remboursement en cours');
 
     banner.innerHTML = `
       <div class="status-banner waiting">
         <div class="status-banner-icon">💳</div>
-        <div class="status-banner-title">Commande annulée</div>
-        <div class="status-banner-text">Le remboursement sera effectué sous 5 à 7 jours ouvrés.</div>
+        <div class="status-banner-title">${T('confirmation.orderCancelled', 'Commande annulée')}</div>
+        <div class="status-banner-text">${T('confirmation.refundDelay', 'Le remboursement sera effectué sous 5 à 7 jours ouvrés.')}</div>
       </div>
     `;
 
-    emailMsg.innerHTML = '✉️ <strong>Email d\'annulation envoyé</strong>';
+    emailMsg.innerHTML = '✉️ <strong>' + T('confirmation.cancellationEmailSent', "Email d'annulation envoyé") + '</strong>';
 
   } else if (effectiveStatus === 'refunded') {
     icon.classList.add('orange');
     icon.textContent = '↩️';
     title.className = 'orange';
-    title.textContent = 'Commande annulée';
-    subtitle.textContent = 'Remboursement en cours';
+    title.textContent = T('confirmation.orderCancelled', 'Commande annulée');
+    subtitle.textContent = T('confirmation.refundInProgress', 'Remboursement en cours');
 
     banner.innerHTML = `
       <div class="status-banner waiting">
         <div class="status-banner-icon">💳</div>
-        <div class="status-banner-title">Commande annulée</div>
-        <div class="status-banner-text">Le remboursement sera effectué sous 5 à 7 jours ouvrés.</div>
+        <div class="status-banner-title">${T('confirmation.orderCancelled', 'Commande annulée')}</div>
+        <div class="status-banner-text">${T('confirmation.refundDelay', 'Le remboursement sera effectué sous 5 à 7 jours ouvrés.')}</div>
       </div>
     `;
 
-    emailMsg.innerHTML = '✉️ <strong>Email d\'annulation envoyé</strong>';
+    emailMsg.innerHTML = '✉️ <strong>' + T('confirmation.cancellationEmailSent', "Email d'annulation envoyé") + '</strong>';
   }
 }
 
@@ -710,7 +731,7 @@ async function loadOrder() {
     autoAcceptEnabled = autoAcceptSetting?.value === 'true';
 
     if (!data || data.error) {
-      alert(window.i18n ? window.i18n.t('messages.orderNotFound') : 'Commande introuvable. Vérifiez le numéro.');
+      alert(T('messages.orderNotFound', 'Commande introuvable. Vérifiez le numéro.'));
       window.location.href = '/';
       return;
     }

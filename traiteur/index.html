@@ -312,7 +312,28 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="../i18n.js?v=20260811c"></script>
+<script src="../i18n.js?v=20260811d"></script>
+<script>
+// Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
+// Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
+// ne se charge pas (coupure reseau, cache, blocage). On ne fait donc JAMAIS
+// confiance a i18n : le second argument est le texte francais en dur, et il
+// s affiche tel quel si quoi que ce soit manque.
+//   T('cart.formulaAdded', 'Formule ajoutée au panier !')
+//   T('cart.removedUnavailable', secours, noms, pluriel)   <- cles fonctions
+window.T = function (cle, secours) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  try {
+    if (window.i18n && typeof window.i18n.t === 'function') {
+      var v = window.i18n.t(cle);
+      if (typeof v === 'function') v = v.apply(null, args);
+      // t() renvoie la cle elle meme quand elle est introuvable : on refuse.
+      if (typeof v === 'string' && v !== cle && v.length) return v;
+    }
+  } catch (e) { /* on retombe sur le francais, jamais d erreur a l ecran */ }
+  return (typeof secours === 'function') ? secours.apply(null, args) : secours;
+};
+</script>
 
 </head>
 <body>

@@ -109,7 +109,26 @@ const translations = {
       canPickup: "Vous pouvez venir la récupérer au restaurant",
       commandReady: "Commande prête !",
       pickupNow: "Venez la récupérer chez A Beyrouth",
-      seeyouSoon: "À très bientôt chez A Beyrouth 🧆"
+      seeyouSoon: "À très bientôt chez A Beyrouth 🧆",
+      // Ajouts etape 6 (page de confirmation). Textes copies A L IDENTIQUE
+      // depuis confirmation.html, y compris la ponctuation : certains
+      // ressemblent aux cles ci dessus mais n en sont pas (« Commande
+      // acceptée » sans point d exclamation existe deja au dessus).
+      willConfirmSoon: "Votre commande va être confirmée dans quelques instants",
+      orderAcceptedExcl: "Commande acceptée !",
+      beingPrepared: "Votre commande est en préparation",
+      comePickUp: "Venez la récupérer",
+      enjoyMeal: "Bon appétit !",
+      orderPickedUp: "Commande récupérée",
+      thanksForOrder: "Merci pour votre commande !",
+      thankYouSoon: "Merci et à bientôt !",
+      orderCancelled: "Commande annulée",
+      refundInProgress: "Remboursement en cours",
+      refundDelay: "Le remboursement sera effectué sous 5 à 7 jours ouvrés.",
+      cancellationEmailSent: "Email d'annulation envoyé",
+      autoRefresh: "Cette page se met à jour automatiquement",
+      asapLower: "dès que possible",
+      willBeReady: "Votre commande sera prête"
     },
 
     // Admin
@@ -394,7 +413,23 @@ const translations = {
       canPickup: "You can pick it up at the restaurant",
       commandReady: "Order ready!",
       pickupNow: "Come pick it up at A Beyrouth",
-      seeyouSoon: "See you soon at A Beyrouth 🧆"
+      seeyouSoon: "See you soon at A Beyrouth 🧆",
+      // Step 6 additions (confirmation page)
+      willConfirmSoon: "Your order will be confirmed in a moment",
+      orderAcceptedExcl: "Order accepted!",
+      beingPrepared: "Your order is being prepared",
+      comePickUp: "Come and collect it",
+      enjoyMeal: "Enjoy your meal!",
+      orderPickedUp: "Order collected",
+      thanksForOrder: "Thank you for your order!",
+      thankYouSoon: "Thank you and see you soon!",
+      orderCancelled: "Order cancelled",
+      refundInProgress: "Refund in progress",
+      refundDelay: "The refund will be processed within 5 to 7 business days.",
+      cancellationEmailSent: "Cancellation email sent",
+      autoRefresh: "This page updates automatically",
+      asapLower: "as soon as possible",
+      willBeReady: "Your order will be ready"
     },
 
     // Admin
