@@ -620,10 +620,39 @@ function getNextOpenSlot() {
   return null;
 }
 
+// Date de reouverture annoncee par le bandeau. Sert UNIQUEMENT de filet si le
+// reglage n a pas pu etre lu (reseau coupe) : sinon c est Supabase qui decide.
+const REOUVERTURE = new Date(2026, 7, 31, 0, 0, 0);
+
+// Le restaurant est il en pause ?
+// 1. le reglage Supabase fait foi (c est ce que Paco bascule depuis sa tablette)
+// 2. s il n a pas pu etre lu, on retombe sur la date de reouverture annoncee,
+//    pour ne jamais annoncer « Ouvert » pendant les conges a cause du reseau.
+function enPause() {
+  if (window.indefinitePause === true) return true;
+  if (window.indefinitePause === undefined && new Date() < REOUVERTURE) return true;
+  return false;
+}
+
 function updateOpenStatus() {
   const statusEl = document.getElementById('headerStatus');
   const textEl = document.getElementById('statusText');
   const hoursEl = document.getElementById('headerHours');
+  if (!statusEl || !textEl || !hoursEl) return false;
+
+  // 11/08/2026 : cette page annoncait « Ouvert · jusqu a 20h30 » pendant la
+  // fermeture, en contradiction avec son propre bandeau juste en dessous.
+  // Elle ne lisait pas le reglage de pause : elle ne connaissait que les
+  // horaires habituels, et la garde de conges n existait que dans la branche
+  // « ferme ». Le test est desormais fait AVANT le calcul d horaires, comme
+  // sur l accueil.
+  if (enPause()) {
+    statusEl.classList.add('closed');
+    textEl.textContent = 'Fermé';
+    hoursEl.textContent = '· Fermeture temporaire';
+    return false;
+  }
+
   const open = isOpenNow();
   if (open) {
     statusEl.classList.remove('closed');
@@ -634,14 +663,9 @@ function updateOpenStatus() {
   } else {
     statusEl.classList.add('closed');
     textEl.textContent = 'Fermé';
-    // Pendant les conges, annoncer le prochain creneau horaire normal ("mardi 11h30")
-    // contredit le bandeau : on affiche la meme chose que l accueil.
-    if (new Date() < new Date(2026, 7, 31, 0, 0, 0)) {
-      hoursEl.textContent = '· Fermeture temporaire';
-    } else {
-      const next = getNextOpenSlot();
-      hoursEl.textContent = next ? `· ${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}` : '';
-    }
+    // Hors pause : on annonce le prochain creneau habituel.
+    const next = getNextOpenSlot();
+    hoursEl.textContent = next ? `· ${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}` : '';
   }
   return open;
 }
@@ -650,9 +674,30 @@ function updateOpenStatus() {
 updateOpenStatus();
 setInterval(updateOpenStatus, 60000);
 
+
 // Supabase config
 const SUPABASE_URL = 'https://xbuftfwcyontgqbbrrjt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhidWZ0ZndjeW9udGdxYmJycmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Njg1NzksImV4cCI6MjA4NjI0NDU3OX0.ROkSccADlpLsWMgqyiX_xNaFdJNR8P4R-LJCnZV2Gzg';
+
+// Lire la pause depuis Supabase, comme l accueil. Requete REST directe : cette
+// page ne charge pas le SDK supabase-js et il n y a aucune raison de l alourdir.
+// Tout est dans un try/catch et le formulaire de devis ne depend pas de ce
+// resultat : si l appel echoue, la page reste entierement fonctionnelle et le
+// filet de date ci dessus prend le relais.
+(function lirePause() {
+  try {
+    fetch(SUPABASE_URL + '/rest/v1/settings?key=eq.indefinite_pause&select=value', {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!Array.isArray(d)) return;                 // reponse inattendue : on garde le filet
+        window.indefinitePause = (d.length > 0 && String(d[0].value) === 'true');
+        updateOpenStatus();                            // l appel initial est parti avant la reponse
+      })
+      .catch(function () { /* le filet de date reste en place */ });
+  } catch (e) { /* idem */ }
+})();
 
 // Form
 document.getElementById('traiteurForm').addEventListener('submit', async (e) => {
