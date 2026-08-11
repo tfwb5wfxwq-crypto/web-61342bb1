@@ -51,7 +51,15 @@ const translations = {
       optin: "Me tenir informé des offres et promotions",
       securePayment: "Paiement en ligne sécurisé (CB, carte restaurant)",
       payNow: "Payer",
-      orderNow: "Commander maintenant"
+      orderNow: "Commander maintenant",
+      // Ajouts etape 6 (bloc panier). Les valeurs FR sont copiees a l identique
+      // depuis index.html : aucun texte francais ne change a l ecran.
+      tempClosed: "Le click & collect est temporairement fermé.\nRéouverture prochaine.",
+      formulaAdded: "Formule ajoutée au panier !",
+      drinkWithThat: "Une boisson avec ça ?",
+      // Message d indisponibilite. Fonction car le pluriel et les noms varient.
+      removedUnavailable: (noms, pluriel) =>
+        `${noms} ${pluriel ? 'ne sont plus disponibles' : "n'est plus disponible"} et ${pluriel ? 'ont été retirés' : 'a été retiré'} de votre panier`
     },
 
     // Menu Items
@@ -269,7 +277,13 @@ const translations = {
       optin: "Keep me informed of offers and promotions",
       securePayment: "Secure online payment (credit card, restaurant voucher)",
       payNow: "Pay Now",
-      orderNow: "Order Now"
+      orderNow: "Order Now",
+      // Ajouts etape 6 (bloc panier)
+      tempClosed: "Click & collect is temporarily closed.\nReopening soon.",
+      formulaAdded: "Meal deal added to cart!",
+      drinkWithThat: "A drink with that?",
+      removedUnavailable: (noms, pluriel) =>
+        `${noms} ${pluriel ? 'are no longer available' : 'is no longer available'} and ${pluriel ? 'have' : 'has'} been removed from your cart`
     },
 
     // Menu Items
@@ -512,7 +526,10 @@ function t(key) {
       if (v && typeof v === 'object') v = v[k];
       else return undefined;
     }
-    return (typeof v === 'string' || typeof v === 'number') ? v : undefined;
+    // 11/08/2026 : les fonctions sont acceptees. Certains messages dependent du
+    // pluriel ou d un montant (ex. « X n est plus disponible » / « X ne sont plus
+    // disponibles ») : sans cela t() les rejetait et affichait la CLE a l ecran.
+    return (typeof v === 'string' || typeof v === 'number' || typeof v === 'function') ? v : undefined;
   }
   const val = lire(translations[currentLang]);
   if (val !== undefined) return val;
