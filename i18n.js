@@ -463,18 +463,29 @@ function getCurrentLanguage() {
  * Retourne une traduction par clé (ex: "cart.total")
  */
 function t(key) {
-  const keys = key.split('.');
-  let value = translations[currentLang];
-
-  for (const k of keys) {
-    if (value && typeof value === 'object') {
-      value = value[k];
-    } else {
-      return key; // Clé non trouvée, retourner la clé elle-même
+  // FILET DE SECURITE (11/08/2026) : une cle manquante affichait la CLE TECHNIQUE
+  // a l ecran (un visiteur anglais aurait lu "cart.total" a la place de son total).
+  // Desormais on retombe sur le FRANCAIS, qui est toujours complet : au pire un
+  // fragment reste en francais, jamais de texte casse. C est la condition pour
+  // pouvoir activer le bilingue sans risque.
+  function lire(dict) {
+    let v = dict;
+    for (const k of key.split('.')) {
+      if (v && typeof v === 'object') v = v[k];
+      else return undefined;
     }
+    return (typeof v === 'string' || typeof v === 'number') ? v : undefined;
   }
-
-  return value || key;
+  const val = lire(translations[currentLang]);
+  if (val !== undefined) return val;
+  const fr = lire(translations.fr);          // repli systematique sur le francais
+  if (fr !== undefined) {
+    if (currentLang !== 'fr' && typeof console !== 'undefined' && console.debug) {
+      console.debug('[i18n] traduction manquante (' + currentLang + ') : ' + key);
+    }
+    return fr;
+  }
+  return key;                                 // ni traduit ni en francais : cas impossible en pratique
 }
 
 /**
