@@ -465,7 +465,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260811b"></script>
+<script src="i18n.js?v=20260811c"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -2232,7 +2232,7 @@ function waitForPayGreenSDK(callback, maxAttempts = 20) {
     } else if (attempts >= maxAttempts) {
       console.error('❌ PayGreen SDK timeout après', maxAttempts * 100, 'ms');
       clearInterval(checkInterval);
-      showToast('Erreur de chargement du système de paiement, rechargez la page', 'error');
+      showToast(T('payment.sdkFailed', 'Erreur de chargement du système de paiement, rechargez la page'), 'error');
     }
   }, 100);
 }
@@ -2281,9 +2281,9 @@ function updateRestoCardsAvailability() {
     // Afficher le message d'avertissement adapté
     if (warning) {
       if (isSunday) {
-        warning.innerHTML = '⏰ <strong>Les cartes restaurant sont acceptées du lundi au samedi de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.';
+        warning.innerHTML = T('payment.mealCardWeekdaysHtml', '⏰ <strong>Les cartes restaurant sont acceptées du lundi au samedi de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.');
       } else {
-        warning.innerHTML = '⏰ <strong>Les cartes restaurant sont uniquement acceptées de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.';
+        warning.innerHTML = T('payment.mealCardHoursHtml', '⏰ <strong>Les cartes restaurant sont uniquement acceptées de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.');
       }
       warning.style.display = 'block';
     }
@@ -2331,9 +2331,9 @@ function selectPaymentMethod(method) {
     if (isBlocked) {
       haptic.trigger('error');
       if (isSunday) {
-        showToast('⏰ Les cartes restaurant ne sont acceptées que du lundi au samedi de 11h30 à 21h00', 'error');
+        showToast('⏰ ' + T('payment.mealCardWeekdays', 'Les cartes restaurant ne sont acceptées que du lundi au samedi de 11h30 à 21h00'), 'error');
       } else {
-        showToast('⏰ Les cartes restaurant ne sont acceptées que de 11h30 à 21h00', 'error');
+        showToast('⏰ ' + T('payment.mealCardHours', 'Les cartes restaurant ne sont acceptées que de 11h30 à 21h00'), 'error');
       }
       return;
     }
@@ -2386,12 +2386,16 @@ function selectPaymentMethod(method) {
 
   // Afficher le spinner de chargement PayGreen
   const container = document.getElementById('paygreen-container');
+  // 11/08/2026 : data-pg-spinner est un REPERE TECHNIQUE. Le nettoyage plus bas
+  // reconnaissait ce bloc au texte « Chargement sécurisé » : traduire ce texte
+  // aurait casse le nettoyage en silence, le spinner serait reste affiche
+  // par dessus le formulaire de paiement. Le repere ne depend pas de la langue.
   container.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:16px;">
+    <div data-pg-spinner="1" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:16px;">
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="animation:spin 1s linear infinite;">
         <circle cx="24" cy="24" r="20" stroke="#D4A853" stroke-width="4" stroke-linecap="round" stroke-dasharray="90 40" opacity="0.8"/>
       </svg>
-      <p style="color:#666;font-size:0.95rem;margin:0;">Chargement sécurisé...</p>
+      <p style="color:#666;font-size:0.95rem;margin:0;">${T('payment.secureLoading', 'Chargement sécurisé...')}</p>
     </div>
   `;
 
@@ -2518,7 +2522,9 @@ function initPayGreen(method) {
     // Nettoyer le spinner de chargement après init (PayGreen injecte l'iframe automatiquement)
     setTimeout(() => {
       const container = document.getElementById('paygreen-container');
-      if (container && container.innerHTML.includes('Chargement sécurisé')) {
+      // On reconnait le spinner a son repere technique, plus a son texte :
+      // le comportement est le meme, mais il resiste a la traduction.
+      if (container && container.querySelector('[data-pg-spinner]')) {
         container.innerHTML = ''; // Nettoyer si le spinner est toujours là
       }
     }, 800);
@@ -2571,7 +2577,7 @@ function initPayGreen(method) {
       setPaymentFlag(false); // 🔒 Reset flag on error
       console.error('PayGreen PAYMENT_FAIL:', event);
       resetPayButton();
-      showToast('Paiement refusé par votre banque', 'error');
+      showToast(T('payment.declined', 'Paiement refusé par votre banque'), 'error');
     });
 
     // Bouton payer : loader immédiat + timeout de sécurité
@@ -2606,7 +2612,7 @@ function initPayGreen(method) {
         console.warn('Timeout paiement - aucune réponse de PayGreen');
         setPaymentFlag(false); // 🔒 Reset flag on timeout
         resetPayButton();
-        showToast('Le paiement prend trop de temps. Si vous avez validé, vérifiez votre commande dans quelques minutes.', 'warning');
+        showToast(T('payment.tooLong', 'Le paiement prend trop de temps. Si vous avez validé, vérifiez votre commande dans quelques minutes.'), 'warning');
       }, 120000);
 
       // Soumettre le paiement
@@ -2816,24 +2822,24 @@ async function handleEdenredOAuthCallback() {
     console.error('Erreur callback OAuth:', e);
 
     // Messages d'erreur personnalisés selon le type
-    let errorTitle = '❌ Erreur de paiement';
+    let errorTitle = '❌ ' + T('payment.errorTitle', 'Erreur de paiement');
     // 11/08/2026 : plus de e.message brut a l ecran (voir commentaire du catch
     // de la commande). Ici on revient d Edenred : un debit a PU avoir lieu,
     // donc on ne promet jamais l inverse, on donne le telephone.
     let errorMessage = T('errors.duringPayment', "Le paiement n'a pas abouti. Si votre compte a été débité, appelez-nous au 01 47 74 88 12 : nous régularisons immédiatement.");
 
     if (e.name === 'AbortError') {
-      errorTitle = '⏱️ Délai dépassé';
-      errorMessage = 'Le serveur de paiement ne répond pas.<br><br>Veuillez vérifier votre connexion et réessayer, ou utiliser une carte bancaire.';
+      errorTitle = '⏱️ ' + T('payment.timeoutTitle', 'Délai dépassé');
+      errorMessage = T('payment.timeoutMsg', 'Le serveur de paiement ne répond pas.<br><br>Veuillez vérifier votre connexion et réessayer, ou utiliser une carte bancaire.');
     } else if (e.message && e.message.includes('TRANSACTION_TIME_NOT_ALLOWED')) {
-      errorTitle = '⏰ Paiement non autorisé';
-      errorMessage = 'Les cartes restaurant ne peuvent être utilisées que <strong>du lundi au vendredi</strong>.<br><br>Merci de réessayer en semaine ou d\'utiliser une carte bancaire.';
+      errorTitle = '⏰ ' + T('payment.notAllowedTitle', 'Paiement non autorisé');
+      errorMessage = T('payment.notAllowedMsg', 'Les cartes restaurant ne peuvent être utilisées que <strong>du lundi au vendredi</strong>.<br><br>Merci de réessayer en semaine ou d\'utiliser une carte bancaire.');
     } else if (e.message && e.message.includes('LIMIT_EXCEEDED')) {
-      errorTitle = '💳 Limite dépassée';
-      errorMessage = 'Le montant dépasse la limite de votre carte restaurant.<br><br>Veuillez utiliser une carte bancaire.';
+      errorTitle = '💳 ' + T('payment.limitTitle', 'Limite dépassée');
+      errorMessage = T('payment.limitMsg', 'Le montant dépasse la limite de votre carte restaurant.<br><br>Veuillez utiliser une carte bancaire.');
     } else if (e.message && e.message.includes('BAD_GATEWAY')) {
-      errorTitle = '🔧 Service temporairement indisponible';
-      errorMessage = 'Le service de paiement Edenred est momentanément indisponible.<br><br>Veuillez réessayer dans quelques instants ou utiliser une carte bancaire.';
+      errorTitle = '🔧 ' + T('payment.unavailableTitle', 'Service temporairement indisponible');
+      errorMessage = T('payment.unavailableMsg', 'Le service de paiement Edenred est momentanément indisponible.<br><br>Veuillez réessayer dans quelques instants ou utiliser une carte bancaire.');
     }
 
     document.body.innerHTML = `
@@ -2881,7 +2887,7 @@ async function handleEdenredReturn() {
   console.log('🔄 Transaction ID:', transactionId);
 
   // Afficher modal de vérification
-  showToast('Vérification du paiement...', 'info');
+  showToast(T('payment.checking', 'Vérification du paiement...'), 'info');
 
   // Polling: vérifier le statut toutes les 2s pendant 30s max
   const maxAttempts = 15;
@@ -2903,7 +2909,7 @@ async function handleEdenredReturn() {
 
         if (attempts >= maxAttempts) {
           clearInterval(pollInterval);
-          showToast('Délai de vérification dépassé. Vérifiez vos emails.', 'warning');
+          showToast(T('payment.checkTimeout', 'Délai de vérification dépassé. Vérifiez vos emails.'), 'warning');
           sessionStorage.removeItem('edenred_order');
           window.location.href = '/';
         }
@@ -2917,7 +2923,7 @@ async function handleEdenredReturn() {
         clearInterval(pollInterval);
         sessionStorage.removeItem('edenred_order');
 
-        showToast('✅ Paiement confirmé !', 'success');
+        showToast('✅ ' + T('payment.confirmed', 'Paiement confirmé !'), 'success');
 
         // Rediriger vers la page de confirmation (comme PayGreen)
         setTimeout(() => {
@@ -2929,7 +2935,7 @@ async function handleEdenredReturn() {
         clearInterval(pollInterval);
         sessionStorage.removeItem('edenred_order');
 
-        showToast('❌ Paiement annulé ou refusé', 'error');
+        showToast('❌ ' + T('payment.cancelled', 'Paiement annulé ou refusé'), 'error');
 
         setTimeout(() => {
           window.location.href = '/';
@@ -2938,7 +2944,7 @@ async function handleEdenredReturn() {
       // Statut PENDING : continuer à poller
       else if (attempts >= maxAttempts) {
         clearInterval(pollInterval);
-        showToast('Vérification en cours... Vous recevrez un email de confirmation.', 'info');
+        showToast(T('payment.inProgress', 'Vérification en cours... Vous recevrez un email de confirmation.'), 'info');
         sessionStorage.removeItem('edenred_order');
         window.location.href = '/';
       }
@@ -2948,7 +2954,7 @@ async function handleEdenredReturn() {
 
       if (attempts >= maxAttempts) {
         clearInterval(pollInterval);
-        showToast('Erreur de vérification. Contactez-nous si vous avez payé.', 'error');
+        showToast(T('payment.checkFailed', 'Erreur de vérification. Contactez-nous si vous avez payé.'), 'error');
         sessionStorage.removeItem('edenred_order');
         window.location.href = '/';
       }

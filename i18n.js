@@ -236,6 +236,36 @@ const translations = {
       paymentStart: "Le paiement n'a pas pu démarrer. Vous n'avez pas été débité. Réessayez, ou réglez par carte bancaire."
     },
 
+    // Tunnel de paiement (etape 6, bloc 3). Textes copies a l identique.
+    payment: {
+      secureLoading: "Chargement sécurisé...",
+      sdkFailed: "Erreur de chargement du système de paiement, rechargez la page",
+      declined: "Paiement refusé par votre banque",
+      tooLong: "Le paiement prend trop de temps. Si vous avez validé, vérifiez votre commande dans quelques minutes.",
+      checking: "Vérification du paiement...",
+      checkTimeout: "Délai de vérification dépassé. Vérifiez vos emails.",
+      confirmed: "Paiement confirmé !",
+      cancelled: "Paiement annulé ou refusé",
+      inProgress: "Vérification en cours... Vous recevrez un email de confirmation.",
+      checkFailed: "Erreur de vérification. Contactez-nous si vous avez payé.",
+      // Cartes restaurant (Edenred). Les horaires different selon l ecran :
+      // ils sont repris tels quels, sans les uniformiser.
+      mealCardWeekdaysHtml: "⏰ <strong>Les cartes restaurant sont acceptées du lundi au samedi de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.",
+      mealCardHoursHtml: "⏰ <strong>Les cartes restaurant sont uniquement acceptées de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.",
+      mealCardWeekdays: "Les cartes restaurant ne sont acceptées que du lundi au samedi de 11h30 à 21h00",
+      mealCardHours: "Les cartes restaurant ne sont acceptées que de 11h30 à 21h00",
+      // Ecrans d erreur du retour carte restaurant
+      timeoutTitle: "Délai dépassé",
+      timeoutMsg: "Le serveur de paiement ne répond pas.<br><br>Veuillez vérifier votre connexion et réessayer, ou utiliser une carte bancaire.",
+      notAllowedTitle: "Paiement non autorisé",
+      notAllowedMsg: "Les cartes restaurant ne peuvent être utilisées que <strong>du lundi au vendredi</strong>.<br><br>Merci de réessayer en semaine ou d'utiliser une carte bancaire.",
+      limitTitle: "Limite dépassée",
+      limitMsg: "Le montant dépasse la limite de votre carte restaurant.<br><br>Veuillez utiliser une carte bancaire.",
+      unavailableTitle: "Service temporairement indisponible",
+      unavailableMsg: "Le service de paiement Edenred est momentanément indisponible.<br><br>Veuillez réessayer dans quelques instants ou utiliser une carte bancaire.",
+      errorTitle: "Erreur de paiement"
+    },
+
     // Messages & Notifications
     messages: {
       orderNotFound: "Commande introuvable. Vérifiez le numéro.",
@@ -478,6 +508,33 @@ const translations = {
       duringPayment: "The payment did not go through. If your account was charged, call us on +33 1 47 74 88 12 and we will sort it out right away.",
       network: "Connection lost. Please check your network and try again.",
       paymentStart: "The payment could not be started. You have not been charged. Please try again, or pay by credit card."
+    },
+
+    // Payment flow (step 6, block 3)
+    payment: {
+      secureLoading: "Secure loading...",
+      sdkFailed: "The payment system failed to load. Please reload the page.",
+      declined: "Payment declined by your bank",
+      tooLong: "The payment is taking too long. If you confirmed it, check your order in a few minutes.",
+      checking: "Checking payment...",
+      checkTimeout: "Verification timed out. Please check your emails.",
+      confirmed: "Payment confirmed!",
+      cancelled: "Payment cancelled or declined",
+      inProgress: "Verification in progress... You will receive a confirmation email.",
+      checkFailed: "Verification error. Contact us if you have paid.",
+      mealCardWeekdaysHtml: "⏰ <strong>Luncheon vouchers are accepted Monday to Saturday, 11:30 to 22:00.</strong><br>Please use a credit card.",
+      mealCardHoursHtml: "⏰ <strong>Luncheon vouchers are only accepted between 11:30 and 22:00.</strong><br>Please use a credit card.",
+      mealCardWeekdays: "Luncheon vouchers are only accepted Monday to Saturday, 11:30 to 21:00",
+      mealCardHours: "Luncheon vouchers are only accepted between 11:30 and 21:00",
+      timeoutTitle: "Timed out",
+      timeoutMsg: "The payment server is not responding.<br><br>Please check your connection and try again, or use a credit card.",
+      notAllowedTitle: "Payment not allowed",
+      notAllowedMsg: "Luncheon vouchers can only be used <strong>Monday to Friday</strong>.<br><br>Please try again on a weekday or use a credit card.",
+      limitTitle: "Limit exceeded",
+      limitMsg: "The amount exceeds your luncheon voucher limit.<br><br>Please use a credit card.",
+      unavailableTitle: "Service temporarily unavailable",
+      unavailableMsg: "The Edenred payment service is temporarily unavailable.<br><br>Please try again shortly or use a credit card.",
+      errorTitle: "Payment error"
     },
 
     // Messages & Notifications
