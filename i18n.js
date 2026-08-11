@@ -218,6 +218,7 @@ const translations = {
       // Ajouts etape 6 (envoi du formulaire de devis)
       quoteSent: "Demande envoyée ! Vous recevrez un email de confirmation. Réponse sous 48h.",
       quoteSentBtn: "Demande envoyée ✓",
+      quoteSending: "Envoi en cours...",
       quoteError: "Erreur lors de l'envoi. Veuillez réessayer ou nous contacter à traiteur@beyrouth.express"
     },
 
@@ -536,6 +537,7 @@ const translations = {
       // Step 6 additions (quote form submission)
       quoteSent: "Request sent! You will receive a confirmation email. Reply within 48 hours.",
       quoteSentBtn: "Request sent \u2713",
+      quoteSending: "Sending...",
       quoteError: "Sending failed. Please try again or contact us at traiteur@beyrouth.express"
     },
 

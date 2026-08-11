@@ -1,6 +1,7 @@
 // Edge Function: Envoyer email confirmation demande de devis
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { t, type Lang } from '../_shared/email-i18n.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -13,7 +14,13 @@ serve(async (req) => {
   }
 
   try {
-    const { email, name, phone, message, eventType, guestCount, eventDate } = await req.json()
+    const { email, name, phone, message, eventType, guestCount, eventDate, language } = await req.json()
+
+    // Langue du visiteur au moment de la demande. Repli sur le francais des que
+    // la valeur n est pas exactement 'en' : une valeur absente, inconnue ou
+    // malformee donne un email francais, jamais un email casse.
+    const lang: Lang = (language === 'en') ? 'en' : 'fr'
+    const L = t(lang)
 
     if (!email || !name) {
       return new Response(
@@ -70,7 +77,7 @@ serve(async (req) => {
 
     if (duplicates && duplicates.length > 0) {
       return new Response(
-        JSON.stringify({ error: 'Vous avez déjà envoyé une demande récemment.' }),
+        JSON.stringify({ error: (language === 'en') ? 'You have already sent a request recently.' : 'Vous avez déjà envoyé une demande récemment.' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -88,7 +95,7 @@ serve(async (req) => {
     :root { color-scheme: light; }
     .email-header-bg { background-color: #000000 !important; }
   </style>
-  <title>Demande de devis reçue - A Beyrouth</title>
+  <title>${L.quotePreheader}</title>
 </head>
 <body bgcolor="#f5f5f5" style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f5" style="background:#f5f5f5;">
@@ -106,16 +113,16 @@ serve(async (req) => {
           <!-- Contenu principal -->
           <tr>
             <td bgcolor="#ffffff" style="background:#ffffff;padding:24px 20px;">
-              <div style="font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">📋 Demande de devis reçue</div>
+              <div style="font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">${L.quoteTitle}</div>
               <div style="font-size:14px;color:#666;line-height:1.5;margin-bottom:20px;">Merci ${name.split(' ')[0]}, nous revenons vers vous sous 48h.</div>
 
               <!-- Info principale -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
                 <tr>
                   <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:14px;color:#1a1a1a;font-weight:600;margin-bottom:8px;">✅ Votre demande a été enregistrée</div>
+                    <div style="font-size:14px;color:#1a1a1a;font-weight:600;margin-bottom:8px;">${L.quoteRegistered}</div>
                     <div style="font-size:13px;color:#666;line-height:1.5;">
-                      Notre équipe va étudier votre demande et vous envoyer un devis personnalisé dans les 48 heures.
+                      ${L.quoteStudy}
                     </div>
                   </td>
                 </tr>
@@ -125,10 +132,10 @@ serve(async (req) => {
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
                 <tr>
                   <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Récapitulatif</div>
+                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">${L.quoteSummary}</div>
                     <div style="font-size:14px;color:#1a1a1a;line-height:1.8;">
                       ${eventType ? `<div>📅 <strong>${eventType}</strong></div>` : ''}
-                      ${guestCount ? `<div>👥 ${guestCount} personnes</div>` : ''}
+                      ${guestCount ? `<div>👥 ${guestCount} ${lang === 'en' ? 'guests' : 'personnes'}</div>` : ''}
                       ${eventDate ? `<div>📆 ${eventDate}</div>` : ''}
                       <div>📧 ${email}</div>
                       ${phone ? `<div>📱 ${phone}</div>` : ''}
@@ -156,8 +163,7 @@ serve(async (req) => {
                     <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Contact</div>
                     <div style="font-size:14px;color:#1a1a1a;line-height:1.5;">
                       <strong>A Beyrouth</strong><br>
-                      4 Esplanade du Général de Gaulle, 
-                      92400 Courbevoie (La Défense)
+                      ${L.quoteAddress.replace('<br>', ' ')}
                     </div>
                   </td>
                 </tr>
@@ -216,7 +222,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: 'A Beyrouth <traiteur@beyrouth.express>',
         to: email,
-        subject: '📋 Demande de devis bien reçue - A Beyrouth',
+        subject: L.subjectQuote,
         html: emailHtml
       })
     })
@@ -362,6 +368,7 @@ serve(async (req) => {
       event_date: eventDate,
       message: message,
       status: 'pending',
+      language: lang,
       created_at: new Date().toISOString()
     })
 

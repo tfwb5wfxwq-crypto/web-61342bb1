@@ -53,6 +53,22 @@ export const emailI18n = {
     subjectReminder: (numero: string, pickup: string) => `⏰ ${numero} · Votre commande prête depuis ${pickup} - A Beyrouth`,
     subjectCancelled: (numero: string) => `❌ Commande ${numero} annulée - Remboursement en cours`,
     subjectCompleted: (numero: string) => `Merci pour votre visite - Commande ${numero} - A Beyrouth`,
+
+    // Devis traiteur (11/08/2026)
+    quoteTitle: '📋 Demande de devis reçue',
+    quoteRegistered: '✅ Votre demande a été enregistrée',
+    quoteStudy: 'Notre équipe va étudier votre demande et vous envoyer un devis personnalisé dans les 48 heures.',
+    quoteSummary: 'Récapitulatif',
+    quoteName: 'Nom',
+    quoteEmail: 'Email',
+    quotePhone: 'Téléphone',
+    quoteEventType: "Type d'événement",
+    quoteGuests: 'Nombre de personnes',
+    quoteDate: 'Date souhaitée',
+    quoteMessage: 'Message',
+    quoteAddress: '4 Esplanade du Général de Gaulle,<br>92400 Courbevoie (La Défense)',
+    subjectQuote: '📋 Demande de devis bien reçue - A Beyrouth',
+    quotePreheader: 'Demande de devis reçue - A Beyrouth',
   },
   en: {
     // Order confirmation
@@ -99,6 +115,22 @@ export const emailI18n = {
     subjectReminder: (numero: string, pickup: string) => `⏰ ${numero} · Your order ready since ${pickup} - A Beyrouth`,
     subjectCancelled: (numero: string) => `❌ Order ${numero} cancelled - Refund in progress`,
     subjectCompleted: (numero: string) => `Thank you for your visit - Order ${numero} - A Beyrouth`,
+
+    // Catering quote (11/08/2026)
+    quoteTitle: '📋 Quote request received',
+    quoteRegistered: '✅ Your request has been registered',
+    quoteStudy: 'Our team will review your request and send you a tailored quote within 48 hours.',
+    quoteSummary: 'Summary',
+    quoteName: 'Name',
+    quoteEmail: 'Email',
+    quotePhone: 'Phone',
+    quoteEventType: 'Event type',
+    quoteGuests: 'Number of guests',
+    quoteDate: 'Preferred date',
+    quoteMessage: 'Message',
+    quoteAddress: '4 Esplanade du Général de Gaulle,<br>92400 Courbevoie (La Défense), France',
+    subjectQuote: '📋 Quote request received - A Beyrouth',
+    quotePreheader: 'Quote request received - A Beyrouth',
   }
 }
 

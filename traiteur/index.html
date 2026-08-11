@@ -312,7 +312,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="../i18n.js?v=20260811e"></script>
+<script src="../i18n.js?v=20260811f"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -713,7 +713,7 @@ document.getElementById('traiteurForm').addEventListener('submit', async (e) => 
   const data = Object.fromEntries(formData.entries());
 
   btn.disabled = true;
-  btn.textContent = 'Envoi en cours...';
+  btn.textContent = T('catering.quoteSending', 'Envoi en cours...');
 
   try {
     // Appeler l'Edge Function pour envoyer l'email de confirmation
@@ -730,6 +730,10 @@ document.getElementById('traiteurForm').addEventListener('submit', async (e) => 
         eventType: data.type,
         guestCount: parseInt(data.personnes),
         eventDate: data.date,
+        // Langue du visiteur au moment de la demande : l email de confirmation
+        // part dans la langue ou il a rempli le formulaire. Repli 'fr' si le
+        // dictionnaire n a pas charge.
+        language: (window.i18n && window.i18n.get && window.i18n.get() === 'en') ? 'en' : 'fr',
         message: `${data.entreprise ? 'Entreprise: ' + data.entreprise + '\n' : ''}${data.budget ? 'Budget: ' + data.budget + '€/pers\n' : ''}${data.message}`
       })
     });
