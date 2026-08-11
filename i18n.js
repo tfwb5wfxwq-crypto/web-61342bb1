@@ -219,6 +219,23 @@ const translations = {
       closedChooseOther: "Le restaurant est fermé. Choisissez un autre créneau."
     },
 
+    // Erreurs de paiement montrees au client (etape 6, bloc 3).
+    // Avant, le message BRUT de la base ou du reseau s affichait tel quel :
+    // un client a pu lire « new row violates row-level security policy ».
+    // Le detail technique part desormais dans la console, pas a l ecran.
+    errors: {
+      // Echec AVANT l ouverture du paiement : aucun debit possible, la
+      // commande est supprimee dans la foulee. On peut donc rassurer.
+      beforePayment: "Votre commande n'a pas pu être enregistrée. Vous n'avez pas été débité. Réessayez dans un instant, ou appelez-nous au 01 47 74 88 12.",
+      // Echec PENDANT ou APRES le paiement : un debit a pu avoir lieu.
+      // On ne promet donc jamais qu il n y a pas eu de debit.
+      duringPayment: "Le paiement n'a pas abouti. Si votre compte a été débité, appelez-nous au 01 47 74 88 12 : nous régularisons immédiatement.",
+      network: "Connexion interrompue. Vérifiez votre réseau et réessayez.",
+      // Le paiement n a meme pas pu demarrer (ex. redirection carte restaurant
+      // qui echoue avant de partir) : aucun debit, on propose l autre moyen.
+      paymentStart: "Le paiement n'a pas pu démarrer. Vous n'avez pas été débité. Réessayez, ou réglez par carte bancaire."
+    },
+
     // Messages & Notifications
     messages: {
       orderNotFound: "Commande introuvable. Vérifiez le numéro.",
@@ -453,6 +470,14 @@ const translations = {
       emailInvalid: "Invalid email (e.g. name@gmail.com)",
       pickupRequired: "Choose a pickup time",
       closedChooseOther: "The restaurant is closed. Please choose another time slot."
+    },
+
+    // Payment errors shown to the customer (step 6, block 3)
+    errors: {
+      beforePayment: "Your order could not be saved. You have not been charged. Please try again, or call us on +33 1 47 74 88 12.",
+      duringPayment: "The payment did not go through. If your account was charged, call us on +33 1 47 74 88 12 and we will sort it out right away.",
+      network: "Connection lost. Please check your network and try again.",
+      paymentStart: "The payment could not be started. You have not been charged. Please try again, or pay by credit card."
     },
 
     // Messages & Notifications

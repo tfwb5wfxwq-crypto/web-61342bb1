@@ -465,7 +465,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260811"></script>
+<script src="i18n.js?v=20260811b"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -2057,8 +2057,17 @@ async function submitOrder() {
     }
   } catch (e) {
     console.error('Erreur:', e);
-    // Afficher le message d'erreur sans préfixe si déjà explicite
-    const errorMsg = e.message || 'Erreur de paiement. Réessayez.';
+    // 11/08/2026 : on n affiche PLUS e.message tel quel. Il pouvait venir de
+    // la base ou du reseau, et le client lisait des choses comme
+    // « new row violates row-level security policy for table "orders" ».
+    // Le detail reste dans la console ci dessus pour le debogage.
+    // Ici on est TOUJOURS avant l ouverture du paiement (openPaymentModal est
+    // la derniere instruction du try) : aucun debit n a pu avoir lieu, et la
+    // commande est supprimee juste en dessous. On peut donc l affirmer.
+    const reseau = e && e.message && /Failed to fetch|NetworkError|ERR_INTERNET|Load failed/i.test(e.message);
+    const errorMsg = reseau
+      ? T('errors.network', 'Connexion interrompue. Vérifiez votre réseau et réessayez.')
+      : T('errors.beforePayment', "Votre commande n'a pas pu être enregistrée. Vous n'avez pas été débité. Réessayez dans un instant, ou appelez-nous au 01 47 74 88 12.");
     showToast(errorMsg, 'error');
     btn.disabled = false;
     btn.textContent = 'Passer la commande';
@@ -2530,7 +2539,8 @@ function initPayGreen(method) {
       setPaymentFlag(false); // 🔒 Reset flag on error
       console.error('PayGreen ERROR:', event);
       resetPayButton();
-      showToast('Erreur : ' + (event.detail?.message || event.message || 'Une erreur est survenue'), 'error');
+      // 11/08/2026 : le detail PayGreen part dans la console (ci dessus), pas a l ecran.
+      showToast(T('errors.duringPayment', "Le paiement n'a pas abouti. Si votre compte a été débité, appelez-nous au 01 47 74 88 12 : nous régularisons immédiatement."), 'error');
     });
 
     // Event TOKEN_FAIL : carte invalide, champs vides, etc.
@@ -2681,7 +2691,8 @@ async function initEdenred() {
 
   } catch (e) {
     console.error('Erreur init OAuth Edenred:', e);
-    showToast('Erreur : ' + e.message, 'error');
+    // 11/08/2026 : echec avant meme de partir chez Edenred, donc aucun debit.
+    showToast(T('errors.paymentStart', "Le paiement n'a pas pu démarrer. Vous n'avez pas été débité. Réessayez, ou réglez par carte bancaire."), 'error');
 
     // 🔒 DOUBLE-SUBMIT FIX: Reset flag on error
     setPaymentFlag(false);
@@ -2806,7 +2817,10 @@ async function handleEdenredOAuthCallback() {
 
     // Messages d'erreur personnalisés selon le type
     let errorTitle = '❌ Erreur de paiement';
-    let errorMessage = e.message || 'Une erreur est survenue lors du paiement.';
+    // 11/08/2026 : plus de e.message brut a l ecran (voir commentaire du catch
+    // de la commande). Ici on revient d Edenred : un debit a PU avoir lieu,
+    // donc on ne promet jamais l inverse, on donne le telephone.
+    let errorMessage = T('errors.duringPayment', "Le paiement n'a pas abouti. Si votre compte a été débité, appelez-nous au 01 47 74 88 12 : nous régularisons immédiatement.");
 
     if (e.name === 'AbortError') {
       errorTitle = '⏱️ Délai dépassé';
