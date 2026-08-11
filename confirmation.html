@@ -318,6 +318,11 @@ h1.blue { color: var(--blue); }
   animation: pulse 1.5s infinite;
 }
 </style>
+<!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
+     rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
+     appels window.i18n.t() du code cessent d etre des gardes mortes. -->
+<script src="i18n.js"></script>
+
 </head>
 <body>
 
