@@ -330,7 +330,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="../i18n.js?v=20260811g"></script>
+<script src="../i18n.js?v=20260811h"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -399,10 +399,6 @@ window.T = function (cle, secours) {
         </svg>
         Traiteur
       </span>
-      <div class="lang-switch" role="group" aria-label="Langue / Language">
-        <button type="button" onclick="choisirLangue('fr')" data-lang-btn="fr" aria-current="true" aria-label="Français"><span class="dr">🇫🇷</span>FR</button>
-        <button type="button" onclick="choisirLangue('en')" data-lang-btn="en" aria-label="English"><span class="dr">🇬🇧</span>EN</button>
-      </div>
       <div class="header-status" id="headerStatus">
         <span class="dot"></span>
         <span id="statusText">Ouvert</span>

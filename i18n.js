@@ -31,6 +31,7 @@ const translations = {
       orChooseSlot: "ou choisir un créneau",
       pickupTime: "Retrait prévu",
       asap: "Dès que possible",
+      asapDelay: "Dès que possible (~15-20 min)",
       nextSlot: "Créneau le plus proche",
       closesAt: "Ferme à",
       open: "Ouvert",
@@ -359,6 +360,7 @@ const translations = {
       orChooseSlot: "or choose a time slot",
       pickupTime: "Pickup time",
       asap: "As soon as possible",
+      asapDelay: "As soon as possible (~15-20 min)",
       nextSlot: "Next available slot",
       closesAt: "Closes at",
       open: "Open",
@@ -660,19 +662,25 @@ function detectBrowserLanguage() {
  * Initialise la langue au chargement
  */
 function initLanguage() {
-  // 1. Vérifier le localStorage (choix manuel)
-  const savedLang = localStorage.getItem('beyrouth_lang');
-
-  if (savedLang && (savedLang === 'fr' || savedLang === 'en')) {
-    currentLang = savedLang;
-  } else {
-    // 2. Détection automatique navigateur
-    // 11/08/2026 : on n ECRIT PLUS la langue detectee. Avant, un premier passage
-    // avec un navigateur anglais figeait l anglais POUR TOUJOURS, comme si l on
-    // avait clique. Seul un choix explicite (setLanguage) doit etre memorise.
-    currentLang = detectBrowserLanguage();
-  }
-
+  // On lit UNIQUEMENT le choix explicite du visiteur (les deux drapeaux).
+  //
+  // 11/08/2026 : la detection automatique du navigateur est VOLONTAIREMENT
+  // ecartee ici. Elle reste disponible via detectBrowserLanguage() mais n est
+  // plus utilisee au demarrage, pour deux raisons :
+  //   · REFERENCEMENT. Le robot de Google explore en se presentant en anglais.
+  //     Avec une detection, il verrait le site traduit et pourrait indexer
+  //     l anglais a la place du francais. Le site n a qu UNE SEULE adresse,
+  //     donc pas de version /en/ a lui proposer en echange : la version
+  //     francaise serait simplement remplacee dans l index.
+  //   · Un francais en voyage, ou avec un telephone configure en anglais,
+  //     tomberait sur un site anglais sans comprendre pourquoi.
+  //
+  // Sans choix memorise, on reste donc en francais. Le visiteur clique, et
+  // son choix le suit de page en page.
+  try {
+    const savedLang = localStorage.getItem('beyrouth_lang');
+    if (savedLang === 'fr' || savedLang === 'en') currentLang = savedLang;
+  } catch (e) { /* navigation privee : on reste en francais */ }
   return currentLang;
 }
 
@@ -782,3 +790,26 @@ window.i18n = {
   apply: applyTranslations,
   translations: translations
 };
+
+// ===== AUTO-INIT (11/08/2026) =====
+// Sans ceci, le choix du visiteur etait enregistre mais JAMAIS relu : passer
+// en anglais puis aller sur la page traiteur repartait en francais. Le
+// dictionnaire est charge dans le <head>, donc on applique des que le corps
+// de la page existe.
+(function () {
+  // 11/08/2026 : SELECTEUR RETIRE DE LA PRODUCTION le temps de finir le
+  // chantier (menu, devis traiteur). Tant que ce drapeau est a false, le site
+  // est en francais pour TOUT LE MONDE, y compris ceux qui avaient deja
+  // clique sur EN pendant les essais. Tout le travail de traduction reste en
+  // place dessous, il suffira de repasser ce drapeau a true.
+  var BILINGUE_ACTIF = false;
+  if (!BILINGUE_ACTIF) return;
+  try {
+    initLanguage();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { applyTranslations(); });
+    } else {
+      applyTranslations();
+    }
+  } catch (e) { /* au pire la page reste en francais, jamais cassee */ }
+})();

@@ -1,988 +1,338 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Preview Emails — A Beyrouth</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview Emails — A Beyrouth</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #111; color: #fff; min-height: 100vh; }
+h1 { font-size: 15px; font-weight: 600; padding: 14px 20px; background: #0a0a0a; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 10px; }
+h1 span { background: #D4A853; color: #000; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+.grid { display: flex; gap: 16px; padding: 20px; overflow-x: auto; align-items: flex-start; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #e8e8e8;
-      color: #1a1a1a;
-    }
+.card { flex: 0 0 auto; cursor: pointer; }
+.card-label { font-size: 12px; color: #888; margin-bottom: 8px; padding: 0 2px; }
+.card-label strong { color: #fff; display: block; font-size: 13px; margin-bottom: 2px; }
 
-    /* ---- TOP BAR ---- */
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: #111;
-      color: #fff;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      gap: 32px;
-      height: 52px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.4);
-    }
-    .topbar h1 {
-      font-size: 15px;
-      font-weight: 700;
-      color: #D4A853;
-      white-space: nowrap;
-      margin-right: 12px;
-    }
-    .topbar nav {
-      display: flex;
-      gap: 4px;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .topbar nav::-webkit-scrollbar { display: none; }
-    .topbar nav a {
-      color: #ccc;
-      text-decoration: none;
-      font-size: 12px;
-      white-space: nowrap;
-      padding: 5px 10px;
-      border-radius: 4px;
-      transition: background .15s, color .15s;
-    }
-    .topbar nav a:hover { background: #333; color: #fff; }
+/* Conteneur qui affiche l'iframe à moitié taille */
+.frame-clip {
+  width: 300px;
+  height: 620px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #333;
+  position: relative;
+  transition: border-color .2s;
+}
+.card:hover .frame-clip { border-color: #D4A853; }
 
-    /* ---- PAGE CONTENT ---- */
-    .page { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
+.frame-clip iframe {
+  width: 600px;
+  height: 1240px;
+  border: none;
+  transform: scale(0.5);
+  transform-origin: top left;
+  pointer-events: none;
+  background: #fff;
+}
 
-    /* ---- EMAIL SECTION ---- */
-    .email-section {
-      margin-bottom: 60px;
-    }
-    .section-header {
-      margin-bottom: 12px;
-    }
-    .section-header h2 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 4px;
-    }
-    .section-header .subject {
-      font-size: 12px;
-      color: #666;
-      font-family: 'Courier New', monospace;
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 4px 10px;
-      border-radius: 4px;
-      display: inline-block;
-      margin-bottom: 8px;
-    }
-    .gmail-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #e6f4ea;
-      color: #1e7e34;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      border: 1px solid #a8d5b5;
-    }
-
-    /* ---- EMAIL WRAPPER (simulate mail client) ---- */
-    .email-wrapper {
-      background: #f0f0f0;
-      border-radius: 8px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.12);
-      overflow: hidden;
-    }
-    .email-inner {
-      /* isolate the email HTML from our page CSS */
-      all: initial;
-      display: block;
-    }
-
-    /* Reset inside email-inner so email styles take full control */
-    .email-inner * {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    }
-
-    hr.divider {
-      border: none;
-      border-top: 2px solid #ccc;
-      margin: 0 0 40px;
-    }
-  </style>
+/* Modal plein écran */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 999; align-items: center; justify-content: center; }
+.modal.open { display: flex; }
+.modal-inner { background: #fff; border-radius: 12px; overflow: hidden; width: 640px; max-height: 90vh; display: flex; flex-direction: column; }
+.modal-bar { background: #111; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.modal-bar span { font-size: 13px; color: #aaa; }
+.modal-bar button { background: #333; border: none; color: #fff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.modal-bar button:hover { background: #444; }
+.modal-scroll { overflow-y: auto; flex: 1; }
+.modal-scroll iframe { width: 600px; height: 1300px; border: none; display: block; }
+</style>
 </head>
 <body>
 
-<div class="topbar">
-  <h1>Preview Emails — A Beyrouth</h1>
-  <nav>
-    <a href="#email1">1. Commande confirmée</a>
-    <a href="#email2">2. Paiement en attente</a>
-    <a href="#email3">3. Relance client</a>
-    <a href="#email4">4. Annulation</a>
-    <a href="#email5">5. Devis — client</a>
-    <a href="#email6">6. Devis — admin</a>
-    <a href="#email7">7. Commande récupérée</a>
-  </nav>
+<h1>Email Preview — A Beyrouth <span>5 templates</span></h1>
+
+<div class="grid" id="grid"></div>
+
+<div class="modal" id="modal" onclick="closeModal(event)">
+  <div class="modal-inner" onclick="event.stopPropagation()">
+    <div class="modal-bar">
+      <span id="modal-label"></span>
+      <button onclick="closeModal()">✕ Fermer</button>
+    </div>
+    <div class="modal-scroll">
+      <iframe id="modal-frame"></iframe>
+    </div>
+  </div>
 </div>
 
-<div class="page">
+<script>
+const LOGO = 'https://beyrouth.express/img/logo-email-final.png';
 
-  <!-- ================================================================== -->
-  <!-- EMAIL 1 : Commande confirmée                                        -->
-  <!-- ================================================================== -->
-  <div class="email-section" id="email1">
-    <div class="section-header">
-      <h2>Email 1 — Commande confirmée</h2>
-      <div class="subject">Sujet : Commande 4728 KP validée · Retrait aujourd'hui à 13h30 - A Beyrouth</div><br>
-      <span class="gmail-badge">✅ Gmail compatible</span>
-    </div>
-    <div class="email-wrapper">
-      <div class="email-inner">
-<!DOCTYPE html>
-<html>
-<head>
+function wrap(content, hasGoogleFooter = true) {
+  const googleFooter = hasGoogleFooter ? `
+    <tr><td bgcolor="#f5f5f5" style="background:#f5f5f5;padding:32px 24px;border-top:1px solid #e0e0e0;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+        <tr><td style="background:#E3F2FD;border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:20px;margin-bottom:6px;">⭐⭐⭐⭐⭐</div>
+          <div style="font-size:14px;font-weight:700;color:#1565C0;margin-bottom:4px;">Votre avis compte !</div>
+          <div style="font-size:12px;color:#1976D2;margin-bottom:14px;line-height:1.4;">Mettez-nous 5 étoiles sur Google 🙏</div>
+          <a href="#" style="display:inline-block;background:#1976D2;color:#fff;text-decoration:none;padding:10px 22px;border-radius:7px;font-weight:600;font-size:13px;">🌟 Laisser un avis</a>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr><td align="center" style="font-size:12px;color:#aaa;text-transform:uppercase;padding-bottom:8px;">Retrouvez-nous sur</td></tr>
+        <tr><td align="center"><a href="#" style="display:inline-block;background:#fafafa;color:#1a1a1a;text-decoration:none;padding:10px 28px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid #e0e0e0;">@a_beyrouth</a></td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="text-align:center;font-size:12px;color:#888;line-height:1.6;">
+          <strong style="color:#1a1a1a;">A Beyrouth</strong> · 4 Esp. Gal de Gaulle, 92400 Courbevoie<br>
+          <a href="#" style="color:#D4A853;text-decoration:none;">contact@beyrouth.express</a> · <a href="#" style="color:#D4A853;text-decoration:none;">beyrouth.express</a>
+        </td></tr>
+      </table>
+    </td></tr>` : '';
+
+  return `<!DOCTYPE html><html><head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Commande confirmée</title>
+  <meta name="color-scheme" content="only light">
+  <meta name="supported-color-schemes" content="light">
+  <style>:root{color-scheme:light;}</style>
 </head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
-    <tr>
-      <td align="center" style="padding:20px 10px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#fff;">
+<body bgcolor="#f5f5f5" style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f5" style="background:#f5f5f5;">
+<tr><td align="center" bgcolor="#f5f5f5" style="background:#f5f5f5;padding:0;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr><td bgcolor="#000000" style="background:#000000;padding:8px 24px;text-align:center;">
+    <img src="${LOGO}" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
+  </td></tr>
+  ${content}
+  ${googleFooter}
+</table>
+</td></tr></table>
+</body></html>`;
+}
 
-          <!-- Header fond noir avec logo -->
-          <tr>
-            <td style="background:#000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
-            </td>
-          </tr>
+const emails = [
+  {
+    label: '✅ Commande confirmée',
+    trigger: 'Commande acceptée par le restaurant',
+    subject: 'Commande 4728 KP validée · Retrait 13h30',
+    html: wrap(`
+    <tr><td bgcolor="#ffffff" style="background:#ffffff;padding:24px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr><td style="background:#f0fdf4;padding:16px 20px;"><span style="font-size:16px;font-weight:600;color:#166534;">✅ Commande confirmée</span></td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
+        <tr><td style="padding:16px 20px;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+            <tr>
+              <td style="font-size:12px;color:#888;text-transform:uppercase;">Commande</td>
+              <td style="text-align:right;font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#1a1a1a;">4728 KP</td>
+            </tr>
+          </table>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
+            <tr>
+              <td style="padding-top:12px;font-size:12px;color:#888;text-transform:uppercase;">Retrait</td>
+              <td style="padding-top:12px;text-align:right;font-size:15px;font-weight:600;color:#1a1a1a;">13h30</td>
+            </tr>
+          </table>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr><td style="padding:10px 0;font-size:14px;color:#1a1a1a;border-bottom:1px solid #f0f0f0;">2× Chawarma poulet</td><td style="padding:10px 0;text-align:right;font-size:14px;color:#1a1a1a;font-weight:500;border-bottom:1px solid #f0f0f0;">19.00€</td></tr>
+        <tr><td style="padding:10px 0;font-size:14px;color:#1a1a1a;border-bottom:1px solid #f0f0f0;">1× Fattoush</td><td style="padding:10px 0;text-align:right;font-size:14px;border-bottom:1px solid #f0f0f0;">9.50€</td></tr>
+        <tr><td style="padding:8px 0 8px 20px;font-size:13px;color:#666;border-bottom:1px solid #f0f0f0;">+ Sauce extra</td><td style="padding:8px 0;text-align:right;font-size:13px;color:#666;border-bottom:1px solid #f0f0f0;">1.00€</td></tr>
+        <tr>
+          <td style="padding:14px 0 0;border-top:1px solid #e0e0e0;font-size:16px;font-weight:600;color:#1a1a1a;">Total TTC</td>
+          <td style="padding:14px 0 0;border-top:1px solid #e0e0e0;text-align:right;font-size:18px;font-weight:700;color:#1a1a1a;">29.50€</td>
+        </tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr><td style="background:#fef2f2;padding:14px 18px;">
+          <div style="font-size:12px;color:#991b1b;font-weight:600;text-transform:uppercase;margin-bottom:6px;">Note</div>
+          <div style="font-size:14px;color:#7f1d1d;">Sans oignons SVP</div>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
+        <tr><td style="padding:16px 0;">
+          <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Retrait</div>
+          <div style="font-size:14px;color:#1a1a1a;line-height:1.5;margin-bottom:12px;">
+            <strong>A Beyrouth</strong> · 4 Esp. Gal de Gaulle<br>92400 Courbevoie (La Défense)<br>
+            <span style="font-size:12px;color:#888;">Sortie 4 du métro La Défense</span>
+          </div>
+          <a href="#" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">📍 Google Maps</a>
+        </td></tr>
+      </table>
+    </td></tr>`)
+  },
+  {
+    label: '⏳ Paiement reçu',
+    trigger: 'Auto-accept OFF — client attend validation',
+    subject: '✅ Paiement confirmé - Commande 4728 KP',
+    html: wrap(`
+    <tr><td bgcolor="#ffffff" style="background:#ffffff;padding:24px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr><td style="background:#fef3c7;padding:16px 20px;">
+          <div style="font-size:16px;font-weight:600;color:#92400e;margin-bottom:4px;">✅ Paiement confirmé</div>
+          <div style="font-size:13px;color:#78350f;">En attente de validation par le restaurant</div>
+        </td></tr>
+      </table>
+      <p style="font-size:14px;color:#666;line-height:1.6;margin:0 0 20px 0;">Vous recevrez un email de confirmation dès que le restaurant aura accepté votre commande.</p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
+        <tr><td style="padding:16px 20px;">
+          <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">Commande</div>
+          <div style="font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#1a1a1a;">4728 KP</div>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
+        <tr><td style="padding:16px 0;">
+          <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Retrait</div>
+          <div style="font-size:14px;color:#1a1a1a;line-height:1.5;margin-bottom:12px;">
+            <strong>A Beyrouth</strong> · 4 Esp. Gal de Gaulle<br>92400 Courbevoie<br>
+            <span style="font-size:12px;color:#888;">Sortie 4 du métro La Défense</span>
+          </div>
+          <a href="#" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">📍 Google Maps</a>
+        </td></tr>
+      </table>
+    </td></tr>`)
+  },
+  {
+    label: '⏰ Relance retrait',
+    trigger: 'Bouton "Relancer" admin — client pas venu',
+    subject: '⏰ 4728 KP · Votre commande vous attend',
+    html: wrap(`
+    <tr><td bgcolor="#ffffff" style="background:#ffffff;padding:32px 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr><td style="background:#fef3c7;padding:16px 20px;">
+          <span style="font-size:16px;font-weight:600;color:#92400e;">⏰ Votre commande vous attend</span>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
+        <tr><td style="padding:16px 20px;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+            <tr>
+              <td style="font-size:12px;color:#888;text-transform:uppercase;">Commande</td>
+              <td style="text-align:right;font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#1a1a1a;">4728 KP</td>
+            </tr>
+          </table>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
+            <tr>
+              <td style="padding-top:12px;font-size:12px;color:#888;text-transform:uppercase;">Retrait</td>
+              <td style="padding-top:12px;text-align:right;font-size:15px;font-weight:600;color:#1a1a1a;">13h30</td>
+            </tr>
+          </table>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
+        <tr><td style="padding:16px 0;">
+          <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Retrait</div>
+          <div style="font-size:14px;color:#1a1a1a;line-height:1.5;margin-bottom:12px;">
+            <strong>A Beyrouth</strong> · 4 Esp. Gal de Gaulle<br>92400 Courbevoie<br>
+            <span style="font-size:12px;color:#888;">Sortie 4 du métro La Défense</span>
+          </div>
+          <a href="#" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">📍 Google Maps</a>
+        </td></tr>
+      </table>
+    </td></tr>
+    <tr><td bgcolor="#f5f5f5" style="background:#f5f5f5;padding:24px;border-top:1px solid #e0e0e0;text-align:center;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
+        <tr><td align="center" style="font-size:12px;color:#aaa;text-transform:uppercase;padding-bottom:8px;">Retrouvez-nous sur</td></tr>
+        <tr><td align="center"><a href="#" style="display:inline-block;background:#fafafa;color:#1a1a1a;text-decoration:none;padding:10px 28px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid #e0e0e0;">@a_beyrouth</a></td></tr>
+      </table>
+      <div style="font-size:12px;color:#888;">A Beyrouth · <a href="#" style="color:#D4A853;text-decoration:none;">beyrouth.express</a></div>
+    </td></tr>`, false)
+  },
+  {
+    label: '❌ Commande annulée',
+    trigger: 'Admin annule — remboursement PayGreen auto',
+    subject: '❌ Commande 4728 KP annulée - Remboursement',
+    html: wrap(`
+    <tr><td bgcolor="#ffffff" style="background:#ffffff;padding:24px 20px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr><td style="background:#fef2f2;padding:16px 20px;"><span style="font-size:16px;font-weight:600;color:#991b1b;">❌ Commande annulée</span></td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
+        <tr><td style="padding:16px 20px;">
+          <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">Commande</div>
+          <div style="font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#ef4444;">4728 KP</div>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
+        <tr><td style="padding:16px 20px;">
+          <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">Raison</div>
+          <div style="font-size:14px;color:#666;">Rupture de stock sur un article</div>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+        <tr><td style="background:#fef3c7;padding:16px 20px;">
+          <div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:6px;">💳 Remboursement automatique</div>
+          <div style="font-size:13px;color:#78350f;line-height:1.5;">Le montant de <strong>29,50 €</strong> vous sera remboursé sous 5 à 7 jours ouvrés.</div>
+        </td></tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
+        <tr><td style="padding:16px 0;">
+          <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Contact</div>
+          <div style="font-size:14px;color:#1a1a1a;line-height:1.5;margin-bottom:12px;">
+            <strong>A Beyrouth</strong> · 4 Esp. Gal de Gaulle<br>92400 Courbevoie
+          </div>
+          <a href="#" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">📍 Google Maps</a>
+        </td></tr>
+      </table>
+    </td></tr>`)
+  },
+  {
+    label: '🎉 Merci pour votre visite',
+    trigger: 'Commande passée en "récupérée" — lien facture PDF',
+    subject: 'Merci pour votre visite - Commande 4728 KP',
+    html: wrap(`
+    <tr><td bgcolor="#ffffff" style="background:#ffffff;padding:32px 24px;text-align:center;">
+      <h1 style="margin:0 0 12px;font-size:24px;font-weight:700;color:#1a1a1a;">Merci pour votre visite !</h1>
+      <p style="margin:0 0 24px;font-size:16px;color:#666;line-height:1.6;">
+        Votre commande <strong>4728 KP</strong> a bien été récupérée.<br>
+        À très bientôt chez A Beyrouth !
+      </p>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr><td align="center" style="padding:8px 0;">
+          <a href="#" style="display:inline-block;background:#2C3E50;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:15px;">📄 Télécharger mon reçu</a>
+        </td></tr>
+      </table>
+    </td></tr>`)
+  }
+];
 
-          <!-- Contenu principal -->
-          <tr>
-            <td style="padding:24px 20px;">
-
-              <!-- Statut -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td style="background:#f0fdf4;padding:16px 20px;">
-                    <span style="font-size:16px;font-weight:600;color:#166534;">✅ Commande confirmée</span>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Numéro + Heure -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
-                <tr>
-                  <td style="padding:16px 20px;">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
-                      <tr>
-                        <td style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Commande</td>
-                        <td style="text-align:right;font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#1a1a1a;">4728 KP</td>
-                      </tr>
-                    </table>
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;padding-top:12px;">
-                      <tr>
-                        <td style="padding-top:12px;font-size:12px;color:#888;text-transform:uppercase;">Retrait</td>
-                        <td style="padding-top:12px;text-align:right;font-size:15px;font-weight:600;color:#1a1a1a;">13h30</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Items -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr style="border-bottom:1px solid #f0f0f0;">
-                  <td style="padding:10px 0;font-size:14px;color:#1a1a1a;">1× Shawarma poulet</td>
-                  <td style="padding:10px 0;text-align:right;font-size:14px;color:#1a1a1a;font-weight:500;">12,50€</td>
-                </tr>
-                <tr style="border-bottom:1px solid #f0f0f0;">
-                  <td style="padding:10px 0;font-size:14px;color:#1a1a1a;">2× Falafel</td>
-                  <td style="padding:10px 0;text-align:right;font-size:14px;color:#1a1a1a;font-weight:500;">6,00€</td>
-                </tr>
-                <tr>
-                  <td style="padding:14px 0 0 0;border-top:1px solid #e0e0e0;font-size:16px;font-weight:600;color:#1a1a1a;">Total TTC</td>
-                  <td style="padding:14px 0 0 0;border-top:1px solid #e0e0e0;text-align:right;font-size:18px;font-weight:700;color:#1a1a1a;">18,50€</td>
-                </tr>
-              </table>
-
-              <!-- Adresse -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
-                <tr>
-                  <td style="padding:16px 0;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Retrait</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.5;margin-bottom:12px;">
-                      <strong>A Beyrouth</strong> · 4 Esp. Gal de Gaulle<br>
-                      92400 Courbevoie (La Défense)<br>
-                      <span style="font-size:12px;color:#888;">Sortie 4 du métro La Défense</span>
-                    </div>
-                    <a href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">
-                      📍 Ouvrir dans Google Maps
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-
-          <!-- Footer uniforme avec CTA avis Google -->
-          <tr>
-            <td style="background:#fafafa;padding:32px 24px;border-top:1px solid #e0e0e0;">
-
-              <!-- CTA Google -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td style="background:#E3F2FD;border-radius:10px;padding:20px;text-align:center;">
-                    <div style="font-size:20px;margin-bottom:6px;">⭐⭐⭐⭐⭐</div>
-                    <div style="font-size:14px;font-weight:700;color:#1565C0;margin-bottom:4px;">Votre avis compte !</div>
-                    <div style="font-size:12px;color:#1976D2;margin-bottom:14px;line-height:1.4;">Mettez-nous 5 étoiles sur Google 🙏</div>
-                    <a href="https://maps.app.goo.gl/mKChLAAquBDL2C5c6" target="_blank" style="display:inline-block;background:#1976D2;color:#fff;text-decoration:none;padding:10px 22px;border-radius:7px;font-weight:600;font-size:13px;">
-                      🌟 Laisser un avis
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Instagram -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td align="center">
-                    <a href="https://www.instagram.com/a_beyrouth/" target="_blank" style="display:inline-block;background:#fafafa;color:#1a1a1a;text-decoration:none;padding:10px 28px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid #e0e0e0;letter-spacing:0.3px;">
-                      @a_beyrouth
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Contact -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="text-align:center;font-size:12px;color:#888;line-height:1.6;">
-                    <strong style="color:#1a1a1a;">A Beyrouth</strong> · 4 Esp. Gal de Gaulle, 92400 Courbevoie<br>
-                    <a href="mailto:contact@beyrouth.express" style="color:#D4A853;text-decoration:none;">contact@beyrouth.express</a> ·
-                    <a href="https://beyrouth.express" style="color:#D4A853;text-decoration:none;">beyrouth.express</a>
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-      </div>
+const grid = document.getElementById('grid');
+emails.forEach((e, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-label">
+      <strong>${e.label}</strong>
+      ${e.trigger}
     </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- ================================================================== -->
-  <!-- EMAIL 2 : Paiement en attente                                       -->
-  <!-- ================================================================== -->
-  <div class="email-section" id="email2">
-    <div class="section-header">
-      <h2>Email 2 — Paiement confirmé, en attente validation</h2>
-      <div class="subject">Sujet : ✅ Paiement confirmé - Commande 4728 KP - A Beyrouth</div><br>
-      <span class="gmail-badge">✅ Gmail compatible</span>
+    <div class="frame-clip">
+      <iframe srcdoc="" data-html="${encodeURIComponent(e.html)}"></iframe>
     </div>
-    <div class="email-wrapper">
-      <div class="email-inner">
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paiement confirmé</title>
-</head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
-    <tr>
-      <td align="center" style="padding:20px 10px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#fff;">
+    <div style="font-size:11px;color:#444;margin-top:6px;padding:0 2px;">Clic pour agrandir</div>
+  `;
+  card.querySelector('.frame-clip').addEventListener('click', () => openModal(e));
+  grid.appendChild(card);
 
-          <!-- Header fond noir avec logo -->
-          <tr>
-            <td style="background:#000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
-            </td>
-          </tr>
+  // Charge l'iframe
+  const iframe = card.querySelector('iframe');
+  iframe.srcdoc = e.html;
+});
 
-          <!-- Contenu principal -->
-          <tr>
-            <td style="padding:24px 20px;">
-
-              <!-- Statut -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td style="background:#fef3c7;padding:16px 20px;">
-                    <div style="font-size:16px;font-weight:600;color:#92400e;margin-bottom:4px;">✅ Paiement confirmé</div>
-                    <div style="font-size:13px;color:#78350f;">En attente de validation</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Message -->
-              <p style="font-size:14px;color:#666;line-height:1.6;margin:0 0 20px 0;">
-                Vous recevrez un email de confirmation dès que le restaurant aura accepté votre commande.
-              </p>
-
-              <!-- Numéro -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
-                <tr>
-                  <td style="padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">Commande</div>
-                    <div style="font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#1a1a1a;">4728 KP</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Adresse -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
-                <tr>
-                  <td style="padding:16px 0;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Retrait</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.5;margin-bottom:12px;">
-                      <strong>A Beyrouth</strong> · 4 Esp. Gal de Gaulle<br>
-                      92400 Courbevoie (La Défense)<br>
-                      <span style="font-size:12px;color:#888;">Sortie 4 du métro La Défense</span>
-                    </div>
-                    <a href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">
-                      📍 Ouvrir dans Google Maps
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-
-          <!-- Footer avec CTA Google -->
-          <tr>
-            <td style="background:#fafafa;padding:32px 24px;border-top:1px solid #e0e0e0;">
-
-              <!-- CTA Google -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td style="background:#E3F2FD;border-radius:10px;padding:20px;text-align:center;">
-                    <div style="font-size:20px;margin-bottom:6px;">⭐⭐⭐⭐⭐</div>
-                    <div style="font-size:14px;font-weight:700;color:#1565C0;margin-bottom:4px;">Votre avis compte !</div>
-                    <div style="font-size:12px;color:#1976D2;margin-bottom:14px;line-height:1.4;">Mettez-nous 5 étoiles sur Google 🙏</div>
-                    <a href="https://maps.app.goo.gl/mKChLAAquBDL2C5c6" target="_blank" style="display:inline-block;background:#1976D2;color:#fff;text-decoration:none;padding:10px 22px;border-radius:7px;font-weight:600;font-size:13px;">
-                      🌟 Laisser un avis
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Instagram -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td align="center">
-                    <a href="https://www.instagram.com/a_beyrouth/" target="_blank" style="display:inline-block;background:#fafafa;color:#1a1a1a;text-decoration:none;padding:10px 28px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid #e0e0e0;letter-spacing:0.3px;">
-                      @a_beyrouth
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Adresse -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="text-align:center;font-size:13px;color:#888;line-height:1.6;">
-                    <strong style="color:#1a1a1a;">A Beyrouth</strong> · 4 Esp. Gal de Gaulle, 92400 Courbevoie<br>
-                    <a href="https://beyrouth.express" style="color:#D4A853;text-decoration:none;">beyrouth.express</a>
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- ================================================================== -->
-  <!-- EMAIL 3 : Relance client                                            -->
-  <!-- ================================================================== -->
-  <div class="email-section" id="email3">
-    <div class="section-header">
-      <h2>Email 3 — Relance client (commande non récupérée)</h2>
-      <div class="subject">Sujet : ⏰ 4728 KP - Votre commande vous attend</div><br>
-      <span class="gmail-badge">✅ Gmail compatible</span>
-    </div>
-    <div class="email-wrapper">
-      <div class="email-inner">
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Votre commande vous attend</title>
-</head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
-    <tr>
-      <td align="center" style="padding:20px 10px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#fff;">
-
-          <!-- Header fond noir avec logo -->
-          <tr>
-            <td style="background:#000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
-            </td>
-          </tr>
-
-          <!-- Contenu principal -->
-          <tr>
-            <td style="padding:32px 24px;">
-
-              <!-- Alerte orange -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td style="background:#fef3c7;padding:16px 20px;">
-                    <span style="font-size:16px;font-weight:600;color:#92400e;">⏰ Votre commande vous attend</span>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Numéro + Heure -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
-                <tr>
-                  <td style="padding:16px 20px;">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
-                      <tr>
-                        <td style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Commande</td>
-                        <td style="text-align:right;font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#1a1a1a;">4728 KP</td>
-                      </tr>
-                    </table>
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
-                      <tr>
-                        <td style="padding-top:12px;font-size:12px;color:#888;text-transform:uppercase;">Retrait</td>
-                        <td style="padding-top:12px;text-align:right;font-size:15px;font-weight:600;color:#1a1a1a;">13h30</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Adresse -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
-                <tr>
-                  <td style="padding:16px 0;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Retrait</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.5;margin-bottom:12px;">
-                      <strong>A Beyrouth</strong> · 4 Esp. Gal de Gaulle<br>
-                      92400 Courbevoie (La Défense)<br>
-                      <span style="font-size:12px;color:#888;">Sortie 4 du métro La Défense</span>
-                    </div>
-                    <a href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">
-                      📍 Ouvrir dans Google Maps
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background:#fafafa;padding:20px;border-top:1px solid #e0e0e0;text-align:center;">
-              <a href="https://beyrouth.express" style="font-size:13px;color:#D4A853;text-decoration:none;">beyrouth.express</a>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- ================================================================== -->
-  <!-- EMAIL 4 : Annulation + remboursement                               -->
-  <!-- ================================================================== -->
-  <div class="email-section" id="email4">
-    <div class="section-header">
-      <h2>Email 4 — Annulation + remboursement</h2>
-      <div class="subject">Sujet : ❌ Commande 4728 KP annulée - Remboursement en cours</div><br>
-      <span class="gmail-badge">✅ Gmail compatible</span>
-    </div>
-    <div class="email-wrapper">
-      <div class="email-inner">
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Commande annulée</title>
-</head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
-    <tr>
-      <td align="center" style="padding:20px 10px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#fff;">
-
-          <!-- Header fond noir avec logo -->
-          <tr>
-            <td style="background:#000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
-            </td>
-          </tr>
-
-          <!-- Contenu principal -->
-          <tr>
-            <td style="padding:24px 20px;">
-
-              <!-- Alerte annulation -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td style="background:#fef2f2;padding:16px 20px;">
-                    <span style="font-size:16px;font-weight:600;color:#991b1b;">❌ Commande annulée</span>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Numéro -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
-                <tr>
-                  <td style="padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">Commande</div>
-                    <div style="font-size:22px;font-weight:700;font-family:'Courier New',monospace;color:#ef4444;">4728 KP</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Raison -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;margin-bottom:20px;">
-                <tr>
-                  <td style="padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">Raison</div>
-                    <div style="font-size:14px;color:#666;line-height:1.6;">Rupture de stock</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Remboursement -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td style="background:#fef3c7;padding:16px 20px;">
-                    <div style="font-size:14px;font-weight:600;color:#92400e;margin-bottom:6px;">💳 Remboursement automatique</div>
-                    <div style="font-size:13px;color:#78350f;line-height:1.5;">Le montant de <strong>18,50 €</strong> vous sera remboursé sous 5 à 7 jours ouvrés.</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Contact -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
-                <tr>
-                  <td style="padding:16px 0;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Contact</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.5;margin-bottom:12px;">
-                      <strong>A Beyrouth</strong> · 4 Esp. Gal de Gaulle<br>
-                      92400 Courbevoie (La Défense)<br>
-                      <span style="font-size:12px;color:#888;">Sortie 4 du métro La Défense</span>
-                    </div>
-                    <a href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="display:inline-block;background:#E65100;color:#fff;text-decoration:none;padding:9px 20px;border-radius:7px;font-weight:600;font-size:13px;">
-                      📍 Ouvrir dans Google Maps
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-
-          <!-- Footer avec CTA Google -->
-          <tr>
-            <td style="background:#fafafa;padding:32px 24px;border-top:1px solid #e0e0e0;">
-
-              <!-- CTA Google -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td style="background:#E3F2FD;border-radius:10px;padding:20px;text-align:center;">
-                    <div style="font-size:20px;margin-bottom:6px;">⭐⭐⭐⭐⭐</div>
-                    <div style="font-size:14px;font-weight:700;color:#1565C0;margin-bottom:4px;">Votre avis compte !</div>
-                    <div style="font-size:12px;color:#1976D2;margin-bottom:14px;line-height:1.4;">Mettez-nous 5 étoiles sur Google 🙏</div>
-                    <a href="https://maps.app.goo.gl/mKChLAAquBDL2C5c6" target="_blank" style="display:inline-block;background:#1976D2;color:#fff;text-decoration:none;padding:10px 22px;border-radius:7px;font-weight:600;font-size:13px;">
-                      🌟 Laisser un avis
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Instagram -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td align="center">
-                    <a href="https://www.instagram.com/a_beyrouth/" target="_blank" style="display:inline-block;background:#fafafa;color:#1a1a1a;text-decoration:none;padding:10px 28px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid #e0e0e0;letter-spacing:0.3px;">
-                      @a_beyrouth
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Adresse -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="text-align:center;font-size:13px;color:#888;line-height:1.6;">
-                    <strong style="color:#1a1a1a;">A Beyrouth</strong> · 4 Esp. Gal de Gaulle, 92400 Courbevoie<br>
-                    <a href="https://beyrouth.express" style="color:#D4A853;text-decoration:none;">beyrouth.express</a>
-                  </td>
-                </tr>
-              </table>
-
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- ================================================================== -->
-  <!-- EMAIL 5 : Devis traiteur — côté client                             -->
-  <!-- ================================================================== -->
-  <div class="email-section" id="email5">
-    <div class="section-header">
-      <h2>Email 5 — Devis traiteur (côté client)</h2>
-      <div class="subject">Sujet : 📋 Demande de devis bien reçue - A Beyrouth</div><br>
-      <span class="gmail-badge">✅ Gmail compatible</span>
-    </div>
-    <div class="email-wrapper">
-      <div class="email-inner">
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Demande de devis reçue - A Beyrouth</title>
-</head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
-    <tr>
-      <td align="center" style="padding:20px 10px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#fff;">
-
-          <!-- Header fond noir avec logo -->
-          <tr>
-            <td style="background:#000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
-            </td>
-          </tr>
-
-          <!-- Contenu -->
-          <tr>
-            <td style="padding:24px 20px;">
-              <div style="font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">📋 Demande de devis reçue</div>
-              <div style="font-size:14px;color:#666;line-height:1.5;margin-bottom:20px;">Merci Marie, nous revenons vers vous sous 48h.</div>
-
-              <!-- Info principale -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:14px;color:#1a1a1a;font-weight:600;margin-bottom:8px;">✅ Votre demande a été enregistrée</div>
-                    <div style="font-size:13px;color:#666;line-height:1.5;">
-                      Notre équipe va étudier votre demande et vous envoyer un devis personnalisé dans les 48 heures.
-                    </div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Récapitulatif -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Récapitulatif</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.8;">
-                      <div>📅 <strong>Mariage</strong></div>
-                      <div>👥 80 personnes</div>
-                      <div>📆 15 juin 2026</div>
-                      <div>📧 marie@exemple.fr</div>
-                      <div>📱 06 12 34 56 78</div>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Message -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Votre message</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap;">Bonjour, nous souhaitons un buffet libanais complet pour notre mariage.</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Contact -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
-                <tr>
-                  <td style="padding:16px 0;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Contact</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.5;">
-                      <strong>A Beyrouth</strong><br>
-                      4 Esplanade du Général de Gaulle<br>
-                      92400 Courbevoie (La Défense)
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background:#fafafa;padding:20px;border-top:1px solid #e0e0e0;text-align:center;">
-              <a href="https://beyrouth.express" style="font-size:13px;color:#D4A853;text-decoration:none;">beyrouth.express</a>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- ================================================================== -->
-  <!-- EMAIL 6 : Devis traiteur — côté admin                              -->
-  <!-- ================================================================== -->
-  <div class="email-section" id="email6">
-    <div class="section-header">
-      <h2>Email 6 — Devis traiteur (côté admin)</h2>
-      <div class="subject">Sujet : 📋 Nouvelle demande de devis - Marie Dupont</div><br>
-      <span class="gmail-badge">✅ Gmail compatible</span>
-    </div>
-    <div class="email-wrapper">
-      <div class="email-inner">
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nouvelle demande de devis - Marie Dupont</title>
-</head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
-    <tr>
-      <td align="center" style="padding:20px 10px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#fff;">
-
-          <!-- Header fond noir avec logo -->
-          <tr>
-            <td style="background:#000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
-            </td>
-          </tr>
-
-          <!-- Contenu -->
-          <tr>
-            <td style="padding:24px 20px;">
-              <div style="font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:16px;">🆕 Nouvelle demande de devis</div>
-
-              <!-- Contact -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
-                <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Contact</div>
-                    <div style="font-size:16px;color:#1a1a1a;font-weight:600;margin-bottom:8px;">Marie Dupont</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.8;">
-                      📧 <a href="mailto:marie@exemple.fr" style="color:#1a1a1a;text-decoration:none;">marie@exemple.fr</a><br>
-                      📱 <a href="tel:0612345678" style="color:#1a1a1a;text-decoration:none;">06 12 34 56 78</a>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Événement -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
-                <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Événement</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.8;">
-                      <div>📅 <strong>Mariage</strong></div>
-                      <div>👥 <strong>80 personnes</strong></div>
-                      <div>📆 15 juin 2026</div>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Message -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
-                <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Message</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap;">Bonjour, nous souhaitons un buffet libanais complet pour notre mariage.</div>
-                  </td>
-                </tr>
-              </table>
-
-              <!-- Info -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="background:#E3F2FD;padding:12px 16px;">
-                    <div style="font-size:13px;color:#1565C0;font-weight:600;">✉️ Email de confirmation envoyé au client</div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background:#fafafa;padding:20px;border-top:1px solid #e0e0e0;text-align:center;">
-              <div style="font-size:12px;color:#888;">Demande enregistrée dans quote_requests</div>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- ================================================================== -->
-  <!-- EMAIL 7 : Commande récupérée (send-order-completed)                 -->
-  <!-- ================================================================== -->
-  <div class="email-section" id="email7">
-    <div class="section-header">
-      <h2>Email 6 — Commande récupérée (send-order-completed)</h2>
-      <div class="subject">Sujet : Merci pour votre visite - Commande 4728 KP - A Beyrouth</div><br>
-      <span class="gmail-badge">✅ Gmail compatible</span>
-    </div>
-    <div class="email-wrapper">
-      <div class="email-inner">
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Merci pour votre visite !</title>
-</head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f5f5;">
-    <tr>
-      <td align="center" style="padding:20px 10px;">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#fff;">
-          <tr>
-            <td style="background:#000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:32px 24px;text-align:center;">
-              <h1 style="margin:0 0 12px 0;font-size:24px;font-weight:700;color:#1a1a1a;">Merci pour votre visite !</h1>
-              <p style="margin:0 0 24px 0;font-size:16px;color:#666;line-height:1.6;">
-                Votre commande <strong>4728 KP</strong> a bien été récupérée.<br>
-                À très bientôt chez A Beyrouth !
-              </p>
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td align="center" style="padding:16px 0;">
-                    <a href="#" style="display:inline-block;background:#2C3E50;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:15px;">
-                      Télécharger mon reçu
-                    </a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td style="background:#fafafa;padding:32px 24px;border-top:1px solid #e0e0e0;">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td style="background:#E3F2FD;border-radius:10px;padding:20px;text-align:center;">
-                    <div style="font-size:24px;margin-bottom:8px;">⭐⭐⭐⭐⭐</div>
-                    <div style="font-size:15px;font-weight:700;color:#1565C0;margin-bottom:6px;">Votre avis compte !</div>
-                    <div style="font-size:13px;color:#1976D2;margin-bottom:16px;line-height:1.5;">Mettez-nous 5 étoiles sur Google 🙏</div>
-                    <a href="#" style="display:inline-block;background:#1976D2;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
-                      Laisser un avis
-                    </a>
-                  </td>
-                </tr>
-              </table>
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-                <tr>
-                  <td align="center" style="font-size:12px;color:#aaa;letter-spacing:0.5px;text-transform:uppercase;padding-bottom:8px;">Retrouvez-nous sur</td>
-                </tr>
-                <tr>
-                  <td align="center">
-                    <a href="#" style="display:inline-block;background:#fafafa;color:#1a1a1a;text-decoration:none;padding:10px 28px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid #e0e0e0;letter-spacing:0.3px;">
-                      @a_beyrouth
-                    </a>
-                  </td>
-                </tr>
-              </table>
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="text-align:center;font-size:13px;color:#888;line-height:1.6;">
-                    <strong style="color:#1a1a1a;">A Beyrouth</strong><br>
-                    4 Esp. Gal de Gaulle, 92400 Courbevoie<br>
-                    <a href="https://beyrouth.express" style="color:#D4A853;text-decoration:none;">beyrouth.express</a>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-      </div>
-    </div>
-  </div>
-
-</div><!-- .page -->
+function openModal(e) {
+  document.getElementById('modal-label').textContent = e.subject;
+  document.getElementById('modal-frame').srcdoc = e.html;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(ev) {
+  if (!ev || ev.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+</script>
 </body>
 </html>

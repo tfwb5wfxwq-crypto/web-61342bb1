@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+
+<!-- Google Analytics 4 — c'est ICI que se mesure la conversion (voir trackPurchase()
+     en bas de page). Script async : sans lui la page fonctionne a l'identique. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-X4CLSYXFN5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-X4CLSYXFN5');
+</script>
+
+<title data-i18n="confirmation.title">Commande confirmée | Beyrouth Express</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --green: #10B981;
+  --orange: #F59E0B;
+  --blue: #3B82F6;
+  --dark: #1A1A1A;
+  --cream: #FFF8F0;
+  --gold: #D4A853;
+  --bordeaux: #8B1A1A;
+}
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.container {
+  max-width: 500px;
+  width: 100%;
+  background: white;
+  border-radius: 20px;
+  padding: 40px 32px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+.icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 2rem;
+}
+.icon.green { background: var(--green); color: white; }
+.icon.orange { background: var(--orange); color: white; }
+.icon.blue { background: var(--blue); color: white; }
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+}
+h1.green { color: var(--green); }
+h1.orange { color: var(--orange); }
+h1.blue { color: var(--blue); }
+.order-num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 4px;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+}
+.subtitle {
+  font-size: 0.85rem;
+  color: #6B6B6B;
+  margin: 0 0 20px;
+  text-align: center;
+}
+.status-banner {
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.status-banner.waiting {
+  background: #FEF3C7;
+  border: 2px solid var(--orange);
+}
+.status-banner.accepted {
+  background: #D1FAE5;
+  border: 2px solid var(--green);
+}
+.status-banner.ready {
+  background: #DBEAFE;
+  border: 2px solid var(--blue);
+}
+.status-banner-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+.status-banner-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+.status-banner.waiting .status-banner-title { color: var(--orange); }
+.status-banner.accepted .status-banner-title { color: var(--green); }
+.status-banner.ready .status-banner-title { color: var(--blue); }
+.status-banner-text {
+  font-size: 0.9rem;
+  color: #666;
+}
+.section {
+  background: var(--cream);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: 0.75rem;
+  color: #888;
+  margin: 0 0 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.section-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+}
+.item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+.item-price {
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+.total-row {
+  border-top: 2px solid #ddd;
+  margin-top: 12px;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.address-section {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  height: 300px;
+  background: #111;
+  display: none;
+}
+.address-video-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+.address-video-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(160deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%);
+}
+.address-video-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 18px 20px;
+}
+.address-title {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.7);
+  margin: 0 0 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.address-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+  margin: 0 0 2px;
+}
+.address-text {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+  margin: 0 0 6px;
+}
+.address-note {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.6);
+  margin: 0 0 12px;
+}
+.address-maps-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #E65100;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  width: fit-content;
+  transition: background 0.2s;
+}
+.address-maps-btn:hover { background: #BF360C; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.address-section.visible {
+  animation: fadeInUp 0.5s ease forwards;
+}
+.email-section {
+  background: #E3F2FD;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.email-text {
+  font-size: 0.9rem;
+  color: #1976D2;
+  margin: 0;
+}
+.email-sub {
+  font-size: 0.8rem;
+  color: #666;
+}
+.btn {
+  display: block;
+  padding: 14px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-decoration: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--green);
+  color: white;
+}
+.btn-primary:hover {
+  background: #0EA572;
+}
+.btn-secondary {
+  background: transparent;
+  border: 2px solid #ddd;
+  color: var(--dark);
+  padding: 12px;
+}
+.btn-secondary:hover {
+  background: #f5f5f5;
+}
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+.pulse {
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  display: inline-block;
+  animation: spin 2s linear infinite;
+}
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #F59E0B;
+  font-weight: 600;
+  margin-top: 8px;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: #F59E0B;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <div class="loading" id="loading">
+    <div style="font-size:3rem;margin-bottom:16px;" class="pulse">⏳</div>
+    <p>Chargement de votre commande...</p>
+  </div>
+
+  <div id="content" style="display:none;">
+    <!-- Icon & Title (changent selon statut) -->
+    <div class="icon green" id="statusIcon">✓</div>
+    <h1 class="green" id="statusTitle">Paiement validé !</h1>
+    <div class="order-num" id="orderNum">BE-0001</div>
+    <p class="subtitle" id="statusSubtitle">Votre commande a été enregistrée</p>
+
+    <!-- Bannière statut dynamique -->
+    <div id="statusBanner"></div>
+
+    <!-- Heure de retrait -->
+    <div class="section">
+      <p class="section-title" data-i18n="confirmation.pickupTime">Retrait prévu</p>
+      <p class="section-value" id="pickupTime">12h30</p>
+    </div>
+
+    <!-- Détails commande -->
+    <div class="section">
+      <p class="section-title" data-i18n="cart.yourOrder">Votre commande</p>
+      <div id="items"></div>
+      <div class="total-row">
+        <span data-i18n="cart.total">Total</span>
+        <span id="total">0,00 €</span>
+      </div>
+    </div>
+
+    <!-- Adresse récupération — vidéo fond (visible uniquement acceptee/prete) -->
+    <div class="address-section" id="addressSection">
+      <video class="address-video-bg" autoplay loop muted playsinline preload="auto">
+        <source src="/beyrouth-location.mp4" type="video/mp4">
+      </video>
+      <div class="address-video-overlay"></div>
+      <div class="address-video-content">
+        <p class="address-title">📍 <span data-i18n="confirmation.whereToPickup">Où récupérer</span></p>
+        <p class="address-name">A Beyrouth</p>
+        <p class="address-text" data-i18n="confirmation.address" data-i18n-html>4 Esplanade du Général de Gaulle<br>92400 Courbevoie (La Défense)</p>
+        <p class="address-note" data-i18n="confirmation.metro">Sortie 4 du métro La Défense</p>
+        <a class="address-maps-btn" href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Ouvrir dans Google Maps
+        </a>
+      </div>
+    </div>
+
+    <!-- Email info -->
+    <div class="email-section" id="emailSection">
+      <p class="email-text" id="emailMessage">
+        ✉️ Email de confirmation envoyé
+      </p>
+    </div>
+
+    <a class="btn btn-secondary" href="/">Retour au menu</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://xbuftfwcyontgqbbrrjt.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhidWZ0ZndjeW9udGdxYmJycmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Njg1NzksImV4cCI6MjA4NjI0NDU3OX0.ROkSccADlpLsWMgqyiX_xNaFdJNR8P4R-LJCnZV2Gzg';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let orderData = null;
+let autoAcceptEnabled = false;
+
+// 🔒 SÉCURITÉ : Fonction d'échappement HTML pour prévenir les XSS
+function escapeHtml(text) {
+  if (!text) return '';
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return String(text).replace(/[&<>"']/g, m => map[m]);
+}
+
+// Vérifier si l'heure de retrait est passée (= commande automatiquement prête)
+function isPickupTimePassed(pickupTime) {
+  if (!pickupTime || pickupTime === 'asap') return false;
+
+  // Si heure_retrait mentionne un jour futur → pas encore passé
+  // Ex: "Lundi 11h30", "Demain 14h00", "Mardi 12h30", etc.
+  const joursAVenir = ['Demain', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  for (const jour of joursAVenir) {
+    if (pickupTime.startsWith(jour)) return false;
+  }
+
+  // Seulement pour "Aujourd'hui HHhMM" ou "HHhMM" (commande du jour)
+  const now = new Date();
+  const today = now.toISOString().split('T')[0];
+
+  const match = pickupTime.match(/(\d+)h(\d+)/);
+  if (!match) return false;
+
+  const pickupDate = new Date(`${today}T${match[1].padStart(2, '0')}:${match[2].padStart(2, '0')}:00`);
+  return now >= pickupDate;
+}
+
+// Mettre à jour l'affichage selon le statut
+// --- Mesure de conversion Google Analytics ---------------------------------
+// Seuls ces statuts valent une vente. "pending" = paiement pas encore confirme,
+// annulee/remboursee = pas de vente. Compter "pending" ferait croire a Google
+// Ads que des paniers abandonnes sont des commandes.
+const GA4_STATUTS_PAYES = ['payee', 'acceptee', 'en_preparation', 'prete', 'recuperee'];
+
+// Appelee a chaque rafraichissement (chargement, polling 5 s, verification 30 s) :
+// le verrou localStorage garantit qu'une commande n'est comptee QU'UNE SEULE fois,
+// meme si le client recharge la page ou revient voir ou en est sa commande.
+// Tout est sous try/catch : cette mesure ne doit JAMAIS empecher l'affichage.
+function trackPurchase(order) {
+  try {
+    if (!order || typeof gtag !== 'function') return;
+    if (!GA4_STATUTS_PAYES.includes(order.statut)) return;
+    if (!order.numero || typeof order.total !== 'number') return;
+
+    const cle = 'ga4_purchase_' + order.numero;
+    if (localStorage.getItem(cle)) return;
+    localStorage.setItem(cle, '1');
+
+    gtag('event', 'purchase', {
+      transaction_id: order.numero,
+      value: order.total,
+      currency: 'EUR',
+      items: (order.items || []).map(it => ({
+        item_name: it.nom,
+        price: it.prix,
+        quantity: it.qty
+      }))
+    });
+  } catch (e) {
+    console.warn('GA4 purchase non envoye:', e);
+  }
+}
+
+function updateDisplay(order) {
+  orderData = order;
+  trackPurchase(order);
+
+  const icon = document.getElementById('statusIcon');
+  const title = document.getElementById('statusTitle');
+  const subtitle = document.getElementById('statusSubtitle');
+  const banner = document.getElementById('statusBanner');
+  const emailMsg = document.getElementById('emailMessage');
+  const addressSection = document.getElementById('addressSection');
+
+  const status = order.statut;
+  const isPassed = isPickupTimePassed(order.heure_retrait);
+
+  // Déterminer le statut effectif
+  let effectiveStatus = status;
+  if (status === 'acceptee' && isPassed) {
+    effectiveStatus = 'prete';
+  }
+
+  // Vidéo localisation : visible uniquement si commande acceptée ou prête
+  const showVideo = ['acceptee', 'prete'].includes(effectiveStatus);
+  if (showVideo) {
+    addressSection.style.display = 'block';
+    requestAnimationFrame(() => addressSection.classList.add('visible'));
+  } else {
+    addressSection.style.display = 'none';
+    addressSection.classList.remove('visible');
+  }
+
+  // Reset classes
+  icon.className = 'icon';
+  title.className = '';
+
+  // Adapter selon statut
+  if (effectiveStatus === 'pending') {
+    // Paiement en cours de traitement
+    icon.classList.add('orange');
+    icon.textContent = '⏳';
+    title.classList.add('orange');
+    title.textContent = 'Paiement en cours...';
+    subtitle.textContent = 'Validation du paiement en cours';
+
+    banner.innerHTML = `
+      <div class="status-banner waiting">
+        <div class="status-banner-icon spinner">⏳</div>
+        <div class="status-banner-title">Traitement du paiement...</div>
+        <div class="status-banner-text">
+          Votre paiement est en cours de validation.<br>
+          La page se met à jour automatiquement.
+        </div>
+        <div class="live-indicator">
+          <div class="live-dot"></div>
+          <span>En attente de confirmation...</span>
+        </div>
+      </div>
+    `;
+
+    emailMsg.innerHTML = '⏳ <strong>Paiement en cours de validation</strong>';
+
+  } else if (effectiveStatus === 'payee') {
+    icon.classList.add('orange');
+    icon.textContent = '⏳';
+    title.classList.add('orange');
+
+    if (autoAcceptEnabled) {
+      // Auto-accept ON : validation automatique imminente
+      title.textContent = 'Validation automatique...';
+      subtitle.textContent = 'Votre commande va être confirmée dans quelques instants';
+
+      banner.innerHTML = `
+        <div class="status-banner waiting">
+          <div class="status-banner-icon spinner">⏳</div>
+          <div class="status-banner-title">Validation automatique en cours...</div>
+          <div class="status-banner-text">
+            Votre commande est en cours d'acceptation.<br>
+            Vous recevrez un email de confirmation dans quelques instants.
+          </div>
+          <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span>Traitement en cours...</span>
+          </div>
+        </div>
+      `;
+
+      emailMsg.innerHTML = '✉️ <strong>Email de confirmation en route</strong><br><span class="email-sub">Quelques secondes...</span>';
+    } else {
+      // Auto-accept OFF : validation manuelle par le restaurant
+      title.textContent = 'En attente de validation';
+      subtitle.textContent = 'Le restaurant va confirmer votre commande';
+
+      banner.innerHTML = `
+        <div class="status-banner waiting">
+          <div class="status-banner-icon spinner">⏳</div>
+          <div class="status-banner-title">En attente du restaurant...</div>
+          <div class="status-banner-text">
+            Le restaurant examine votre commande.<br>
+            Vous recevrez un email dès validation.
+          </div>
+          <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span>Cette page se met à jour automatiquement</span>
+          </div>
+        </div>
+      `;
+
+      emailMsg.innerHTML = '✉️ <strong>Email envoyé</strong><br><span class="email-sub">Vous serez notifié dès validation</span>';
+    }
+
+  } else if (effectiveStatus === 'acceptee') {
+    // Acceptée, en préparation
+    icon.classList.add('green');
+    icon.textContent = '✓';
+    title.classList.add('green');
+    title.textContent = 'Commande acceptée !';
+    subtitle.textContent = 'Votre commande est en préparation';
+
+    const rawHeure = order.heure_retrait || ''
+    let heureText;
+    if (!rawHeure || rawHeure === 'asap' || rawHeure === 'ASAP') {
+      heureText = 'dès que possible';
+    } else if (/^Aujourd'hui\s+/i.test(rawHeure)) {
+      const heure = rawHeure.replace(/^Aujourd'hui\s+/i, '');
+      heureText = `à <strong>${heure}</strong>`;
+    } else {
+      // "Lundi 11h30", "Demain 12h00" etc. → "lundi à 11h30"
+      const match = rawHeure.match(/^(\S+)\s+(.+)$/);
+      if (match) {
+        heureText = `<strong>${match[1].toLowerCase()}</strong> à <strong>${match[2]}</strong>`;
+      } else {
+        heureText = `<strong>${rawHeure}</strong>`;
+      }
+    }
+    banner.innerHTML = `
+      <div class="status-banner accepted">
+        <div class="status-banner-icon">👨‍🍳</div>
+        <div class="status-banner-title">Préparation en cours</div>
+        <div class="status-banner-text">Votre commande sera prête ${heureText}</div>
+      </div>
+    `;
+
+    emailMsg.innerHTML = '✉️ <strong>Commande acceptée</strong>';
+
+  } else if (effectiveStatus === 'prete') {
+    // Prête à récupérer
+    icon.classList.add('blue');
+    icon.textContent = '🎉';
+    title.classList.add('blue');
+    title.textContent = 'Commande prête !';
+    subtitle.textContent = 'Venez la récupérer';
+
+    banner.innerHTML = `
+      <div class="status-banner ready">
+        <div class="status-banner-icon">🎉</div>
+        <div class="status-banner-title">Votre commande est prête !</div>
+        <div class="status-banner-text">Vous pouvez venir la récupérer au restaurant</div>
+      </div>
+    `;
+
+    emailMsg.innerHTML = '<strong>Commande prête !</strong><br><span class="email-sub">Venez la récupérer chez A Beyrouth</span>';
+
+  } else if (effectiveStatus === 'recuperee') {
+    // Récupérée
+    icon.classList.add('green');
+    icon.textContent = '✅';
+    title.classList.add('green');
+    title.textContent = 'Bon appétit !';
+    subtitle.textContent = 'Commande récupérée';
+
+    banner.innerHTML = `
+      <div class="status-banner accepted">
+        <div class="status-banner-icon">✅</div>
+        <div class="status-banner-title">Merci pour votre commande !</div>
+        <div class="status-banner-text">À très bientôt chez A Beyrouth 🧆</div>
+      </div>
+    `;
+
+    emailMsg.innerHTML = '<strong>Merci et à bientôt !</strong>';
+
+  } else if (effectiveStatus === 'cancelled') {
+    icon.classList.add('orange');
+    icon.textContent = '❌';
+    title.className = 'orange';
+    title.textContent = 'Commande annulée';
+    subtitle.textContent = 'Remboursement en cours';
+
+    banner.innerHTML = `
+      <div class="status-banner waiting">
+        <div class="status-banner-icon">💳</div>
+        <div class="status-banner-title">Commande annulée</div>
+        <div class="status-banner-text">Le remboursement sera effectué sous 5 à 7 jours ouvrés.</div>
+      </div>
+    `;
+
+    emailMsg.innerHTML = '✉️ <strong>Email d\'annulation envoyé</strong>';
+
+  } else if (effectiveStatus === 'refunded') {
+    icon.classList.add('orange');
+    icon.textContent = '↩️';
+    title.className = 'orange';
+    title.textContent = 'Commande annulée';
+    subtitle.textContent = 'Remboursement en cours';
+
+    banner.innerHTML = `
+      <div class="status-banner waiting">
+        <div class="status-banner-icon">💳</div>
+        <div class="status-banner-title">Commande annulée</div>
+        <div class="status-banner-text">Le remboursement sera effectué sous 5 à 7 jours ouvrés.</div>
+      </div>
+    `;
+
+    emailMsg.innerHTML = '✉️ <strong>Email d\'annulation envoyé</strong>';
+  }
+}
+
+async function fetchOrder(orderNum) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/get-order-status?numero=${encodeURIComponent(orderNum)}`, {
+    headers: { 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+  });
+  if (!res.ok) return null;
+  return await res.json();
+}
+
+async function loadOrder() {
+  const params = new URLSearchParams(window.location.search);
+  const orderNum = params.get('num');
+
+  if (!orderNum) {
+    window.location.href = '/';
+    return;
+  }
+
+  try {
+    // Charger la commande via Edge Function (pas de SELECT direct sur orders)
+    const [data, autoAcceptSetting] = await Promise.all([
+      fetchOrder(orderNum),
+      sb.from('settings').select('value').eq('key', 'auto_accept_orders').maybeSingle()
+        .then(r => r.data)
+    ]);
+
+    autoAcceptEnabled = autoAcceptSetting?.value === 'true';
+
+    if (!data || data.error) {
+      alert(window.i18n ? window.i18n.t('messages.orderNotFound') : 'Commande introuvable. Vérifiez le numéro.');
+      window.location.href = '/';
+      return;
+    }
+
+    orderData = data;
+
+    // Remplir les infos fixes
+    document.getElementById('orderNum').textContent = data.numero;
+    const rawPickup = data.heure_retrait || ''
+    document.getElementById('pickupTime').textContent = (!rawPickup || rawPickup === 'asap' || rawPickup === 'ASAP') ? (window.i18n ? window.i18n.t('timepicker.asap') : 'Dès que possible') : rawPickup.replace(/^Aujourd'hui\s+/i, '');
+
+    // Items - 🔒 SÉCURISÉ contre XSS
+    const itemsHtml = data.items.map(item => {
+      const total = (item.prix * item.qty).toFixed(2).replace('.', ',');
+      const safeImageUrl = escapeHtml(item.image_url);
+      const safeName = escapeHtml(item.nom);
+
+      const imgHtml = item.image_url
+        ? `<img src="${safeImageUrl}" alt="${safeName}" style="width:50px;height:50px;border-radius:10px;object-fit:cover;margin-right:12px;">`
+        : `<div style="width:50px;height:50px;border-radius:10px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin-right:12px;font-size:1.5rem;">🍽️</div>`;
+      return `
+        <div class="item" style="display:flex;align-items:center;margin-bottom:12px;">
+          ${imgHtml}
+          <div style="flex:1;display:flex;justify-content:space-between;align-items:center;">
+            <span>${item.qty}x ${safeName}</span>
+            <span class="item-price">${total} €</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('items').innerHTML = itemsHtml;
+
+    // Total
+    const total = data.total.toFixed(2).replace('.', ',');
+    document.getElementById('total').textContent = total + ' €';
+
+    // Afficher
+    updateDisplay(data);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+
+    // Polling toutes les 5s pour les statuts intermédiaires
+    const poll = setInterval(async () => {
+      if (!orderData || ['recuperee', 'cancelled', 'refunded'].includes(orderData.statut)) {
+        clearInterval(poll);
+        return;
+      }
+      try {
+        const refreshed = await fetchOrder(orderNum);
+        if (refreshed && !refreshed.error && refreshed.statut !== orderData.statut) {
+          orderData = refreshed;
+          updateDisplay(refreshed);
+        }
+      } catch (e) {
+        console.error('Erreur polling:', e);
+      }
+    }, 5000);
+
+    // Fallback webhook : polling PayGreen direct si toujours "pending"
+    // Démarre à 5s (webhook normal ~1-2s), puis retry toutes les 5s jusqu'à 30s
+    if (data.statut === 'pending') {
+      let fallbackAttempts = 0;
+      const fallbackPoll = setInterval(async () => {
+        fallbackAttempts++;
+        if (!orderData || orderData.statut !== 'pending' || fallbackAttempts > 3) {
+          clearInterval(fallbackPoll);
+          return;
+        }
+        try {
+          const res = await fetch(`${SUPABASE_URL}/functions/v1/check-payment-status?num=${encodeURIComponent(orderNum)}`, {
+            headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+          });
+          const result = await res.json();
+          if (result.updated && result.statut && result.statut !== 'pending') {
+            clearInterval(fallbackPoll);
+            console.log('✅ Fallback webhook: statut mis à jour →', result.statut);
+            const refreshed = await fetchOrder(orderNum);
+            if (refreshed && !refreshed.error) {
+              orderData = refreshed;
+              updateDisplay(refreshed);
+            }
+          }
+        } catch (e) {
+          console.error('Erreur fallback webhook:', e);
+        }
+      }, 10000);
+    }
+
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert('Erreur de chargement de la commande');
+    window.location.href = '/';
+  }
+}
+
+loadOrder();
+
+// Vérifier toutes les 30 secondes si l'heure est passée (pour passer auto en "prêt")
+setInterval(() => {
+  if (orderData) {
+    updateDisplay(orderData);
+  }
+}, 30000);
+</script>
+
+
+</body>
+</html>
