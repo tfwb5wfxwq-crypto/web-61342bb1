@@ -1184,8 +1184,8 @@ function renderMenu() {
                   onclick="event.stopPropagation();addToCart(${item.id})"
                   ${!item.disponible ? 'disabled' : ''}>+</button>`}
           <div class="menu-card-body">
-            <div class="menu-card-name">${escapeHtml(item.nom)}</div>
-            <div class="menu-card-desc">${escapeHtml(item.description || '')}</div>
+            <div class="menu-card-name">${escapeHtml(nomPlat(item))}</div>
+            <div class="menu-card-desc">${escapeHtml(descPlat(item))}</div>
             <div class="menu-card-bottom">
               <span class="menu-card-price">${formatPrice(item.prix)}</span>
             </div>
@@ -1365,7 +1365,7 @@ function openFormuleModal(formuleItem) {
             <div class="formule-option" onclick="selectFormuleOption(${idx}, ${optIdx}, ${comp.qty})">
               ${opt.image_url ? `<img src="${opt.image_url}" alt="${opt.nom}" class="${imgClass}">` : `<span style="font-size:1.2rem">${opt.emoji || '🍽️'}</span>`}
               <div class="formule-option-info">
-                <div class="formule-option-name">${opt.nom}</div>
+                <div class="formule-option-name">${escapeHtml(nomPlat(opt))}</div>
               </div>
             </div>
           `;
@@ -1527,6 +1527,31 @@ function changeQtyAt(idx, delta) {
   saveCart(); updateCartUI(); updateItemQuantity(item.id);
 }
 
+
+// ===== AFFICHAGE DU MENU EN ANGLAIS (etape 8, 11/08/2026) =====
+// REGLE ABSOLUE : on ne modifie JAMAIS item.nom. Ce champ est une CLE utilisee
+// par le code a plusieurs endroits, et le traduire casserait tout en silence :
+//   · FORMULE_CONFIG[item.nom]        (composition des formules)
+//   · formuleItem.nom === 'Formule 3' (regle du dessert)
+//   · i.nom === 'Ayran'               (suggestion de boisson)
+//   · nom: c.nom                      (recopie dans la commande, donc dans les
+//                                      emails, la facture et l ecran de Paco)
+// Ces deux fonctions ne servent QU A L AFFICHAGE. Si la traduction est absente,
+// vide, ou si le dictionnaire n a pas charge, on affiche le francais : un plat
+// ajoute par Paco sans traduction reste donc parfaitement lisible.
+function estAnglais() {
+  try { return !!(window.i18n && window.i18n.get && window.i18n.get() === 'en'); }
+  catch (e) { return false; }
+}
+function nomPlat(item) {
+  if (!item) return '';
+  return (estAnglais() && item.nom_en) ? item.nom_en : item.nom;
+}
+function descPlat(item) {
+  if (!item) return '';
+  return ((estAnglais() && item.description_en) ? item.description_en : item.description) || '';
+}
+
 function updateCartUI() {
   // 🔒 FIX #79: Arrondir à chaque étape pour éviter floating point errors (0.1 + 0.2 = 0.30000000004)
   const total = cart.reduce((s, c) => Math.round((s + c.prix * c.qty) * 100) / 100, 0);
@@ -1613,7 +1638,7 @@ function updateCartUI() {
     div.innerHTML = `
       ${visual}
       <div class="cart-item-info">
-        <div class="cart-item-name">${escapeHtml(c.nom)}</div>
+        <div class="cart-item-name">${escapeHtml(nomPlat(c))}</div>
         <div class="cart-item-price">${formatPrice(c.prix)} chacun</div>
         ${componentsHtml}
       </div>
@@ -1680,7 +1705,7 @@ function renderSuggestions() {
       <div class="cart-suggest-item" onclick="addToCart(${s.id});updateCartUI();renderMenu()">
         ${visual}
         <div>
-          <div class="suggest-name">${s.nom}</div>
+          <div class="suggest-name">${escapeHtml(nomPlat(s))}</div>
           <div class="suggest-price">${formatPrice(s.prix)}</div>
         </div>
         <span class="suggest-add">+</span>
@@ -1717,7 +1742,7 @@ function getSmartUpsell(addedItem) {
       const d = desserts[Math.floor(Math.random() * desserts.length)];
       return {
         emoji: '🍮',
-        text: `Finissez en douceur ! <strong>${d.nom}</strong> · ${formatPrice(d.prix)}`,
+        text: `Finissez en douceur ! <strong>${escapeHtml(nomPlat(d))}</strong> · ${formatPrice(d.prix)}`,
         action: () => addToCart(d.id),
         btn: `+ ${formatPrice(d.prix)}`
       };
@@ -1917,7 +1942,7 @@ async function submitOrder() {
     return !item || !item.disponible;
   });
   if (unavailableItems.length > 0) {
-    const names = unavailableItems.map(c => `"${escapeHtml(c.nom)}"`).join(', ');
+    const names = unavailableItems.map(c => `"${escapeHtml(nomPlat(c))}"`).join(', ');
     const plural = unavailableItems.length > 1;
     showToast(
       '❌ ' + T('cart.removedUnavailable',
