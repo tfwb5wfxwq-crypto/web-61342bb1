@@ -317,8 +317,8 @@ a{color:inherit;text-decoration:none}
      bandeau disparait des le 31 a 00h00. Pour le retirer plus tot, supprimer ce
      bloc et son script. -->
 <div id="bandeauVacances" style="display:none;background:#FAF6EC;border-bottom:1px solid #E8DCC0;color:#1A1A1A;padding:clamp(11px,2.6vw,13px) 18px;text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:clamp(12px,3.2vw,13px);line-height:1.5;letter-spacing:.01em;">
-  <span style="opacity:.55;">Fermé pour congés</span><span style="opacity:.3;margin:0 8px;">·</span><span style="font-weight:600;">Réouverture le lundi 31 août</span><br>
-  <span style="opacity:.5;font-size:.92em;">Le four se repose, l'équipe aussi. Bel été à vous&nbsp;!</span>
+  <span data-i18n="banner.closed" style="opacity:.55;">Fermé pour congés</span><span style="opacity:.3;margin:0 8px;">·</span><span data-i18n="banner.reopening" style="font-weight:600;">Réouverture le lundi 31 août</span><br>
+  <span data-i18n="banner.message" style="opacity:.5;font-size:.92em;">Le four se repose, l'équipe aussi. Bel été à vous&nbsp;!</span>
 </div>
 <script>
   (function () {
@@ -506,10 +506,10 @@ a{color:inherit;text-decoration:none}
 <footer class="footer">
   <div class="footer-inner">
     <p class="footer-brand">Beyrouth Express</p>
-    <p class="footer-sub">Service en ligne de A Beyrouth</p>
+    <p data-i18n="footer.onlineService" class="footer-sub">Service en ligne de A Beyrouth</p>
     <p class="footer-address" data-i18n="footer.address">4 Esplanade du Général de Gaulle, 92400 Courbevoie</p>
     <p class="footer-phone"><a href="tel:+33147748812" style="color:inherit;text-decoration:none">01 47 74 88 12</a></p>
-    <p class="footer-hours">Click & collect 7j/7 · Retrait Lun-Ven 11h30-20h30</p>
+    <p data-i18n="footer.hours" class="footer-hours">Click & collect 7j/7 · Retrait Lun-Ven 11h30-20h30</p>
     <div style="display:flex;gap:16px;margin:20px 0;justify-content:center">
       <a href="https://www.instagram.com/a_beyrouth/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F77737 100%);border-radius:12px;transition:all .3s ease;box-shadow:0 2px 8px rgba(131,58,180,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(131,58,180,0.5)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(131,58,180,0.3)'" aria-label="Instagram">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -534,7 +534,7 @@ a{color:inherit;text-decoration:none}
     <a href="https://g.page/r/CVVy4iE1igTkEBE/review" target="_blank" rel="noopener"
        style="display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:9px 18px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:inherit;text-decoration:none;font-size:.82rem;letter-spacing:.01em;">
       <span style="letter-spacing:1px;font-size:.78rem;">★★★★★</span>
-      <span>Laisser un avis</span>
+      <span data-i18n="footer.leaveReview">Laisser un avis</span>
     </a>
     <p class="footer-link">beyrouth.express</p>
   </div>
