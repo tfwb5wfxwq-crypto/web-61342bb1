@@ -33,7 +33,19 @@ const translations = {
       asap: "Dès que possible",
       nextSlot: "Créneau le plus proche",
       closesAt: "Ferme à",
-      open: "Ouvert"
+      open: "Ouvert",
+      // Ajouts etape 6 (statut d en tete, accueil et traiteur)
+      closed: "Fermé",
+      tempClosure: "Fermeture temporaire",
+      until: "jusqu'à",
+      // Separateur d heure : « 20h30 » en francais, « 20:30 » en anglais.
+      hourSep: "h"
+    },
+
+    // Jours de la semaine, dans l ordre de getDay() : 0 = dimanche.
+    days: {
+      sunday: "Dimanche", monday: "Lundi", tuesday: "Mardi", wednesday: "Mercredi",
+      thursday: "Jeudi", friday: "Vendredi", saturday: "Samedi"
     },
 
     // Cart & Checkout
@@ -202,7 +214,11 @@ const translations = {
       private: "Célébration privée",
       seminar: "Séminaire / Formation",
       cocktail: "Cocktail / Réception",
-      answerIn48h: "Nous vous répondrons sous 48h avec un devis personnalisé"
+      answerIn48h: "Nous vous répondrons sous 48h avec un devis personnalisé",
+      // Ajouts etape 6 (envoi du formulaire de devis)
+      quoteSent: "Demande envoyée ! Vous recevrez un email de confirmation. Réponse sous 48h.",
+      quoteSentBtn: "Demande envoyée ✓",
+      quoteError: "Erreur lors de l'envoi. Veuillez réessayer ou nous contacter à traiteur@beyrouth.express"
     },
 
     // Form Labels
@@ -339,7 +355,20 @@ const translations = {
       asap: "As soon as possible",
       nextSlot: "Next available slot",
       closesAt: "Closes at",
-      open: "Open"
+      open: "Open",
+      // Step 6 additions (header status)
+      closed: "Closed",
+      tempClosure: "Temporarily closed",
+      until: "until",
+      // Hour separator: "20:30" in English, "20h30" in French.
+      hourSep: ":"
+    },
+
+
+    // Days of the week, in getDay() order: 0 = Sunday.
+    days: {
+      sunday: "Sunday", monday: "Monday", tuesday: "Tuesday", wednesday: "Wednesday",
+      thursday: "Thursday", friday: "Friday", saturday: "Saturday"
     },
 
     // Cart & Checkout
@@ -503,7 +532,11 @@ const translations = {
       private: "Private celebration",
       seminar: "Seminar / Training",
       cocktail: "Cocktail / Reception",
-      answerIn48h: "We'll get back to you within 48h with a personalized quote"
+      answerIn48h: "We'll get back to you within 48h with a personalized quote",
+      // Step 6 additions (quote form submission)
+      quoteSent: "Request sent! You will receive a confirmation email. Reply within 48 hours.",
+      quoteSentBtn: "Request sent \u2713",
+      quoteError: "Sending failed. Please try again or contact us at traiteur@beyrouth.express"
     },
 
     // Form Labels
