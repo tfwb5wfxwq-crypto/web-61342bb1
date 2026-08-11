@@ -38,6 +38,10 @@ const translations = {
 
     // Cart & Checkout
     cart: {
+      placeOrder: "Passer la commande",
+      modify: "Modifier",
+      addToCart: "Ajouter au panier",
+      pickupTime: "Heure de retrait",
       yourOrder: "Votre commande",
       empty: "Votre panier est vide",
       add: "Ajouter",
@@ -52,6 +56,8 @@ const translations = {
 
     // Menu Items
     menu: {
+      loading: "Chargement du menu...",
+      customize: "Personnalisez votre formule",
       soonAvailable: "Bientôt disponible",
       formula1: "Formule 1",
       formula1Desc: "sandwich + 2 feuilletés + boisson",
@@ -76,6 +82,8 @@ const translations = {
 
     // Confirmation Page
     confirmation: {
+      backToMenu: "Retour au menu",
+      loading: "Chargement de votre commande...",
       title: "Commande confirmée | Beyrouth Express",
       paymentValidated: "Paiement validé !",
       orderRegistered: "Votre commande a été enregistrée",
@@ -155,6 +163,8 @@ const translations = {
 
     // Catering
     catering: {
+      freeQuote: "Devis gratuit sous 48h",
+      buffetsSubtitle: "Buffets sur mesure, préparés avec passion.",
       title: "Cuisine Libanaise<br>pour vos Événements",
       customBuffets: "Buffets personnalisés pour événements pro et privés",
       delivery: "Livraison et installation possible (La Défense & environs)",
@@ -170,6 +180,8 @@ const translations = {
 
     // Form Labels
     form: {
+      other: "Autre",
+      choose: "-- Choisir --",
       name: "Votre nom",
       firstName: "Prénom",
       lastName: "Nom",
@@ -197,7 +209,15 @@ const translations = {
     },
 
     // Footer
+    banner: {
+      message: "Le four se repose, l'équipe aussi. Bel été à vous&nbsp;!",
+      reopening: "Réouverture le lundi 31 août",
+      closed: "Fermé pour congés",
+    },
     footer: {
+      leaveReview: "Laisser un avis",
+      hours: "Click & collect 7j/7 · Retrait Lun-Ven 11h30-20h30",
+      onlineService: "Service en ligne de A Beyrouth",
       address: "4 Esplanade du Général de Gaulle, 92400 Courbevoie",
       metro: "Sortie 4 du métro"
     }
@@ -236,6 +256,10 @@ const translations = {
 
     // Cart & Checkout
     cart: {
+      placeOrder: "Place order",
+      modify: "Edit",
+      addToCart: "Add to cart",
+      pickupTime: "Pickup time",
       yourOrder: "Your Order",
       empty: "Your cart is empty",
       add: "Add",
@@ -250,6 +274,8 @@ const translations = {
 
     // Menu Items
     menu: {
+      loading: "Loading menu...",
+      customize: "Customise your meal deal",
       soonAvailable: "Available soon",
       formula1: "Combo 1",
       formula1Desc: "sandwich + 2 pastries + drink",
@@ -274,6 +300,8 @@ const translations = {
 
     // Confirmation Page
     confirmation: {
+      backToMenu: "Back to menu",
+      loading: "Loading your order...",
       title: "Order Confirmed | Beyrouth Express",
       paymentValidated: "Payment validated!",
       orderRegistered: "Your order has been registered",
@@ -353,6 +381,8 @@ const translations = {
 
     // Catering
     catering: {
+      freeQuote: "Free quote within 48 hours",
+      buffetsSubtitle: "Bespoke buffets, prepared with care.",
       title: "Lebanese Cuisine<br>for Your Events",
       customBuffets: "Custom buffets for professional and private events",
       delivery: "Delivery and setup available (La Défense & surroundings)",
@@ -368,6 +398,8 @@ const translations = {
 
     // Form Labels
     form: {
+      other: "Other",
+      choose: "-- Choose --",
       name: "Your name",
       firstName: "First name",
       lastName: "Last name",
@@ -395,7 +427,15 @@ const translations = {
     },
 
     // Footer
+    banner: {
+      message: "The oven is resting, and so is the team. Have a great summer!",
+      reopening: "Reopening Monday 31 August",
+      closed: "Closed for holidays",
+    },
     footer: {
+      leaveReview: "Leave a review",
+      hours: "Click & collect 7 days a week · Pickup Mon to Fri 11.30am to 8.30pm",
+      onlineService: "Online service by A Beyrouth",
       address: "4 Esplanade du Général de Gaulle, 92400 Courbevoie",
       metro: "Metro Exit 4"
     }
