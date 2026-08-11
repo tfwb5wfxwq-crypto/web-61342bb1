@@ -205,6 +205,20 @@ const translations = {
       enterOrderNumber: "Entrez votre numéro de commande"
     },
 
+    // Validation du formulaire de commande (etape 6, bloc 2).
+    // Textes copies a l identique depuis index.html : le francais ne change pas.
+    // Les emojis restent dans le code appelant, pas dans le dictionnaire.
+    validation: {
+      firstNameRequired: "Entrez votre prénom",
+      firstNameInvalid: "Prénom invalide (lettres uniquement, 2-50 car.)",
+      phoneRequired: "Entrez votre téléphone",
+      phoneInvalid: "Numéro invalide (ex: 0612345678 ou +33612345678)",
+      emailRequired: "Email OBLIGATOIRE pour recevoir la confirmation",
+      emailInvalid: "Email invalide (ex: nom@gmail.com)",
+      pickupRequired: "Choisissez une heure de retrait",
+      closedChooseOther: "Le restaurant est fermé. Choisissez un autre créneau."
+    },
+
     // Messages & Notifications
     messages: {
       orderNotFound: "Commande introuvable. Vérifiez le numéro.",
@@ -427,6 +441,18 @@ const translations = {
       submit: "Send my request",
       generateInvoice: "Generate invoice",
       enterOrderNumber: "Enter your order number"
+    },
+
+    // Order form validation (step 6, block 2)
+    validation: {
+      firstNameRequired: "Enter your first name",
+      firstNameInvalid: "Invalid first name (letters only, 2-50 characters)",
+      phoneRequired: "Enter your phone number",
+      phoneInvalid: "Invalid number (e.g. 0612345678 or +33612345678)",
+      emailRequired: "Email REQUIRED to receive your confirmation",
+      emailInvalid: "Invalid email (e.g. name@gmail.com)",
+      pickupRequired: "Choose a pickup time",
+      closedChooseOther: "The restaurant is closed. Please choose another time slot."
     },
 
     // Messages & Notifications

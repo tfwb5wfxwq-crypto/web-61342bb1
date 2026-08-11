@@ -1886,19 +1886,19 @@ async function submitOrder() {
   const pickupRaw = document.getElementById('pickupTime').value;
 
   // Validations strictes 🔒
-  if (!name) { showToast('⚠️ Entrez votre prénom', 'error'); return; }
-  if (!validateName(name)) { showToast('⚠️ Prénom invalide (lettres uniquement, 2-50 car.)', 'error'); return; }
+  if (!name) { showToast('⚠️ ' + T('validation.firstNameRequired', 'Entrez votre prénom'), 'error'); return; }
+  if (!validateName(name)) { showToast('⚠️ ' + T('validation.firstNameInvalid', 'Prénom invalide (lettres uniquement, 2-50 car.)'), 'error'); return; }
 
-  if (!phone) { showToast('⚠️ Entrez votre téléphone', 'error'); return; }
-  if (!validatePhone(phone)) { showToast('⚠️ Numéro invalide (ex: 0612345678 ou +33612345678)', 'error'); return; }
+  if (!phone) { showToast('⚠️ ' + T('validation.phoneRequired', 'Entrez votre téléphone'), 'error'); return; }
+  if (!validatePhone(phone)) { showToast('⚠️ ' + T('validation.phoneInvalid', 'Numéro invalide (ex: 0612345678 ou +33612345678)'), 'error'); return; }
 
-  if (!email) { showToast('⚠️ Email OBLIGATOIRE pour recevoir la confirmation', 'error'); return; }
-  if (!validateEmail(email)) { showToast('⚠️ Email invalide (ex: nom@gmail.com)', 'error'); return; }
+  if (!email) { showToast('⚠️ ' + T('validation.emailRequired', 'Email OBLIGATOIRE pour recevoir la confirmation'), 'error'); return; }
+  if (!validateEmail(email)) { showToast('⚠️ ' + T('validation.emailInvalid', 'Email invalide (ex: nom@gmail.com)'), 'error'); return; }
 
-  if (!pickupRaw) { showToast('Choisissez une heure de retrait', 'error'); return; }
+  if (!pickupRaw) { showToast(T('validation.pickupRequired', 'Choisissez une heure de retrait'), 'error'); return; }
   // Vérifier que ASAP n'est pas choisi quand le restaurant est fermé (ne devrait plus arriver)
   if (pickupRaw === 'asap' && !isOpenNow()) {
-    showToast('Le restaurant est fermé. Choisissez un autre créneau.', 'error');
+    showToast(T('validation.closedChooseOther', 'Le restaurant est fermé. Choisissez un autre créneau.'), 'error');
     return;
   }
 
@@ -1907,7 +1907,7 @@ async function submitOrder() {
 
   // 🔒 FIX #2: Vérifier panier AVANT de désactiver le bouton
   if (!cart.length) {
-    showToast('⚠️ ' + (window.i18n ? window.i18n.t('cart.empty') : 'Votre panier est vide'), 'error');
+    showToast('⚠️ ' + T('cart.empty', 'Votre panier est vide'), 'error');
     return;
   }
 
