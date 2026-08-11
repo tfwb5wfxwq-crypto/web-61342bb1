@@ -705,7 +705,7 @@ async function loadOrder() {
     autoAcceptEnabled = autoAcceptSetting?.value === 'true';
 
     if (!data || data.error) {
-      alert(window.i18n.t('messages.orderNotFound'));
+      alert(window.i18n ? window.i18n.t('messages.orderNotFound') : 'Commande introuvable. Vérifiez le numéro.');
       window.location.href = '/';
       return;
     }
@@ -715,7 +715,7 @@ async function loadOrder() {
     // Remplir les infos fixes
     document.getElementById('orderNum').textContent = data.numero;
     const rawPickup = data.heure_retrait || ''
-    document.getElementById('pickupTime').textContent = (!rawPickup || rawPickup === 'asap' || rawPickup === 'ASAP') ? window.i18n.t('timepicker.asap') : rawPickup.replace(/^Aujourd'hui\s+/i, '');
+    document.getElementById('pickupTime').textContent = (!rawPickup || rawPickup === 'asap' || rawPickup === 'ASAP') ? (window.i18n ? window.i18n.t('timepicker.asap') : 'Dès que possible') : rawPickup.replace(/^Aujourd'hui\s+/i, '');
 
     // Items - 🔒 SÉCURISÉ contre XSS
     const itemsHtml = data.items.map(item => {

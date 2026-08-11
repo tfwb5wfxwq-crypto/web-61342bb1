@@ -1879,7 +1879,7 @@ async function submitOrder() {
 
   // 🔒 FIX #2: Vérifier panier AVANT de désactiver le bouton
   if (!cart.length) {
-    showToast('⚠️ ' + window.i18n.t('cart.empty'), 'error');
+    showToast('⚠️ ' + (window.i18n ? window.i18n.t('cart.empty') : 'Votre panier est vide'), 'error');
     return;
   }
 
