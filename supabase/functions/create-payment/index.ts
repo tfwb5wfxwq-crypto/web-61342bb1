@@ -290,8 +290,16 @@ serve(async (req) => {
       auto_capture: true,
       shop_id: PAYGREEN_SHOP_ID,
       description: `Commande ${orderNum} - Beyrouth Express`,
-      return_url: `https://beyrouth.express/commande.html?num=${orderNum}&status=success`,
-      cancel_url: `https://beyrouth.express/commande.html?num=${orderNum}&status=cancelled`,
+      // 11/08/2026 CORRECTIF : commande.html a ete SUPPRIMEE le 28/03 (commit 8753145,
+      // « non utilise, modal suffit ») mais ces deux URL n avaient pas suivi : elles
+      // renvoyaient donc le client vers une page 404 APRES son paiement.
+      // Le parcours normal n est pas concerne (Paygreen est embarque dans la page et
+      // c est index.html:2438 qui redirige), MAIS les cartes restaurant Edenred/Swile
+      // sortent du domaine pour s authentifier et reviennent par ces URL : ces clients
+      // tombaient sur une 404 apres avoir paye.
+      // confirmation.html lit le meme parametre `num` (l.690) et gere tous les etats.
+      return_url: `https://beyrouth.express/confirmation.html?num=${orderNum}&status=success`,
+      cancel_url: `https://beyrouth.express/confirmation.html?num=${orderNum}&status=cancelled`,
       buyer: {
         email: email,
         first_name: firstName,
