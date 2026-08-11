@@ -9,3 +9,9 @@ EMAIL-SETUP.md
 PAYGREEN-SETUP.md
 SUPABASE-CLI.md
 deploy-fixes.sh
+
+# Sauvegardes de travail et fichiers d essai : jamais dans le depot.
+# 11/08/2026 : un git add -A en avait pousse 17, dont une image de 82 Mo.
+*.bak-*
+preview-*.html
+*_upscayl_*.png
