@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { t, type Lang } from '../_shared/email-i18n.ts'
+import { sendEmailViaBrevo } from '../_shared/brevo-email.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -210,27 +211,18 @@ serve(async (req) => {
 </html>
     `
 
-    // Envoyer l'email via Resend
-    const resendApiKey = Deno.env.get('RESEND_API_KEY')
-
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${resendApiKey}`
-      },
-      body: JSON.stringify({
-        from: 'A Beyrouth <traiteur@beyrouth.express>',
-        to: email,
-        subject: L.subjectQuote,
-        html: emailHtml
-      })
+    // Envoyer l'email via Brevo (migre depuis Resend le 23/08/2026 :
+    // la cle Resend avait fuite et tout le reste du site est deja sur Brevo)
+    const emailResult = await sendEmailViaBrevo({
+      to: email,
+      subject: L.subjectQuote,
+      html: emailHtml,
+      senderEmail: 'traiteur@beyrouth.express',
+      replyTo: 'traiteur@beyrouth.express'
     })
 
-    const emailResult = await emailResponse.json()
-
-    if (!emailResponse.ok) {
-      console.error('Erreur envoi email client:', emailResult)
+    if (!emailResult.success) {
+      console.error('Erreur envoi email client:', emailResult.error)
       throw new Error('Erreur envoi email client')
     }
 
@@ -335,24 +327,18 @@ serve(async (req) => {
 </html>
     `
 
-    const adminEmailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${resendApiKey}`
-      },
-      body: JSON.stringify({
-        from: 'A Beyrouth <traiteur@beyrouth.express>',
-        to: 'traiteur@beyrouth.express',
-        subject: `📋 Nouvelle demande de devis - ${name}`,
-        html: adminEmailHtml
-      })
+    // replyTo = l'email du prospect : repondre depuis la boite traiteur
+    // ecrit directement au client, sans copier-coller son adresse.
+    const adminEmailResult = await sendEmailViaBrevo({
+      to: 'traiteur@beyrouth.express',
+      subject: `📋 Nouvelle demande de devis - ${name}`,
+      html: adminEmailHtml,
+      senderEmail: 'traiteur@beyrouth.express',
+      replyTo: email
     })
 
-    const adminEmailResult = await adminEmailResponse.json()
-
-    if (!adminEmailResponse.ok) {
-      console.error('Erreur envoi email admin:', adminEmailResult)
+    if (!adminEmailResult.success) {
+      console.error('Erreur envoi email admin:', adminEmailResult.error)
       // On ne throw pas l'erreur car l'email client a été envoyé
     } else {
       console.log(`✅ Email admin envoyé à traiteur@beyrouth.express`)

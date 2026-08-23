@@ -5,6 +5,8 @@ interface EmailOptions {
   html: string
   replyTo?: string
   orderId?: number  // Pour sync auto du statut
+  senderEmail?: string  // Defaut : commande@beyrouth.express
+  senderName?: string   // Defaut : A Beyrouth
 }
 
 export async function sendEmailViaBrevo(options: EmailOptions): Promise<{ success: boolean; error?: string; id?: string }> {
@@ -27,8 +29,8 @@ export async function sendEmailViaBrevo(options: EmailOptions): Promise<{ succes
       },
       body: JSON.stringify({
         sender: {
-          name: 'A Beyrouth',
-          email: 'commande@beyrouth.express'
+          name: options.senderName || 'A Beyrouth',
+          email: options.senderEmail || 'commande@beyrouth.express'
         },
         to: [
           {
