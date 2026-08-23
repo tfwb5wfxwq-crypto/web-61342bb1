@@ -15,3 +15,12 @@ deploy-fixes.sh
 *.bak-*
 preview-*.html
 *_upscayl_*.png
+
+# 23/08/2026 : ces 5 docs contenaient la cle Resend en clair.
+# Le nettoyage du 13/07 (7435148) les avait oublies ; la cle a servi a envoyer
+# 800 phishings depuis mail.beyrouth.express. Cle revoquee le 23/08.
+RESEND.md
+APPLY-FIXES.sh
+DMARC-FIX-INSTRUCTIONS.md
+FIXES-APPLIQUEES-25MARS.md
+PROBLEME-EMAILS-ANALYSIS.md
