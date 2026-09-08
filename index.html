@@ -1991,7 +1991,18 @@ async function submitOrder() {
   }
 
   // Convertir "asap" en heure réelle pour cohérence partout (email, admin, confirmation)
-  const pickup = pickupRaw === 'asap' ? `Aujourd'hui ${getAsapTime()}` : pickupRaw;
+  let pickup;
+  if (pickupRaw === 'asap') {
+    const heure = getAsapTime();               // remplit lastAsapDateTime
+    const j0 = new Date(); j0.setHours(0, 0, 0, 0);
+    const dj = new Date(lastAsapDateTime || new Date()); dj.setHours(0, 0, 0, 0);
+    const ecart = Math.round((dj - j0) / 86400000);
+    // Avec une pause active, le créneau "au plus tôt" peut être DEMAIN :
+    // écrire "Aujourd'hui" ferait attendre la cuisine un client qui vient le lendemain.
+    pickup = ecart >= 1 ? `Demain ${heure}` : `Aujourd'hui ${heure}`;
+  } else {
+    pickup = pickupRaw;
+  }
 
   // 🔒 FIX #2: Vérifier panier AVANT de désactiver le bouton
   if (!cart.length) {
@@ -3554,6 +3565,9 @@ function renderTimeSlots() {
 }
 
 // Calcule l'heure ASAP (maintenant + délai préparation, arrondi au prochain créneau)
+// var (et non let) : la variable est lue ligne ~1998, avant sa déclaration dans le
+// source. var est hoistée à undefined, let déclencherait une zone morte temporelle.
+var lastAsapDateTime = null;
 function getAsapTime() {
   const now = new Date();
 
@@ -3586,6 +3600,9 @@ function getAsapTime() {
     targetTime.setSeconds(0, 0);
   }
 
+  // ⚠️ targetTime peut tomber DEMAIN quand une pause est active.
+  // On mémorise la vraie date pour que le checkout n'écrive pas "Aujourd'hui" à tort.
+  lastAsapDateTime = new Date(targetTime);
   const h = targetTime.getHours();
   const m = targetTime.getMinutes();
   return `${h}h${m.toString().padStart(2, '0')}`;

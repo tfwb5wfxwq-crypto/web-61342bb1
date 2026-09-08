@@ -2502,11 +2502,12 @@ async function loadOrders() {
 
 // Helper: parse pickup time to Date for sorting
 function parsePickupTime(order) {
-  if (order.heure_retrait === 'asap') return new Date(); // ASAP = now
-  const match = order.heure_retrait.match(/(\d+)h(\d+)/);
+  const hr0 = order.heure_retrait || '';
+  if (hr0 === 'asap') return new Date(); // ASAP = now
+  const match = hr0.match(/(\d+)h(\d+)/);
   if (!match) return new Date(order.created_at);
 
-  const heureRetrait = (order.heure_retrait || '').toLowerCase();
+  const heureRetrait = hr0.toLowerCase();
   let targetDate;
 
   if (heureRetrait.includes('demain') || heureRetrait.includes('tomorrow')) {
@@ -2540,73 +2541,45 @@ function parsePickupTime(order) {
 }
 
 // Helper: check if order is for today
+// ⚠️ heure_retrait est une PHRASE relative au jour de la commande ("Demain 12h00").
+// On ne lit donc PAS le mot : on demande sa vraie date à parsePickupTime(),
+// seule fonction du fichier qui ait la bonne sémantique.
 function isToday(order) {
-  const heureRetrait = (order.heure_retrait || '').toLowerCase();
-  const now = new Date();
-
-  // "Aujourd'hui" explicite → oui
-  if (heureRetrait.includes("aujourd'hui") || heureRetrait.includes('today')) {
-    return true;
-  }
-
-  // "Demain" explicite → non
-  if (heureRetrait.includes('demain') || heureRetrait.includes('tomorrow')) {
-    return false;
-  }
-
-  // Jour de la semaine mentionné : vérifier si c'est aujourd'hui
-  const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-  const jourAujourdhui = jours[now.getDay()];
-
-  const jourMentionne = jours.find(j => heureRetrait.includes(j));
-  if (jourMentionne) {
-    // Si le jour mentionné = aujourd'hui → oui, sinon → non (future)
-    return jourMentionne === jourAujourdhui;
-  }
-
-  // Pas de jour mentionné : si créée dans les dernières 18h → aujourd'hui
-  const orderDate = new Date(order.created_at);
-  const hoursSinceCreated = (now - orderDate) / (1000 * 60 * 60);
-
-  if (hoursSinceCreated < 18) {
-    return true;
-  }
-
-  // Sinon, vérifier si created_at est aujourd'hui
-  return orderDate.toDateString() === now.toDateString();
+  if ((order.heure_retrait || '') === 'asap') return true;
+  const d = parsePickupTime(order), now = new Date();
+  return d.getFullYear() === now.getFullYear()
+      && d.getMonth()    === now.getMonth()
+      && d.getDate()     === now.getDate();
 }
 
 // Helper: check if order is future (J+1, J+2...)
 function isFuture(order) {
-  const heureRetrait = (order.heure_retrait || '').toLowerCase();
-  const now = new Date();
+  if ((order.heure_retrait || '') === 'asap') return false;
+  const j0 = new Date(); j0.setHours(0, 0, 0, 0);
+  const d  = parsePickupTime(order); d.setHours(0, 0, 0, 0);
+  return d.getTime() > j0.getTime();
+}
 
-  // "Demain" explicite → oui, c'est futur
-  if (heureRetrait.includes('demain') || heureRetrait.includes('tomorrow')) {
-    return true;
-  }
-
-  // "Aujourd'hui" explicite → non, pas futur
-  if (heureRetrait.includes("aujourd'hui") || heureRetrait.includes('today')) {
-    return false;
-  }
-
-  // Jour de la semaine mentionné : vérifier si c'est dans le futur
-  const jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-  const jourAujourdhui = jours[now.getDay()];
-
-  const jourMentionne = jours.find(j => heureRetrait.includes(j));
-  if (jourMentionne) {
-    // Si le jour mentionné != aujourd'hui → c'est futur
-    return jourMentionne !== jourAujourdhui;
-  }
-
-  // Fallback: check created_at date (rare, au cas où)
-  const orderDate = new Date(order.created_at);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  orderDate.setHours(0, 0, 0, 0);
-  return orderDate > today;
+// Helper: libellé de retrait RECALCULÉ à chaque affichage.
+// C'est lui qui fait qu'à minuit "Demain 12h00" devient "Aujourd'hui 12h00"
+// tout seul, sans toucher à la commande en base.
+const JOURS_FR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+function libelleRetrait(order) {
+  if ((order.heure_retrait || '') === 'asap') return '\u26A1 ASAP';
+  if (!order.heure_retrait) return '\uD83D\uDD50 N/A';
+  const d  = parsePickupTime(order);
+  const j0 = new Date(); j0.setHours(0, 0, 0, 0);
+  const dj = new Date(d); dj.setHours(0, 0, 0, 0);
+  const ecart = Math.round((dj - j0) / 86400000);
+  // au-delà de 6 jours, ou dans le passé, un nom de jour serait trompeur
+  // ("Lundi" pour une commande d'avril) : on affiche la date.
+  const jour = ecart === 0 ? "Aujourd'hui"
+             : ecart === 1 ? 'Demain'
+             : (ecart >= 2 && ecart <= 6) ? JOURS_FR[d.getDay()]
+             : `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `\uD83D\uDD50 ${jour} ${hh}h${mm}`;
 }
 
 // Helper: get urgency level (only for today's orders)
@@ -3204,10 +3177,10 @@ function renderOrderCard(order, statusClass, dateStr, timeStr, statusEmoji, stat
         </div>
 
         ${!isHistory
-          ? `<span class="order-time-badge" onclick="rescheduleOrder(${order.id},'${order.heure_retrait}')" style="flex-shrink:0;">${order.heure_retrait === 'asap' ? '⚡ ASAP' : '🕐 ' + order.heure_retrait}</span>`
+          ? `<span class="order-time-badge" onclick="rescheduleOrder(${order.id})" style="flex-shrink:0;">${libelleRetrait(order)}</span>`
           : (statusEmoji && statusLabel && dateStr && timeStr)
             ? `<span class="order-time-badge" style="cursor:default;flex-shrink:0;">${statusEmoji} ${statusLabel} — ${dateStr} ${timeStr}</span>`
-            : `<span class="order-time-badge" style="cursor:default;flex-shrink:0;">🕐 ${order.heure_retrait || 'N/A'}</span>`
+            : `<span class="order-time-badge" style="cursor:default;flex-shrink:0;">${libelleRetrait(order)}</span>`
         }
 
         ${isHistory
@@ -4064,6 +4037,12 @@ function showConfirm(message, confirmText = 'Confirmer', cancelText = 'Annuler',
 
 // ===== RESCHEDULE ORDER =====
 function rescheduleOrder(orderId, currentTime) {
+  // L'heure n'est plus passée dans le onclick : l'apostrophe d'"Aujourd'hui"
+  // cassait la chaîne JS et rendait le bouton inopérant sur toutes ces commandes.
+  if (currentTime === undefined) {
+    const o = orders.find(x => x.id === orderId);
+    currentTime = (o && o.heure_retrait) || '';
+  }
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
 
@@ -4131,7 +4110,22 @@ async function confirmReschedule(orderId) {
     return;
   }
   const timeFormatted = timeValue.replace(':', 'h'); // "12h30"
-  const formatted = day === 'demain' ? `Demain ${timeFormatted}` : timeFormatted;
+  // ⚠️ parsePickupTime() résout toujours le libellé À PARTIR DE created_at.
+  // On écrit donc le libellé qui se RELIRA exactement sur le jour visé,
+  // même si la commande a été créée il y a plusieurs jours.
+  const ordre = orders.find(x => x.id === orderId);
+  const cible = new Date(); cible.setHours(0, 0, 0, 0);
+  if (day === 'demain') cible.setDate(cible.getDate() + 1);
+  const cree = new Date(ordre ? ordre.created_at : Date.now()); cree.setHours(0, 0, 0, 0);
+  const ecart = Math.round((cible - cree) / 86400000);
+  let formatted;
+  if (ecart === 0)      formatted = timeFormatted;                            // jour de création
+  else if (ecart === 1) formatted = `Demain ${timeFormatted}`;                // création +1
+  else if (ecart >= 2 && ecart <= 6) formatted = `${JOURS_FR[cible.getDay()]} ${timeFormatted}`;
+  else {
+    alert("Impossible de replanifier cette commande à cette date (écart trop grand avec sa date de création). Créez une nouvelle commande.");
+    return;
+  }
   await sb.from('orders').update({heure_retrait: formatted}).eq('id', orderId);
   const order = orders.find(o => o.id === orderId);
   if (order) order.heure_retrait = formatted;
