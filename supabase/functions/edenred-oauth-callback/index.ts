@@ -316,19 +316,15 @@ serve(async (req) => {
         edenredCode = errorJson?.meta?.messages?.[0]?.code || errorJson.code || ''
       } catch (e) {}
 
-      // LIMIT_EXCEEDED = plafond titre-restaurant (25 EUR/jour) depasse.
-      // Ce n est pas une panne : le site previent le client AVANT le clic et
-      // l ecran "Limite depassee" le renvoie payer autrement. Alerter Paco
-      // la-dessus, c est lui annoncer un incident qui n existe pas.
-      // Toutes les AUTRES erreurs continuent de l alerter, motif inclus.
-      if (edenredCode === 'LIMIT_EXCEEDED') {
-        console.log('ℹ️ Plafond titre-restaurant dépassé — pas d\'alerte admin')
-      } else {
-        await notifyAdminBlocked(
-          `Edenred refuse la creation du paiement (${paymentResponse.status}${edenredCode ? ' ' + edenredCode : ''})`,
-          cInfo
-        )
-      }
+      // 09/09/2026 : Ludovik veut etre prevenu de TOUS les paiements qui ne
+      // passent pas, plafond compris. Ce qui n allait pas ce matin n etait pas
+      // l alerte, c etait son texte : "refuse (400)" sans motif ressemble a une
+      // panne alors que c est un plafond banal. On envoie donc le motif en
+      // clair, et ce que le client peut faire.
+      const motifEdenred = edenredCode === 'LIMIT_EXCEEDED'
+        ? 'plafond carte restaurant depasse (25 EUR par jour). Le client peut payer en CB ou retirer un article.'
+        : `Edenred refuse la creation du paiement (${paymentResponse.status}${edenredCode ? ' ' + edenredCode : ''})`
+      await notifyAdminBlocked(motifEdenred, cInfo)
 
       // Annuler la commande (paiement échoué)
       await supabase

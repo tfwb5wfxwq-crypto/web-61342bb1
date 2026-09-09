@@ -12,6 +12,76 @@ const PAYGREEN_SHOP_ID = Deno.env.get('PAYGREEN_SHOP_ID') ?? ''
 const PAYGREEN_SECRET_KEY = Deno.env.get('PAYGREEN_SECRET_KEY') ?? ''
 
 // Obtenir un JWT PayGreen pour appeler leur API
+// ─── ALERTE ECHEC DE PAIEMENT (09/09/2026) ────────────────────────────────
+// create-payment alerte deja quand la CREATION du paiement echoue (8 cas :
+// PayGreen injoignable, plat indisponible, montant obsolete...). Ce qui
+// manquait, c est l APRES : le client est arrive sur la page de paiement et
+// elle n a pas abouti (refuse, expire, annule). C etait le trou noir :
+// 26 echecs depuis avril 2026, 17 clients jamais revenus, 233 EUR, sans
+// qu aucun message ne parte.
+// IDEMPOTENT : trois chemins peuvent annuler la meme commande (ce webhook, le
+// fallback check-payment-status, le cron monitor-pending-orders). On reclame
+// donc la ligne de facon ATOMIQUE en ecrivant cancellation_reason ; seul le
+// chemin qui gagne l ecriture envoie le message. Pas de doublon possible.
+async function alertPaiementEchoue(supabase: any, orderId: string, pgStatus: string) {
+  try {
+    const motif =
+      pgStatus.includes('refused') ? 'refuse par la banque ou la carte'
+      : pgStatus.includes('expired') ? 'delai depasse (page de paiement quittee, ou 3DS non termine)'
+      : 'annule pendant le paiement'
+
+    const { data } = await supabase
+      .from('orders')
+      .update({ cancellation_reason: `echec paiement : ${motif} (${pgStatus})` })
+      .eq('id', orderId)
+      .eq('statut', 'cancelled')
+      .is('cancellation_reason', null)
+      .select('numero, total, client_prenom, client_telephone, client_email, items, heure_retrait')
+
+    const o = data?.[0]
+    if (!o) return // deja signale par un autre chemin, on se tait
+
+    // Le signal le plus utile : quelqu un qui recommence veut vraiment
+    // commander (cf. Mathilde le 08/09, deux fois 14 EUR, jamais revenue).
+    let insiste = ''
+    if (o.client_telephone) {
+      try {
+        const uneHeure = new Date(Date.now() - 3600000).toISOString()
+        const { count } = await supabase
+          .from('orders')
+          .select('id', { count: 'exact', head: true })
+          .eq('client_telephone', o.client_telephone)
+          .eq('statut', 'cancelled')
+          .gte('created_at', uneHeure)
+        if ((count ?? 0) > 1) insiste = `\n🔁 ${count}e tentative en moins d une heure.`
+      } catch (_) { /* jamais bloquant */ }
+    }
+
+    const plats = Array.isArray(o.items)
+      ? o.items.map((i: any) => `${i.qty ?? i.quantite ?? 1}x ${i.nom ?? '?'}`).join(', ')
+      : ''
+
+    const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+    const chatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')
+    if (!botToken || !chatId) return
+    const text =
+      `⚠️ Paiement echoue — un client n a pas pu payer\n` +
+      `Raison : ${motif}\n` +
+      `Client : ${o.client_prenom || '?'} — ${o.client_telephone || '?'} (${o.client_email || '?'})\n` +
+      `Panier : ${Number(o.total ?? 0).toFixed(2)} EUR — commande ${o.numero}\n` +
+      (plats ? `Articles : ${plats}\n` : '') +
+      (o.heure_retrait ? `Retrait demande : ${o.heure_retrait}\n` : '') +
+      insiste +
+      `\n👉 Tu peux le rappeler pour recuperer la commande.`
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text })
+    })
+  } catch (e) {
+    console.error('alertPaiementEchoue failed (non bloquant):', e)
+  }
+}
+
 async function getPaygreenJWT(): Promise<string> {
   const res = await fetch(`https://api.paygreen.fr/auth/authentication/${PAYGREEN_SHOP_ID}/secret-key`, {
     method: 'POST',
@@ -200,6 +270,11 @@ serve(async (req) => {
     }
 
     console.log(`✅ Commande ${orderNum} → ${newStatus}`)
+
+    // Le client a atteint la page de paiement et ca n a pas abouti : on previent.
+    if (newStatus === 'cancelled' && data?.[0]?.id) {
+      await alertPaiementEchoue(supabase, data[0].id, event)
+    }
 
     // Auto-accept
     const { data: autoAcceptSetting } = await supabase
