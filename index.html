@@ -1619,6 +1619,7 @@ function updateCartUI() {
   // 🔒 FIX #79: Arrondir à chaque étape pour éviter floating point errors (0.1 + 0.2 = 0.30000000004)
   const total = cart.reduce((s, c) => Math.round((s + c.prix * c.qty) * 100) / 100, 0);
   const count = cart.reduce((s, c) => s + c.qty, 0);
+  updateRestoCapWarning(); // le plafond depend du panier, pas de l heure
   const bar = document.getElementById('bottomBar');
   if (!bar) return; // Mode OAuth callback — DOM non initialisé
   bar.classList.toggle('show', count > 0);
@@ -2258,6 +2259,9 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
                 Veuillez utiliser une carte bancaire.
               </div>
 
+              <!-- Plafond titre-restaurant depasse : on AVERTIT, on ne bloque pas -->
+              <div id="restoCapWarning" style="display:none;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:0.9rem;color:#92400e;line-height:1.5;"></div>
+
               <div style="display:flex;flex-direction:column;gap:10px;">
                 <!-- Edenred Ticket Restaurant -->
                 <div onclick="selectPaymentMethod('edenred')" id="method_edenred" style="border:2px solid #e5e7eb;border-radius:10px;padding:14px 18px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px;background:#fff;">
@@ -2359,6 +2363,46 @@ function toggleRestoCards(event) {
   }
 }
 
+// Plafond legal des titres-restaurant : 25 EUR par jour et par carte.
+// On AVERTIT sans jamais bloquer, pour deux raisons :
+//  - le plafond a deja bouge (19 puis 25 EUR) ; s il remonte, un blocage code
+//    en dur ferait perdre des commandes en silence, sans refus ni alerte ;
+//  - le plafond est journalier, pas par commande : un panier SOUS 25 EUR peut
+//    echouer aussi si le client a deja consomme son solde ailleurs le matin.
+//    Griser promettrait donc un feu vert qu on ne peut pas tenir.
+// Le refus Edenred, lui, est deja proprement rattrape (ecran "Limite depassee").
+const MEAL_CARD_DAILY_CAP = 25;
+
+function cartTotalNow() {
+  // Sur l ecran de paiement, le montant qui fait foi est celui qui partira chez
+  // Edenred (currentPaymentData.total), pas un recalcul du panier. Hors de cet
+  // ecran on retombe sur le panier, avec le meme arrondi que updateCartUI
+  // (FIX #79, floating point).
+  if (typeof currentPaymentData === 'object' && currentPaymentData &&
+      typeof currentPaymentData.total === 'number') {
+    return currentPaymentData.total;
+  }
+  return cart.reduce((s, c) => Math.round((s + c.prix * c.qty) * 100) / 100, 0);
+}
+
+function updateRestoCapWarning() {
+  const warning = document.getElementById('restoCapWarning');
+  if (!warning) return; // mode OAuth callback : DOM non initialise
+  const total = cartTotalNow();
+  if (total > MEAL_CARD_DAILY_CAP) {
+    const msg = T('payment.mealCardCapHtml',
+      '⚠️ <strong>Les cartes restaurant sont plafonnées à {cap} par jour.</strong><br>' +
+      'Votre panier est à {total}, le paiement sera refusé. ' +
+      'Réglez par carte bancaire, ou retirez un article pour repasser sous {cap}.');
+    warning.innerHTML = msg
+      .split('{cap}').join(formatPrice(MEAL_CARD_DAILY_CAP))
+      .split('{total}').join(formatPrice(total));
+    warning.style.display = 'block';
+  } else {
+    warning.style.display = 'none';
+  }
+}
+
 // Griser les cartes resto le week-end
 function updateRestoCardsAvailability() {
   const now = new Date();
@@ -2409,6 +2453,9 @@ function updateRestoCardsAvailability() {
       }
     });
   }
+
+  // Plafond : independant du jour et de l heure, donc evalue dans tous les cas
+  updateRestoCapWarning();
 }
 
 function selectPaymentMethod(method) {
@@ -2435,6 +2482,16 @@ function selectPaymentMethod(method) {
         showToast('⏰ ' + T('payment.mealCardHours', 'Les cartes restaurant ne sont acceptées que de 11h30 à 21h00'), 'error');
       }
       return;
+    }
+
+    // Plafond depasse : on previent, on ne bloque pas (voir MEAL_CARD_DAILY_CAP)
+    const total = cartTotalNow();
+    if (total > MEAL_CARD_DAILY_CAP) {
+      const msg = T('payment.mealCardCapToast',
+        'Plafond des cartes restaurant : {cap} par jour. Votre panier est à {total}, le paiement sera refusé.');
+      showToast(msg
+        .split('{cap}').join(formatPrice(MEAL_CARD_DAILY_CAP))
+        .split('{total}').join(formatPrice(total)), 'warning');
     }
   }
 

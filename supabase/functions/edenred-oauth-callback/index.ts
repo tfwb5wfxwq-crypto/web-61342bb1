@@ -307,13 +307,28 @@ serve(async (req) => {
     if (!paymentResponse.ok) {
       const errorText = await paymentResponse.text()
       console.error('❌ Erreur création paiement Edenred:', paymentResponse.status, errorText)
-      await notifyAdminBlocked(`Edenred refuse la creation du paiement (${paymentResponse.status})`, cInfo)
 
       let edenredError = errorText
+      let edenredCode = ''
       try {
         const errorJson = JSON.parse(errorText)
         edenredError = errorJson.message || errorJson.error || errorText
+        edenredCode = errorJson?.meta?.messages?.[0]?.code || errorJson.code || ''
       } catch (e) {}
+
+      // LIMIT_EXCEEDED = plafond titre-restaurant (25 EUR/jour) depasse.
+      // Ce n est pas une panne : le site previent le client AVANT le clic et
+      // l ecran "Limite depassee" le renvoie payer autrement. Alerter Paco
+      // la-dessus, c est lui annoncer un incident qui n existe pas.
+      // Toutes les AUTRES erreurs continuent de l alerter, motif inclus.
+      if (edenredCode === 'LIMIT_EXCEEDED') {
+        console.log('ℹ️ Plafond titre-restaurant dépassé — pas d\'alerte admin')
+      } else {
+        await notifyAdminBlocked(
+          `Edenred refuse la creation du paiement (${paymentResponse.status}${edenredCode ? ' ' + edenredCode : ''})`,
+          cInfo
+        )
+      }
 
       // Annuler la commande (paiement échoué)
       await supabase
