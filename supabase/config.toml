@@ -1,0 +1,11 @@
+# Rénovation : NE PAS SUPPRIMER.
+# Sans ce fichier, `supabase functions deploy` remet verify_jwt = true par defaut
+# et casse les webhooks appeles par des serveurs tiers (ils n'ont pas de JWT Supabase).
+# C'est ce qui a mis paygreen-webhook hors service du 09/09/2026 au 11/09/2026.
+project_id = "xbuftfwcyontgqbbrrjt"
+
+[functions.paygreen-webhook]
+verify_jwt = false
+
+[functions.brevo-webhook]
+verify_jwt = false
