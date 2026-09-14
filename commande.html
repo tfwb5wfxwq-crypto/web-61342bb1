@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Beyrouth Express — redirection</title>
+<!--
+  Page de REDIRECTION. Ne rien mettre d'autre ici.
+
+  Pourquoi elle existe :
+  create-payment/index.ts:293-294 donne a PayGreen return_url/cancel_url pointant
+  vers /commande.html. Cette page avait ete supprimee le 28/03/2026 (commit 8753145,
+  "non utilise, modal suffit") sans voir que la fonction de paiement pointait encore
+  dessus. Depuis, tout client dont le paiement SORT du site (titre-restaurant
+  Swile/Conecs/Restoflash, ou 3DS en mode redirection pleine page) revenait sur une
+  404. Le parcours carte normal, lui, ne passe jamais ici : le widget PayGreen est
+  embarque et c'est index.html:2621 (FULL_PAYMENT_DONE) qui redirige vers
+  /confirmation.html. Edenred a son propre tunnel OAuth, non concerne.
+
+  Choix du 14/09/2026 : reparer par AJOUT d'un fichier statique plutot que par
+  redeploiement de la fonction edge (aucun risque pour ce qui marche, reversible en
+  supprimant ce fichier). confirmation.html ne lit QUE le parametre "num" et va
+  chercher l'etat reel via get-order-status : la substitution est sans effet de bord.
+-->
+<style>
+  html,body{height:100%;margin:0}
+  body{display:flex;align-items:center;justify-content:center;
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:#1A1A1A;color:#fff;text-align:center;padding:24px}
+  .box{max-width:26rem}
+  .dot{width:36px;height:36px;margin:0 auto 18px;border-radius:50%;
+       border:3px solid rgba(255,255,255,.25);border-top-color:#fff;
+       animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.dot{animation:none}}
+  p{margin:0 0 14px;font-size:15px;line-height:1.5}
+  a{color:#fff;font-weight:600}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="dot" aria-hidden="true"></div>
+    <p>Un instant, nous affichons votre commande…</p>
+    <p><a id="fallback" href="/confirmation.html">Continuer</a></p>
+  </div>
+<script>
+(function () {
+  try {
+    var p = new URLSearchParams(window.location.search);
+    var num = p.get('num');
+    // "via" sert uniquement a reconnaitre, plus tard, les clients revenus par
+    // PayGreen : c'est le seul chemin qui atteint cette page.
+    var dest = num
+      ? '/confirmation.html?num=' + encodeURIComponent(num) + '&via=paygreen'
+      : '/';
+    document.getElementById('fallback').setAttribute('href', dest);
+    // replace() et pas href : le bouton Retour ne doit pas ramener ici.
+    window.location.replace(dest);
+  } catch (e) {
+    window.location.replace('/');
+  }
+})();
+</script>
+<noscript>
+  <p>JavaScript est desactive. <a href="/confirmation.html">Voir ma commande</a></p>
+</noscript>
+</body>
+</html>
