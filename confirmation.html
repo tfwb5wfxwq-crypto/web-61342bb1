@@ -26,7 +26,7 @@
 :root {
   --green: #10B981;
   --orange: #F59E0B;
-  --blue: #3B82F6;
+  --blue: #2563EB;
   --dark: #1A1A1A;
   --cream: #FFF8F0;
   --gold: #D4A853;
@@ -145,7 +145,7 @@ h1.blue { color: var(--blue); }
 }
 .section-title {
   font-size: 0.75rem;
-  color: #888;
+  color: #6B6B6B;
   margin: 0 0 8px;
   font-weight: 600;
   text-transform: uppercase;
@@ -237,7 +237,7 @@ h1.blue { color: var(--blue); }
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: #E65100;
+  background: #C2410C;
   color: white;
   border-radius: 8px;
   text-decoration: none;
@@ -263,7 +263,7 @@ h1.blue { color: var(--blue); }
 }
 .email-text {
   font-size: 0.9rem;
-  color: #1976D2;
+  color: #1D4ED8;
   margin: 0;
 }
 .email-sub {
@@ -333,7 +333,13 @@ h1.blue { color: var(--blue); }
   height: 8px;
   background: #F59E0B;
   border-radius: 50%;
-  animation: pulse 1.5s infinite;
+  animation: none;
+}
+
+::selection { background: rgba(212,175,55,.35); }
+:focus-visible { outline: 2px solid #C2410C; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .15s !important; }
 }
 </style>
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique

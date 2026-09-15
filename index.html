@@ -129,10 +129,10 @@
 
 :root{
   --dark:#1A1A1A;
-  --text:#1A1A1A;--text-soft:#6B6B6B;--text-muted:#ABABAB;
+  --text:#1A1A1A;--text-soft:#5F5F5F;--text-muted:#767676;
   --bg:#F7F7F5;--white:#FFFFFF;
   --border:#EAEAE8;--border-light:#F3F3F1;
-  --green:#1B8C3E;--green-light:#E8F5EC;--green-dark:#157A33;
+  --green:#157A33;--green-light:#E8F5EC;--green-dark:#116A2B;
   --red:#DC2626;
   --gold:#D4AF37;
   --shadow-sm:0 1px 2px rgba(0,0,0,.04);
@@ -196,13 +196,13 @@ a{color:inherit;text-decoration:none}
 @media(max-width:640px){
   .header-right{flex-wrap:wrap;justify-content:flex-end;row-gap:7px}
 }
-.header-mode-active{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg, var(--gold) 0%, #B8956A 100%);color:#1a1a1a;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);font-size:.7rem;font-weight:700;letter-spacing:0.2px;text-decoration:none;box-shadow:0 3px 15px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.2);white-space:nowrap}
+.header-mode-active{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg, var(--gold) 0%, #B8956A 100%);color:#1a1a1a;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);font-size:.7rem;font-weight:700;letter-spacing:0.2px;text-decoration:none;box-shadow:0 3px 15px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.2);white-space:nowrap}
 .header-mode-link{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:rgba(255,255,255,0.7);padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);font-size:.7rem;font-weight:600;letter-spacing:0.2px;text-decoration:none;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .header-mode-link:hover{border-color:rgba(212,175,55,0.4);background:rgba(255,255,255,0.12);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .header-status{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:500}
 .header-status .dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
 .header-status.closed .dot{background:var(--red)}
-.header-sub{font-size:.72rem;opacity:.45;font-weight:400}
+.header-sub{font-size:.75rem;opacity:.7;font-weight:400}
 
 /* ===== INFO BAR ===== */
 .info-bar{background:var(--white);border-bottom:1px solid var(--border)}
@@ -264,7 +264,7 @@ a{color:inherit;text-decoration:none}
 .nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--border)}
 .nav-inner{max-width:1000px;margin:0 auto;padding:8px 20px;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none}
 .nav-inner::-webkit-scrollbar{display:none}
-.nav-cat{padding:8px 16px;font-size:.82rem;font-weight:500;white-space:nowrap;color:var(--text-soft);border-radius:20px;transition:all .15s;flex-shrink:0}
+.nav-cat{padding:11px 16px;font-size:.84rem;font-weight:500;white-space:nowrap;color:var(--text-soft);border-radius:20px;transition:all .15s;flex-shrink:0}
 .nav-cat:hover{color:var(--dark);background:var(--border-light)}
 .nav-cat.active{background:var(--dark);color:var(--white);font-weight:600}
 
@@ -284,16 +284,16 @@ a{color:inherit;text-decoration:none}
 .emoji-placeholder{font-size:2.5rem;opacity:.7}
 .menu-card-body{padding:10px 12px 12px}
 .menu-card-name{font-weight:600;font-size:.88rem;line-height:1.25;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.2px}
-.menu-card-desc{font-size:.72rem;color:var(--text-soft);line-height:1.3;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.menu-card-desc{font-size:.8rem;color:var(--text-soft);line-height:1.35;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .menu-card-bottom{display:flex;align-items:center;justify-content:space-between}
 .menu-card-price{font-weight:700;font-size:.92rem;color:var(--dark)}
-.menu-card-add{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:all .15s;font-weight:600;color:var(--dark);z-index:2;-webkit-tap-highlight-color:transparent}
+.menu-card-add{position:absolute;top:8px;right:8px;width:44px;height:44px;border-radius:50%;background:var(--white);box-shadow:0 2px 8px rgba(0,0,0,.12);font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:all .15s;font-weight:600;color:var(--dark);z-index:2;-webkit-tap-highlight-color:transparent}
 @media(hover:hover){.menu-card-add:hover{background:var(--dark);color:var(--white);transform:scale(1.1)}}
 .menu-card-unavailable{opacity:.35;pointer-events:none}
 .menu-card-unavailable .menu-card-add{display:none}
 .unavailable-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);color:#fff;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;white-space:nowrap;z-index:2;backdrop-filter:blur(4px)}
 .menu-card-stepper{position:absolute;top:8px;right:8px;z-index:2;display:flex;align-items:center;background:var(--white);border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
-.menu-card-stepper button{width:34px;height:34px;font-size:1rem;font-weight:600;background:none;display:flex;align-items:center;justify-content:center;transition:background .1s;-webkit-tap-highlight-color:transparent}
+.menu-card-stepper button{width:40px;height:40px;font-size:1rem;font-weight:600;background:none;display:flex;align-items:center;justify-content:center;transition:background .1s;-webkit-tap-highlight-color:transparent}
 .menu-card-stepper button:first-child{color:var(--red)}
 .menu-card-stepper button:last-child{color:var(--green)}
 .menu-card-stepper button:active{background:var(--border-light);border-radius:50%}
@@ -345,7 +345,7 @@ a{color:inherit;text-decoration:none}
 .cart-checkout-btn{width:100%;padding:16px;background:var(--dark);color:#fff;border-radius:var(--r-sm);font-size:1rem;font-weight:600;transition:all .15s;letter-spacing:.2px}
 .cart-checkout-btn:hover{background:#000;transform:translateY(-1px)}
 .cart-checkout-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
-.cart-pay-info{font-size:.72rem;color:var(--text-muted);text-align:center;margin-top:8px}
+.cart-pay-info{font-size:.78rem;color:var(--text-muted);text-align:center;margin-top:8px}
 .cart-form-info{font-size:.78rem;color:var(--green);font-weight:500;margin:2px 0 0;line-height:1.4}
 .cart-optin{display:flex;align-items:flex-start;gap:8px;font-size:.78rem;color:var(--text-soft);cursor:pointer;margin-top:2px}
 .cart-optin input[type=checkbox]{width:18px;height:18px;accent-color:var(--green);flex-shrink:0;margin-top:1px}
@@ -364,9 +364,9 @@ a{color:inherit;text-decoration:none}
 .suggest-add{width:24px;height:24px;border-radius:50%;background:var(--dark);color:#fff;font-size:.8rem;display:flex;align-items:center;justify-content:center;font-weight:600}
 
 /* ===== UPSELL BUBBLE ===== */
-.upsell-bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(120px);z-index:160;background:linear-gradient(135deg, #FFFFFF 0%, #F8F6F3 100%);color:var(--dark);padding:16px 20px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);display:flex;flex-direction:column;gap:12px;max-width:min(360px,calc(100vw - 32px));transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none;border:1px solid rgba(212,175,55,0.15);backdrop-filter:blur(10px)}
+.upsell-bubble{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(120px);z-index:160;background:linear-gradient(135deg, #FFFFFF 0%, #F8F6F3 100%);color:var(--dark);padding:16px 20px;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);display:flex;flex-direction:column;gap:12px;max-width:min(360px,calc(100vw - 32px));transition:transform .4s cubic-bezier(.16,1,.3,1),opacity .3s;opacity:0;pointer-events:none;border:1px solid rgba(212,175,55,0.15);backdrop-filter:blur(10px)}
 .upsell-bubble.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
-.upsell-bubble-emoji{font-size:2.2rem;align-self:center;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, var(--gold), #B8956A);border-radius:50%;box-shadow:0 4px 12px rgba(212,175,55,0.3)}
+.upsell-bubble-emoji{font-size:2.2rem;align-self:center;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg, var(--gold), #B8956A);border-radius:50%;box-shadow:0 4px 12px rgba(0,0,0,0.3)}
 .upsell-bubble-text{font-size:.9rem;line-height:1.5;color:var(--dark);text-align:center}
 .upsell-bubble-text strong{color:var(--gold);font-weight:700}
 .upsell-bubble-btn{background:linear-gradient(135deg, var(--green) 0%, #27ae60 100%);color:#fff;padding:12px 24px;border-radius:24px;font-size:.85rem;font-weight:600;transition:all .2s;box-shadow:0 3px 12px rgba(46,213,115,0.25);width:100%}
@@ -411,20 +411,20 @@ a{color:inherit;text-decoration:none}
   .brand-logo-svg{display:none!important}
   .brand-logo-text{display:block!important}
   .header-status{gap:4px;font-size:.78rem}
-  .header-sub{font-size:.68rem}
+  .header-sub{font-size:.72rem}
   .info-inner{padding:8px 16px;gap:10px}
   .info-address{font-size:.78rem}
   .nav-inner{padding:6px 12px}
-  .nav-cat{padding:7px 14px;font-size:.78rem}
+  .nav-cat{padding:10px 14px;font-size:.8rem}
   .menu-section{padding:10px 10px calc(90px + env(safe-area-inset-bottom,0px))}
   .menu-cat-title{font-size:1rem;margin:20px 0 10px}
   .menu-grid{gap:8px}
   .menu-card-body{padding:8px 10px 10px}
   .menu-card-name{font-size:.82rem}
-  .menu-card-desc{font-size:.7rem;-webkit-line-clamp:3}
+  .menu-card-desc{font-size:.78rem;-webkit-line-clamp:3}
   .menu-card-price{font-size:.85rem}
-  .menu-card-add{width:34px;height:34px;font-size:1.1rem}
-  .menu-card-stepper button{width:30px;height:30px;font-size:.9rem}
+  .menu-card-add{width:40px;height:40px;font-size:1.1rem}
+  .menu-card-stepper button{width:36px;height:36px;font-size:.95rem}
   .bottom-bar{padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
   .cart-panel{width:100vw}
   .cart-footer{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
@@ -445,7 +445,7 @@ a{color:inherit;text-decoration:none}
 .toast-icon{font-size:1.3rem;flex-shrink:0}
 .toast-message{flex:1}
 .toast.error{background:linear-gradient(135deg,#DC2626,#B91C1C)}
-.toast.success{background:linear-gradient(135deg,#1B8C3E,#157A33)}
+.toast.success{background:linear-gradient(135deg,#157A33,#157A33)}
 .toast.warning{background:linear-gradient(135deg,#F59E0B,#D97706)}
 @media(min-width:640px){#toastContainer{top:20px;bottom:auto}.toast{transform:translateY(-100px)}.toast.hide{transform:translateY(-20px)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -474,11 +474,19 @@ a{color:inherit;text-decoration:none}
 .loc-name{font-weight:700;font-size:1.1rem;color:#fff;margin:0 0 4px}
 .loc-addr{font-size:.88rem;color:rgba(255,255,255,.65);margin:0 0 4px;line-height:1.5}
 .loc-note{font-size:.8rem;color:rgba(255,255,255,.4);margin:0 0 18px}
-.loc-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;background:#E65100;color:#fff;border-radius:11px;text-decoration:none;font-size:.88rem;font-weight:600;transition:background .2s;width:100%;justify-content:center}
+.loc-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;background:#C2410C;color:#fff;border-radius:11px;text-decoration:none;font-size:.88rem;font-weight:600;transition:background .2s;width:100%;justify-content:center}
 .loc-btn:hover{background:#BF360C}
 @media(max-width:500px){.loc-modal{padding:0;align-items:flex-end}.loc-sheet{border-radius:24px 24px 0 0;max-width:100%}.loc-video-wrap{height:55vw;min-height:200px}}
 @keyframes locFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes locScaleIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* ===== SURFACES NAVIGATEUR + MOUVEMENT REDUIT ===== */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+::selection{background:rgba(212,175,55,.35);color:#1A1A1A}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.15s!important;scroll-behavior:auto!important}
+}
 </style>
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
@@ -531,6 +539,7 @@ window.T = function (cle, secours) {
 <header class="header">
   <div class="header-inner">
     <h1 class="brand">
+      <span class="sr-only">Beyrouth Express — Click &amp; Collect libanais à La Défense (A Beyrouth)</span>
       <div style="display:flex;align-items:center;gap:12px;">
         <img src="img/logo-olives.svg" alt="Olives" class="logo-olives" style="height:42px;width:auto;">
         <img src="img/logo-text.svg" alt="Beyrouth Express" class="logo-text" style="height:38px;width:auto;">
@@ -704,7 +713,7 @@ window.T = function (cle, secours) {
     <p class="footer-phone"><a href="tel:+33147748812" style="color:inherit;text-decoration:none">01 47 74 88 12</a></p>
     <p data-i18n="footer.hours" class="footer-hours">Click & collect 7j/7 · Retrait Lun-Ven 11h30-20h30</p>
     <div style="display:flex;gap:16px;margin:20px 0;justify-content:center">
-      <a href="https://www.instagram.com/a_beyrouth/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F77737 100%);border-radius:12px;transition:all .3s ease;box-shadow:0 2px 8px rgba(131,58,180,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(131,58,180,0.5)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(131,58,180,0.3)'" aria-label="Instagram">
+      <a href="https://www.instagram.com/a_beyrouth/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F77737 100%);border-radius:12px;transition:all .3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(131,58,180,0.5)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(131,58,180,0.3)'" aria-label="Instagram">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
           <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
@@ -2352,7 +2361,7 @@ function toggleRestoCards(event) {
     container.style.display = 'block';
     icon.style.transform = 'rotate(180deg)';
     btn.style.background = '#f0fdf4';
-    btn.style.borderColor = '#1B8C3E';
+    btn.style.borderColor = '#157A33';
 
     // Vérifier si week-end et griser les cartes resto
     updateRestoCardsAvailability();
@@ -2522,7 +2531,7 @@ function selectPaymentMethod(method) {
   const selected = document.getElementById(`method_${method}`);
   const radio = selected?.querySelector('input[type="radio"]');
   if (selected) {
-    selected.style.borderColor = '#1B8C3E';
+    selected.style.borderColor = '#157A33';
     selected.style.background = '#f0fdf4';
   }
   if (radio) radio.checked = true;
@@ -2802,7 +2811,7 @@ async function initEdenred() {
   paymentForm.style.display = 'block';
   paymentForm.innerHTML = `
     <div style="text-align:center;padding:40px 20px;">
-      <div style="display:inline-block;width:48px;height:48px;border:4px solid #e5e7eb;border-top-color:#1B8C3E;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div>
+      <div style="display:inline-block;width:48px;height:48px;border:4px solid #e5e7eb;border-top-color:#157A33;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div>
       <p style="font-size:1.1rem;font-weight:600;color:var(--dark);margin:0 0 8px;">Connexion à Edenred...</p>
       <p style="font-size:0.9rem;color:var(--text-soft);margin:0;">Vous allez être redirigé vers la plateforme de connexion sécurisée</p>
     </div>
@@ -2896,7 +2905,7 @@ async function handleEdenredOAuthCallback() {
             Si votre paiement a été accepté, vous recevrez une confirmation par email.<br>
             Sinon, merci de créer une nouvelle commande.
           </p>
-          <a href="/" style="display:inline-block;background:#1B8C3E;color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:1rem;">Retour à l'accueil</a>
+          <a href="/" style="display:inline-block;background:#157A33;color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:1rem;">Retour à l'accueil</a>
         </div>
       </div>
     `;
@@ -2916,7 +2925,7 @@ async function handleEdenredOAuthCallback() {
   document.body.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg-soft);font-family:system-ui,-apple-system,sans-serif;">
       <div style="text-align:center;padding:40px;">
-        <div style="display:inline-block;width:56px;height:56px;border:5px solid #e5e7eb;border-top-color:#1B8C3E;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:24px;"></div>
+        <div style="display:inline-block;width:56px;height:56px;border:5px solid #e5e7eb;border-top-color:#157A33;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:24px;"></div>
         <p style="font-size:1.2rem;font-weight:600;color:var(--dark);margin:0 0 12px;">Finalisation du paiement...</p>
         <p style="font-size:0.95rem;color:var(--text-soft);margin:0;">Veuillez patienter, ne fermez pas cette page</p>
       </div>
@@ -3005,7 +3014,7 @@ async function handleEdenredOAuthCallback() {
           <div style="font-size:3rem;margin-bottom:20px;">${errorTitle.includes('⏰') ? '⏰' : errorTitle.includes('💳') ? '💳' : errorTitle.includes('🔧') ? '🔧' : '❌'}</div>
           <p style="font-size:1.3rem;font-weight:600;color:var(--dark);margin:0 0 16px;">${errorTitle}</p>
           <p style="font-size:1rem;color:var(--text-soft);margin:0 0 32px;line-height:1.6;">${errorMessage}</p>
-          <a href="/" style="display:inline-block;background:#1B8C3E;color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:1rem;">Retour à l'accueil</a>
+          <a href="/" style="display:inline-block;background:#157A33;color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:600;font-size:1rem;">Retour à l'accueil</a>
         </div>
       </div>
     `;

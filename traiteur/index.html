@@ -71,10 +71,10 @@
 
 :root{
   --dark:#1A1A1A;
-  --text:#1A1A1A;--text-soft:#6B6B6B;--text-muted:#ABABAB;
+  --text:#1A1A1A;--text-soft:#5F5F5F;--text-muted:#767676;
   --bg:#F7F7F5;--white:#FFFFFF;
   --border:#EAEAE8;--border-light:#F3F3F1;
-  --green:#1B8C3E;--green-light:#E8F5EC;--green-dark:#157A33;
+  --green:#157A33;--green-light:#E8F5EC;--green-dark:#116A2B;
   --red:#DC2626;
   --gold:#D4AF37;
   --shadow-sm:0 1px 2px rgba(0,0,0,.04);
@@ -136,7 +136,7 @@ a{color:inherit;text-decoration:none}
 @media(max-width:640px){
   .header-right{flex-wrap:wrap;justify-content:flex-end;row-gap:7px}
 }
-.header-mode-active{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg, var(--gold) 0%, #B8956A 100%);color:#1a1a1a;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);font-size:.7rem;font-weight:700;letter-spacing:0.2px;text-decoration:none;box-shadow:0 3px 15px rgba(212,175,55,0.35), inset 0 1px 0 rgba(255,255,255,0.2);white-space:nowrap}
+.header-mode-active{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg, var(--gold) 0%, #B8956A 100%);color:#1a1a1a;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);font-size:.7rem;font-weight:700;letter-spacing:0.2px;text-decoration:none;box-shadow:0 3px 15px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.2);white-space:nowrap}
 .header-mode-link{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:rgba(255,255,255,0.7);padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.15);font-size:.7rem;font-weight:600;letter-spacing:0.2px;text-decoration:none;transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
 .header-mode-link:hover{border-color:rgba(212,175,55,0.4);background:rgba(255,255,255,0.12);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
 .header-status{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:500}
@@ -169,8 +169,8 @@ a{color:inherit;text-decoration:none}
 .hero-video-content{position:relative;z-index:3;text-align:center;color:#fff;padding:24px 24px;max-width:800px}
 .hero-video-title{font-family:'DM Serif Display',Georgia,serif;font-size:2.5rem;margin-bottom:12px;line-height:1.15;text-shadow:0 4px 20px rgba(0,0,0,0.4);animation:fadeInUp 0.8s ease-out}
 .hero-video-subtitle{font-size:1rem;margin-bottom:20px;line-height:1.5;opacity:0.95;text-shadow:0 2px 10px rgba(0,0,0,0.3);animation:fadeInUp 0.8s ease-out 0.2s backwards}
-.hero-video-cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg, var(--gold) 0%, #B8956A 100%);color:#1a1a1a;padding:12px 26px;border-radius:50px;font-size:0.93rem;font-weight:700;letter-spacing:0.5px;text-decoration:none;box-shadow:0 6px 24px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3);transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);animation:fadeInUp 0.8s ease-out 0.4s backwards}
-.hero-video-cta:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(212,175,55,0.5)}
+.hero-video-cta{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg, var(--gold) 0%, #B8956A 100%);color:#1a1a1a;padding:12px 26px;border-radius:50px;font-size:0.93rem;font-weight:700;letter-spacing:0.5px;text-decoration:none;box-shadow:0 6px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);animation:fadeInUp 0.8s ease-out 0.4s backwards}
+.hero-video-cta:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(0,0,0,0.5)}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== TRAITEUR CONTENT ===== */
@@ -321,11 +321,13 @@ a{color:inherit;text-decoration:none}
 .loc-name{font-weight:700;font-size:1.1rem;color:#fff;margin:0 0 4px}
 .loc-addr{font-size:.88rem;color:rgba(255,255,255,.65);margin:0 0 4px;line-height:1.5}
 .loc-note{font-size:.8rem;color:rgba(255,255,255,.4);margin:0 0 18px}
-.loc-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;background:#E65100;color:#fff;border-radius:11px;text-decoration:none;font-size:.88rem;font-weight:600;transition:background .2s;width:100%;justify-content:center}
+.loc-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;background:#C2410C;color:#fff;border-radius:11px;text-decoration:none;font-size:.88rem;font-weight:600;transition:background .2s;width:100%;justify-content:center}
 .loc-btn:hover{background:#BF360C}
 @media(max-width:500px){.loc-modal{padding:0;align-items:flex-end}.loc-sheet{border-radius:24px 24px 0 0;max-width:100%}.loc-video-wrap{height:55vw;min-height:200px}}
 @keyframes locFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes locScaleIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.15s!important}}
 </style>
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
@@ -555,7 +557,7 @@ window.T = function (cle, secours) {
     <p class="footer-phone"><a href="tel:+33147748812" style="color:inherit;text-decoration:none">01 47 74 88 12</a></p>
     <p data-i18n="footer.hours" class="footer-hours">Click & collect 7j/7 · Retrait Lun-Ven 11h30-20h30</p>
     <div style="display:flex;gap:16px;margin:20px 0;justify-content:center">
-      <a href="https://www.instagram.com/a_beyrouth/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F77737 100%);border-radius:12px;transition:all .3s ease;box-shadow:0 2px 8px rgba(131,58,180,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(131,58,180,0.5)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(131,58,180,0.3)'" aria-label="Instagram">
+      <a href="https://www.instagram.com/a_beyrouth/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F77737 100%);border-radius:12px;transition:all .3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(131,58,180,0.5)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(131,58,180,0.3)'" aria-label="Instagram">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
           <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
