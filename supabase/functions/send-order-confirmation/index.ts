@@ -252,7 +252,6 @@ serve(async (req) => {
                               <td style="padding:16px 16px 16px 14px;vertical-align:middle;">
                                 <div style="font-size:10px;color:#777777;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;">${tr.wherePickup}</div>
                                 <div style="font-size:16px;color:#ffffff;font-weight:800;margin-bottom:6px;font-family:Georgia,serif;">A Beyrouth</div>
-                                <div style="font-size:12px;color:#fdba74;font-weight:600;margin-bottom:8px;">🛎️ ${tr.skipQueueShort}</div>
                                 <div style="height:1px;background:#333333;margin-bottom:10px;"></div>
                                 <div style="font-size:12px;color:#aaaaaa;line-height:1.7;margin-bottom:10px;">4 Esplanade du Général de Gaulle, 92400 Courbevoie</div>
                                 <div style="font-size:11px;color:#666666;margin-bottom:16px;">${tr.metro}</div>

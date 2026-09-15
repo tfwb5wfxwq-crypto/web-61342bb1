@@ -130,7 +130,7 @@ const translations = {
       skipQueueAt: "À l'heure du retrait, ne faites pas la queue : allez directement à la caisse avec votre numéro de commande.",
       yourNumber: "Votre numéro",
       commandReady: "Commande prête !",
-      pickupNow: "Venez la récupérer chez A Beyrouth, directement à la caisse",
+      pickupNow: "Venez la récupérer chez A Beyrouth",
       seeyouSoon: "À très bientôt chez A Beyrouth 🧆",
       // Ajouts etape 6 (page de confirmation). Textes copies A L IDENTIQUE
       // depuis confirmation.html, y compris la ponctuation : certains
@@ -139,7 +139,7 @@ const translations = {
       willConfirmSoon: "Votre commande va être confirmée dans quelques instants",
       orderAcceptedExcl: "Commande acceptée !",
       beingPrepared: "Votre commande est en préparation",
-      comePickUp: "Passez directement en caisse, sans faire la queue",
+      comePickUp: "Venez la récupérer",
       enjoyMeal: "Bon appétit !",
       orderPickedUp: "Commande récupérée",
       thanksForOrder: "Merci pour votre commande !",
@@ -462,13 +462,13 @@ const translations = {
       skipQueueAt: "At pickup time, no need to queue: go straight to the till with your order number.",
       yourNumber: "Your number",
       commandReady: "Order ready!",
-      pickupNow: "Come pick it up at A Beyrouth, straight at the till",
+      pickupNow: "Come pick it up at A Beyrouth",
       seeyouSoon: "See you soon at A Beyrouth 🧆",
       // Step 6 additions (confirmation page)
       willConfirmSoon: "Your order will be confirmed in a moment",
       orderAcceptedExcl: "Order accepted!",
       beingPrepared: "Your order is being prepared",
-      comePickUp: "Go straight to the till, no need to queue",
+      comePickUp: "Come and collect it",
       enjoyMeal: "Enjoy your meal!",
       orderPickedUp: "Order collected",
       thanksForOrder: "Thank you for your order!",
