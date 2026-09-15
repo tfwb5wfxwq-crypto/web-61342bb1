@@ -9,3 +9,8 @@ verify_jwt = false
 
 [functions.brevo-webhook]
 verify_jwt = false
+
+# 15/09/2026 : état constaté en prod (version 81) avant redéploiement — la fonction
+# vérifie elle-même le jeton (service role ou JWT admin), ne pas la remettre en verify_jwt=true.
+[functions.send-order-confirmation]
+verify_jwt = false

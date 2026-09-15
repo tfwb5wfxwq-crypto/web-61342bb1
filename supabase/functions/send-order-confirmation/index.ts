@@ -160,6 +160,7 @@ serve(async (req) => {
   <title>Commande confirmée</title>
 </head>
 <body bgcolor="#f5f5f5" style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
+  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#f5f5f5;opacity:0;">${tr.confirmedPreheader(order.numero)}</div>
   <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f5" style="background:#f5f5f5;">
     <tr>
       <td align="center" bgcolor="#f5f5f5" style="background:#f5f5f5;padding:0;">
@@ -181,6 +182,16 @@ serve(async (req) => {
                 <tr>
                   <td style="background:#f0fdf4;padding:16px 20px;">
                     <span style="font-size:16px;font-weight:600;color:#166534;">${tr.orderConfirmed}</span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Retrait sans file d'attente -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+                <tr>
+                  <td bgcolor="#fff7ed" style="background:#fff7ed;border:2px solid #C2410C;border-radius:10px;padding:14px 18px;">
+                    <div style="font-size:16px;font-weight:700;color:#9a3412;margin-bottom:4px;">${tr.skipQueueTitle}</div>
+                    <div style="font-size:15px;color:#1a1a1a;line-height:1.5;">${tr.skipQueueText(order.numero)}</div>
                   </td>
                 </tr>
               </table>
@@ -241,6 +252,7 @@ serve(async (req) => {
                               <td style="padding:16px 16px 16px 14px;vertical-align:middle;">
                                 <div style="font-size:10px;color:#777777;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;">${tr.wherePickup}</div>
                                 <div style="font-size:16px;color:#ffffff;font-weight:800;margin-bottom:6px;font-family:Georgia,serif;">A Beyrouth</div>
+                                <div style="font-size:12px;color:#fdba74;font-weight:600;margin-bottom:8px;">🛎️ ${tr.skipQueueShort}</div>
                                 <div style="height:1px;background:#333333;margin-bottom:10px;"></div>
                                 <div style="font-size:12px;color:#aaaaaa;line-height:1.7;margin-bottom:10px;">4 Esplanade du Général de Gaulle, 92400 Courbevoie</div>
                                 <div style="font-size:11px;color:#666666;margin-bottom:16px;">${tr.metro}</div>

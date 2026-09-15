@@ -49,6 +49,12 @@ export const emailI18n = {
 
     // Email subjects
     subjectConfirmed: (numero: string, pickup: string) => `Commande ${numero} validée · Retrait ${pickup} - A Beyrouth`,
+
+    // Retrait sans file d'attente (15/09/2026)
+    skipQueueTitle: '🛎️ Ne faites pas la queue',
+    skipQueueText: (numero: string) => `Allez directement à la caisse : votre commande <strong>${numero}</strong> vous y attend.`,
+    skipQueueShort: 'Direct à la caisse, sans faire la queue',
+    confirmedPreheader: (numero: string) => `Commande ${numero} validée · Ne faites pas la queue, allez directement à la caisse`,
     subjectPayment: (numero: string) => `✅ Paiement confirmé - Commande ${numero} - A Beyrouth`,
     subjectReminder: (numero: string, pickup: string) => `⏰ ${numero} · Votre commande prête depuis ${pickup} - A Beyrouth`,
     subjectCancelled: (numero: string) => `❌ Commande ${numero} annulée - Remboursement en cours`,
@@ -111,6 +117,12 @@ export const emailI18n = {
 
     // Email subjects
     subjectConfirmed: (numero: string, pickup: string) => `Order ${numero} confirmed · Pickup ${pickup} - A Beyrouth`,
+
+    // Skip the queue (15/09/2026)
+    skipQueueTitle: '🛎️ No need to queue',
+    skipQueueText: (numero: string) => `Go straight to the till: your order <strong>${numero}</strong> is waiting for you there.`,
+    skipQueueShort: 'Straight to the till, no queuing',
+    confirmedPreheader: (numero: string) => `Order ${numero} confirmed · No need to queue, go straight to the till`,
     subjectPayment: (numero: string) => `✅ Payment confirmed - Order ${numero} - A Beyrouth`,
     subjectReminder: (numero: string, pickup: string) => `⏰ ${numero} · Your order ready since ${pickup} - A Beyrouth`,
     subjectCancelled: (numero: string) => `❌ Order ${numero} cancelled - Refund in progress`,
