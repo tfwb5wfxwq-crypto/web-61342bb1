@@ -483,7 +483,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260811h"></script>
+<script src="i18n.js?v=20260915a"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -658,6 +658,7 @@ window.T = function (cle, secours) {
           <div>
             <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--green);opacity:.7;" data-i18n="timepicker.pickupTime">Retrait prévu</div>
             <div style="font-size:.95rem;font-weight:700;color:var(--green);margin-top:2px;" id="cartPickupDisplay">Dès que possible</div>
+            <div style="font-size:.78rem;color:var(--green);margin-top:4px;" data-i18n="timepicker.noQueue">Sur place : pas de queue, allez directement à la caisse 🙂</div>
           </div>
         </div>
         <button onclick="openTimePicker()" style="background:var(--green);color:white;padding:6px 12px;border-radius:6px;font-size:.8rem;font-weight:600;">Modifier</button>

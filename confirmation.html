@@ -119,6 +119,24 @@ h1.blue { color: var(--blue); }
   font-size: 0.9rem;
   color: #666;
 }
+.status-banner-callout {
+  margin-top: 12px;
+  background: #fff;
+  border: 2px solid #E65100;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+.status-banner-callout .callout-num {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+  color: #E65100;
+}
 .section {
   background: var(--cream);
   border-radius: 12px;
@@ -321,7 +339,7 @@ h1.blue { color: var(--blue); }
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260811h"></script>
+<script src="i18n.js?v=20260915a"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -369,16 +387,6 @@ window.T = function (cle, secours) {
       <p class="section-value" id="pickupTime">12h30</p>
     </div>
 
-    <!-- Détails commande -->
-    <div class="section">
-      <p class="section-title" data-i18n="cart.yourOrder">Votre commande</p>
-      <div id="items"></div>
-      <div class="total-row">
-        <span data-i18n="cart.total">Total</span>
-        <span id="total">0,00 €</span>
-      </div>
-    </div>
-
     <!-- Adresse récupération — vidéo fond (visible uniquement acceptee/prete) -->
     <div class="address-section" id="addressSection">
       <video class="address-video-bg" autoplay loop muted playsinline preload="auto">
@@ -394,6 +402,16 @@ window.T = function (cle, secours) {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
           Ouvrir dans Google Maps
         </a>
+      </div>
+    </div>
+
+    <!-- Détails commande -->
+    <div class="section">
+      <p class="section-title" data-i18n="cart.yourOrder">Votre commande</p>
+      <div id="items"></div>
+      <div class="total-row">
+        <span data-i18n="cart.total">Total</span>
+        <span id="total">0,00 €</span>
       </div>
     </div>
 
@@ -626,6 +644,7 @@ function updateDisplay(order) {
         <div class="status-banner-icon">👨‍🍳</div>
         <div class="status-banner-title">${T('confirmation.preparing', 'Préparation en cours')}</div>
         <div class="status-banner-text">${T('confirmation.willBeReady', 'Votre commande sera prête')} ${heureText}</div>
+        <div class="status-banner-callout">🛎️ ${T('confirmation.skipQueueAt', "À l'heure du retrait, ne faites pas la queue : allez directement à la caisse avec votre numéro de commande.")}<span class="callout-num">${escapeHtml(order.numero || '')}</span></div>
       </div>
     `;
 
@@ -643,7 +662,7 @@ function updateDisplay(order) {
       <div class="status-banner ready">
         <div class="status-banner-icon">🎉</div>
         <div class="status-banner-title">${T('confirmation.orderReady', 'Votre commande est prête !')}</div>
-        <div class="status-banner-text">${T('confirmation.canPickup', 'Vous pouvez venir la récupérer au restaurant')}</div>
+        <div class="status-banner-callout">🛎️ ${T('confirmation.skipQueue', 'Ne faites pas la queue : allez directement à la caisse, votre commande vous y attend.')}<span class="callout-num">${escapeHtml(order.numero || '')}</span></div>
       </div>
     `;
 
