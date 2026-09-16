@@ -147,7 +147,21 @@ async function getPaygreenJWT(): Promise<string> {
 }
 
 // Vérifier le paiement directement chez PayGreen (source de vérité)
-async function verifyPaymentWithPaygreen(paymentOrderId: string): Promise<{ status: string; amount: number } | null> {
+// Moyen de paiement reellement utilise (16/09/2026) : PayGreen le met dans
+// transactions[].operations[].instrument.platform ('bank_card', 'apple_pay',
+// 'google_pay', 'swile', 'conecs', 'restoflash'). On prend la derniere operation
+// capturee ; sinon la derniere connue. Jamais bloquant : null si absent.
+function extractPlatform(po: any): string | null {
+  try {
+    const ops: any[] = []
+    for (const t of (po?.transactions ?? [])) for (const op of (t?.operations ?? [])) ops.push(op)
+    const pick = ops.filter(o => String(o?.status ?? '').includes('captured')).pop() ?? ops.pop()
+    const p = pick?.instrument?.platform ?? pick?.payment_config?.platform ?? null
+    return typeof p === 'string' && p.length > 0 && p.length < 40 ? p : null
+  } catch (_) { return null }
+}
+
+async function verifyPaymentWithPaygreen(paymentOrderId: string): Promise<{ status: string; amount: number; platform: string | null } | null> {
   try {
     const jwt = await getPaygreenJWT()
     const res = await fetch(`https://api.paygreen.fr/payment/payment-orders/${paymentOrderId}`, {
@@ -157,7 +171,8 @@ async function verifyPaymentWithPaygreen(paymentOrderId: string): Promise<{ stat
     const data = await res.json()
     return {
       status: data.data?.status ?? '',
-      amount: data.data?.amount ?? 0
+      amount: data.data?.amount ?? 0,
+      platform: extractPlatform(data.data)
     }
   } catch (e) {
     console.error('Erreur vérification PayGreen:', e)
@@ -291,6 +306,7 @@ serve(async (req) => {
     }
 
     // Re-vérification API PayGreen uniquement si HMAC absent ou invalide
+    let paymentPlatform: string | null = null
     if (isSuccess && paymentOrderId && !hmacValid) {
       const pgVerification = await verifyPaymentWithPaygreen(paymentOrderId)
       if (!pgVerification) {
@@ -309,7 +325,17 @@ serve(async (req) => {
         )
       }
 
-      console.log(`✅ PayGreen confirme le paiement ${paymentOrderId}: ${pgVerification.status}`)
+      console.log(`✅ PayGreen confirme le paiement ${paymentOrderId}: ${pgVerification.status} (${pgVerification.platform ?? 'moyen inconnu'})`)
+      paymentPlatform = pgVerification.platform
+    }
+
+    // Moyen de paiement (16/09/2026) : quand la signature HMAC est valide on ne verifie pas
+    // chez PayGreen ; on fait alors UN appel de lecture, non bloquant, juste pour l'etiquette.
+    if (isSuccess && paymentOrderId && !paymentPlatform) {
+      try {
+        const info = await verifyPaymentWithPaygreen(paymentOrderId)
+        paymentPlatform = info?.platform ?? null
+      } catch (_) { paymentPlatform = null }
     }
 
     // Mapper statut
@@ -325,7 +351,8 @@ serve(async (req) => {
         statut: newStatus,
         paygreen_status: event,
         paygreen_transaction_id: paymentOrderId || existingOrder.paygreen_transaction_id,
-        payment_confirmed_at: newStatus === 'payee' ? new Date().toISOString() : null
+        payment_confirmed_at: newStatus === 'payee' ? new Date().toISOString() : null,
+        ...(paymentPlatform ? { payment_method: paymentPlatform } : {})
       })
       .eq('numero', orderNum)
       .select()
