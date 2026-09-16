@@ -495,7 +495,7 @@ a{color:inherit;text-decoration:none}
 #expressPay .express-row{display:grid;gap:10px}
 /* Bouton Apple Pay : rendu natif par Safari (marque et proportions officielles), 48 px, coins 8 px */
 @supports (-webkit-appearance: -apple-pay-button){
-  .apple-pay-button{display:inline-block;width:100%;height:48px;-webkit-appearance:-apple-pay-button;-apple-pay-button-type:pay;-apple-pay-button-style:black;border-radius:8px;cursor:pointer}
+  .apple-pay-button{display:block;width:100%;height:48px;-webkit-appearance:-apple-pay-button;-apple-pay-button-type:pay;-apple-pay-button-style:black;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 }
 @supports not (-webkit-appearance: -apple-pay-button){ .apple-pay-button{display:none} }
 /* Conteneur du bouton Google Pay : dessiné par la librairie officielle pay.js */
@@ -2304,7 +2304,7 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
         <div id="expressPay">
           <p class="express-title">Paiement express</p>
           <div class="express-row">
-            <button type="button" class="apple-pay-button" id="applePayButton" aria-label="Payer avec Apple Pay" onclick="payHosted('apple_pay')"></button>
+            <div class="apple-pay-button" id="applePayButton" role="button" tabindex="0" aria-label="Payer avec Apple Pay" onclick="payHosted('apple_pay')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();payHosted('apple_pay')}"></div>
             <div id="gpayButton"></div>
           </div>
           <div class="express-or">ou payer par carte ou titre-restaurant</div>
