@@ -873,7 +873,8 @@ const ITEM_IMAGES = {
 };
 
 // ===== DEMO DATA =====
-// Menu de secours = COPIE de la base (ids, prix, images identiques) — régénéré le 16/09/2026.
+// >>> MENU-FALLBACK (généré par scripts/gen-menu-fallback.py — ne pas éditer à la main)
+// Menu de secours = COPIE de la base (ids, prix, images identiques), régénéré toutes les 30 min.
 // Si Supabase ne répond pas au chargement, ce menu s'affiche ; create-payment revérifie les prix en base.
 const DEMO_CATEGORIES = [
   {id:18, nom:'Exclu Web', ordre:0, emoji:'⚡'},
@@ -943,6 +944,7 @@ const DEMO_ITEMS = [
   {id:78, categorie_id:17, nom:'Sauce Tahini', description:'Sauce tahini au sésame (tarator)', prix:0.70, emoji:'🥜', image_url:'img/tahini.jpg', disponible:true},
   {id:79, categorie_id:18, nom:'Box Beyrouth', description:'10 pièces · fromage, épinards, viande, falafel, rikakat + 3 sauces : ail, houmous, piquante', prix:19.90, emoji:'🎁', image_url:'img/box-beyrouth.jpg', disponible:true},
 ];
+// <<< MENU-FALLBACK
 
 // ===== HORAIRES =====
 // ⚠️ Restaurant fermé week-end (affiche "Fermé" samedi/dimanche)
@@ -1087,15 +1089,43 @@ async function loadFromSupabase() {
       categories = catRes.data;
       menuItems = itemRes.data;
       menuFromFallback = false;
+      // Copie locale du dernier menu réel : servira avant DEMO_ITEMS si Supabase retombe
+      try { localStorage.setItem('be_menu_cache', JSON.stringify({ at: Date.now(), categories, menuItems })); } catch (e) {}
     } else {
       throw new Error('Données incomplètes');
     }
   } catch (e) {
     console.error('Erreur chargement:', e);
-    categories = DEMO_CATEGORIES;
-    menuItems = DEMO_ITEMS;
+    // 1) le dernier menu réel vu par ce navigateur (< 7 jours), 2) sinon le menu de secours de la page
+    let cached = null;
+    try {
+      const c = JSON.parse(localStorage.getItem('be_menu_cache') || 'null');
+      if (c && c.at && Date.now() - c.at < 7 * 86400000 && c.categories?.length && c.menuItems?.length) cached = c;
+    } catch (e2) {}
+    categories = cached ? cached.categories : DEMO_CATEGORIES;
+    menuItems = cached ? cached.menuItems : DEMO_ITEMS;
     menuFromFallback = true;
+    if (!menuRetryActive) scheduleMenuRetry();
   }
+}
+
+// Supabase injoignable au chargement (data coupée pendant un appel, tunnel…) :
+// on retente en arrière-plan à 5 s, 15 s, 45 s, 2 min et dès que le réseau revient.
+let menuRetryActive = false;
+function scheduleMenuRetry() {
+  const delays = [5000, 15000, 45000, 120000];
+  let i = 0, timer = null;
+  menuRetryActive = true;
+  const attempt = async () => {
+    clearTimeout(timer);
+    if (!menuFromFallback || !sb) { menuRetryActive = false; return; }
+    await loadFromSupabase();
+    if (!menuFromFallback) { menuRetryActive = false; cleanUnavailableFromCart(); renderMenu(); updateCartUI(); return; }
+    if (i < delays.length) timer = setTimeout(attempt, delays[i++]);
+    else menuRetryActive = false; // on arrête ; refreshCartPricesFromDb() retentera au paiement
+  };
+  timer = setTimeout(attempt, delays[i++]);
+  window.addEventListener('online', attempt, { once: true });
 }
 
 // 16/09/2026 : Paco a eu 9 refus « montant invalide » d'affilée. Son Safari avait
