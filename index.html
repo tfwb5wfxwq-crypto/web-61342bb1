@@ -835,6 +835,7 @@ const haptic = (() => {
 // ===== STATE =====
 let categories = [];
 let menuItems = [];
+let menuFromFallback = false; // true si le menu affiché vient de DEMO_ITEMS (Supabase injoignable au chargement)
 let cart = JSON.parse(localStorage.getItem('be_cart') || '[]');
 
 // ===== FORMULE CONFIGS =====
@@ -872,68 +873,75 @@ const ITEM_IMAGES = {
 };
 
 // ===== DEMO DATA =====
+// Menu de secours = COPIE de la base (ids, prix, images identiques) — régénéré le 16/09/2026.
+// Si Supabase ne répond pas au chargement, ce menu s'affiche ; create-payment revérifie les prix en base.
 const DEMO_CATEGORIES = [
   {id:18, nom:'Exclu Web', ordre:0, emoji:'⚡'},
   {id:2, nom:'Formules', ordre:1, emoji:'🍽️'},
   {id:1, nom:'Sandwichs', ordre:2, emoji:'🌯'},
-  {id:3, nom:'Grillades', ordre:3, emoji:'🔥'},
-  {id:4, nom:'Plateaux', ordre:4, emoji:'🥘'},
+  {id:4, nom:'Plateaux', ordre:3, emoji:'🥘'},
+  {id:3, nom:'Grillades', ordre:4, emoji:'🔥'},
   {id:5, nom:'Entrées Froides', ordre:5, emoji:'🧆'},
   {id:13, nom:'Entrées Chaudes', ordre:6, emoji:'🥟'},
-  {id:6, nom:'Desserts', ordre:7, emoji:'🍮'},
-  {id:7, nom:'Boissons', ordre:8, emoji:'🥤'},
-  {id:14, nom:'Sauces', ordre:9, emoji:'🧉'},
+  {id:17, nom:'Sauces', ordre:7, emoji:'🍽️'},
+  {id:6, nom:'Desserts', ordre:8, emoji:'🍮'},
+  {id:7, nom:'Boissons', ordre:9, emoji:'🥤'},
 ];
 
 const DEMO_ITEMS = [
-  {id:79, categorie_id:18, nom:'Box Beyrouth', description:'10 pièces · fromage, épinards, viande, falafel, rikakat + 3 sauces', prix:20.00, emoji:'🎁', image_url:'img/box-beyrouth.jpg', disponible:true},
-  {id:1, categorie_id:1, nom:'Shawarma Poulet', description:'Émincé de poulet mariné, crudités, sauce maison', prix:6.90, emoji:'🌯', image_url:'img/sandwich-shawarma.jpg', disponible:true},
-  {id:2, categorie_id:1, nom:'Chich Taouk', description:'Brochette de blanc de poulet mariné', prix:6.90, emoji:'🌯', image_url:'img/sandwich-chich-taouk.jpg', disponible:true},
-  {id:3, categorie_id:1, nom:'Shawarma Boeuf', description:'Émincé de boeuf mariné, crudités, sauce maison', prix:6.90, emoji:'🌯', image_url:'img/sandwich-boeuf.jpg', disponible:true},
-  {id:4, categorie_id:1, nom:'Falafel', description:'Boulette de fèves et pois chiches', prix:6.90, emoji:'🧆', image_url:'img/sandwich-falafel.jpg', disponible:true},
-  {id:5, categorie_id:1, nom:'Veggie', description:'Chou fleur, aubergine, crudités', prix:6.90, emoji:'🥬', image_url:'img/sandwich-veggie.jpg', disponible:true},
-  {id:6, categorie_id:1, nom:'Foie de Volaille', description:'Mariné au citron', prix:6.90, emoji:'🍗', image_url:'img/sandwich-foie-volaille.jpg', disponible:true},
-  {id:7, categorie_id:1, nom:'Kafta', description:'Brochette de boeuf hachée persillée', prix:6.90, emoji:'🍢', image_url:'img/sandwich-kafta.jpg', disponible:true},
-  {id:8, categorie_id:1, nom:'Soujouk', description:'Saucisses de boeuf épicées', prix:6.90, emoji:'🌭', image_url:'img/sandwich-soujouk-2.jpg', disponible:true},
-  {id:10, categorie_id:2, nom:'Formule 1', description:'Sandwich + 2 feuilletés + boisson', prix:10.90, emoji:'1️⃣', image_url:'img/formule-1.jpg', disponible:true},
-  {id:11, categorie_id:2, nom:'Formule 2', description:'Sandwich + entrée froide + boisson', prix:11.90, emoji:'2️⃣', image_url:'img/formule-2.jpg', disponible:true},
-  {id:12, categorie_id:2, nom:'Formule 3', description:'Sandwich + dessert + boisson', prix:11.90, emoji:'3️⃣', image_url:'img/formule-3.jpg', disponible:true},
-  {id:13, categorie_id:2, nom:'Formule 4', description:'2 sandwiches au choix + boisson', prix:14.90, emoji:'4️⃣', image_url:'img/formule-4.jpg', disponible:true},
-  {id:14, categorie_id:2, nom:'Formule Plat du Jour', description:'Plat du jour + boisson', prix:13.90, emoji:'🍽️', disponible:true},
-  {id:20, categorie_id:3, nom:'Kafta Méchoui', description:'2 brochettes boeuf, riz, crudités', prix:13.00, emoji:'🍢', image_url:'img/kafta-mechoui.jpg', disponible:true},
-  {id:21, categorie_id:3, nom:'Chich Taouk', description:'2 brochettes poulet, riz, crudités', prix:13.00, emoji:'🍗', image_url:'img/chich-taouk.jpg', disponible:true},
-  {id:22, categorie_id:3, nom:'Shawarma Poulet ou Boeuf', description:'Émincé mariné grillé à la broche, riz, crudités', prix:15.00, emoji:'🌯', image_url:'img/shawarma-poulet.jpg', disponible:true},
-  {id:24, categorie_id:3, nom:'Grillade Mixte', description:'Shawarma poulet, kafta, chich taouk, riz, crudités', prix:16.00, emoji:'🔥', disponible:true},
-  {id:30, categorie_id:4, nom:'Beyrouth Poulet', description:'Houmous, moutabal, taboulé, shawarma poulet, riz', prix:14.00, emoji:'🥘', disponible:true},
-  {id:31, categorie_id:4, nom:'Beyrouth Boeuf', description:'Houmous, moutabal, taboulé, shawarma boeuf, riz', prix:15.00, emoji:'🥘', disponible:true},
-  {id:32, categorie_id:4, nom:'Végétarienne', description:'Houmous, moutabal, moussaka, crudités, 3 feuilletés végétariens', prix:14.00, emoji:'🥬', disponible:true},
-  {id:33, categorie_id:4, nom:'Falafel', description:'Houmous, moutabal, taboulé, crudités, 3 falafels', prix:14.00, emoji:'🧆', disponible:true},
-  {id:34, categorie_id:4, nom:'Liban', description:'Houmous, moutabal, chich taouk, riz, crudités, 2 feuilletés végétariens', prix:16.00, emoji:'🇱🇧', disponible:true},
-  {id:35, categorie_id:4, nom:'Byblos', description:'Houmous, moutabal, taboulé, 3 feuilletés végétariens, kafta, chich taouk, shawarma poulet, riz', prix:18.00, emoji:'👑', disponible:true},
-  {id:40, categorie_id:5, nom:'Houmous', description:'Purée de pois chiches au tahini, parfumée au citron et à l\'huile d\'olive', prix:6.00, emoji:'🫘', image_url:'img/houmous.jpg', disponible:true},
-  {id:41, categorie_id:5, nom:'Moutabal', description:'Caviar d\'aubergines rôties à la crème de sésame, jus de citron', prix:6.00, emoji:'🍆', image_url:'img/moutabal.jpg', disponible:true},
-  {id:42, categorie_id:5, nom:'Taboulé', description:'Salade de persil, tomates, oignons, blé concassé, huile d\'olive, citron', prix:6.00, emoji:'🥗', image_url:'img/taboule.jpg', disponible:true},
-  {id:43, categorie_id:5, nom:'Salade du Moine', description:'Aubergines grillées, tomates, persil, poivrons, huile d\'olive, jus de citron', prix:6.00, emoji:'🥗', image_url:'img/salade-moine.jpg', disponible:true},
-  {id:44, categorie_id:5, nom:'Moussaka', description:'Aubergines au four, cuisinées à la sauce tomate, pois chiches', prix:7.50, emoji:'🍲', image_url:'img/plat-jour.jpg', disponible:true},
-  {id:45, categorie_id:5, nom:'Feuilles de Vignes', description:'Farcies de riz, huile d\'olive, citron', prix:6.00, emoji:'🌿', image_url:'img/feuilles-vigne.jpg', disponible:true},
-  {id:70, categorie_id:13, nom:'Falafel (pièce)', description:'Fèves et pois chiches à la coriandre', prix:1.50, emoji:'🧆', image_url:'img/falafel.jpg', disponible:true},
-  {id:71, categorie_id:13, nom:'Fattayer', description:'Chaussons aux épinards acidulés', prix:1.50, emoji:'🥟', image_url:'img/fattayer.jpg', disponible:true},
-  {id:72, categorie_id:13, nom:'Samboussek Fromage', description:'Fromage de feta', prix:1.50, emoji:'🥟', image_url:'img/sambousek-fromage.jpg', disponible:true},
-  {id:73, categorie_id:13, nom:'Rikakat Fromage', description:'Fromage de feta', prix:2.00, emoji:'🧀', image_url:'img/rkakat.jpg', disponible:true},
-  {id:74, categorie_id:13, nom:'Samboussek Viande', description:'Viande de boeuf haché', prix:1.50, emoji:'🥟', image_url:'img/sambousek-viande.jpg', disponible:true},
-  {id:75, categorie_id:13, nom:'Kebbé', description:'Boulette de blé concassé farcies de viande hachée', prix:2.50, emoji:'🍡', image_url:'img/kebbe.jpg', disponible:true},
-  {id:50, categorie_id:6, nom:'Mouhalabieh', description:'Flan fleur d\'oranger, pistaches (fait maison)', prix:4.00, emoji:'🍮', image_url:'img/mouhalabieh.jpg', disponible:true},
-  {id:51, categorie_id:6, nom:'Namoura', description:'Gâteau de semoule, sirop fleur d\'oranger', prix:4.00, emoji:'🍰', image_url:'img/namoura.jpg', disponible:true},
-  {id:52, categorie_id:6, nom:'Baklawas', description:'Boîte de 3 pièces', prix:4.50, emoji:'🍯', image_url:'img/baklawas.jpg', disponible:true},
+  {id:23, categorie_id:1, nom:'Shawarma Poulet', description:'Émincé de poulet mariné, crudités, sauce maison', prix:6.90, emoji:'🌯', image_url:'img/sandwich-shawarma.jpg', disponible:true},
+  {id:24, categorie_id:1, nom:'Chich Taouk', description:'Brochette de blanc de poulet mariné', prix:6.90, emoji:'🌯', image_url:'img/sandwich-chich-taouk.jpg', disponible:true},
+  {id:25, categorie_id:1, nom:'Shawarma Boeuf', description:'Émincé de boeuf mariné, crudités, sauce maison', prix:6.90, emoji:'🌯', image_url:'img/sandwich-boeuf.jpg', disponible:true},
+  {id:26, categorie_id:1, nom:'Falafel', description:'Boulette de fèves et pois chiches', prix:6.90, emoji:'🧆', image_url:'img/sandwich-falafel.jpg', disponible:true},
+  {id:27, categorie_id:1, nom:'Veggie', description:'Chou fleur, aubergine, crudités', prix:6.90, emoji:'🥬', image_url:'img/sandwich-veggie.jpg', disponible:true},
+  {id:28, categorie_id:1, nom:'Foie de Volaille', description:'Mariné au citron', prix:6.90, emoji:'🍗', image_url:'img/sandwich-foie-volaille.jpg', disponible:true},
+  {id:29, categorie_id:1, nom:'Kafta', description:'Brochette de boeuf hachée persillée', prix:6.90, emoji:'🍢', image_url:'img/sandwich-kafta.jpg', disponible:true},
+  {id:30, categorie_id:1, nom:'Soujouk', description:'Saucisses de boeuf épicées', prix:6.90, emoji:'🌭', image_url:'img/sandwich-soujouk.jpg', disponible:true},
+  {id:42, categorie_id:2, nom:'Formule 1', description:'Sandwich + 2 feuilletés + boisson', prix:10.90, emoji:'1', image_url:'img/formule-1.jpg', disponible:true},
+  {id:43, categorie_id:2, nom:'Formule 2', description:'Sandwich + 1 entrée froide + boisson', prix:11.90, emoji:'2', image_url:'img/formule-2.jpg', disponible:true},
+  {id:44, categorie_id:2, nom:'Formule 3', description:'Sandwich + 1 dessert + boisson', prix:11.90, emoji:'3', image_url:'img/formule-3.jpg', disponible:true},
+  {id:45, categorie_id:2, nom:'Formule 4', description:'2 sandwiches au choix + boisson', prix:14.90, emoji:'4️⃣', image_url:'img/formule-4.jpg', disponible:true},
+  {id:31, categorie_id:3, nom:'Kafta Méchoui', description:'2 brochettes boeuf, riz, crudités', prix:13.00, emoji:'🍢', image_url:'img/kafta-mechoui.jpg', disponible:true},
+  {id:32, categorie_id:3, nom:'Chich Taouk', description:'2 brochettes poulet, riz, crudités', prix:13.00, emoji:'🍗', image_url:'img/chich-taouk.jpg', disponible:true},
+  {id:33, categorie_id:3, nom:'Shawarma Poulet', description:'Émincé mariné grillé à la broche, riz, crudités', prix:15.00, emoji:'🌯', image_url:'img/shawarma-poulet.jpg', disponible:true},
+  {id:35, categorie_id:3, nom:'Grillade Mixte', description:'Shawarma poulet, kafta, chich taouk, riz, crudités', prix:16.00, emoji:'🔥', image_url:'img/grillade-mixte.jpg', disponible:true},
+  {id:47, categorie_id:4, nom:'Beyrouth Poulet', description:'Houmous, moutabal, taboulé, shawarma poulet, riz', prix:14.00, emoji:'🥘', image_url:'img/beyrouth-poulet.jpg', disponible:true},
+  {id:48, categorie_id:4, nom:'Beyrouth Boeuf', description:'Houmous, moutabal, taboulé, shawarma boeuf, riz', prix:15.00, emoji:'🥘', image_url:'img/beyrouth-boeuf.jpg', disponible:true},
+  {id:49, categorie_id:4, nom:'Végétarienne', description:'Houmous, moutabal, moussaka, crudités, 3 feuilletés végétariens', prix:14.00, emoji:'🥬', image_url:'img/plateau-vegetarien.jpg', disponible:true},
+  {id:50, categorie_id:4, nom:'Falafel', description:'Houmous, moutabal, taboulé, crudités, 3 falafels', prix:14.00, emoji:'🧆', image_url:'img/plateau-falafel.jpg', disponible:true},
+  {id:51, categorie_id:4, nom:'Liban', description:'Houmous, moutabal, chich taouk, riz, crudités, 2 feuilletés végétariens', prix:16.00, emoji:'🇱🇧', image_url:'img/liban.jpg', disponible:true},
+  {id:52, categorie_id:4, nom:'Byblos', description:'Houmous, moutabal, taboulé, 3 feuilletés végétariens, kafta, chich taouk, shawarma poulet, riz', prix:18.00, emoji:'👑', image_url:'img/byblos.jpg', disponible:true},
+  {id:36, categorie_id:5, nom:'Houmous', description:'Purée de pois chiches au tahini, parfumée au citron et à l\'huile d\'olive', prix:6.00, emoji:'🫘', image_url:'img/houmous.jpg', disponible:true},
+  {id:37, categorie_id:5, nom:'Moutabal', description:'Caviar d\'aubergines rôties à la crème de sésame, jus de citron', prix:6.00, emoji:'🍆', image_url:'img/moutabal.jpg', disponible:true},
+  {id:38, categorie_id:5, nom:'Taboulé', description:'Salade de persil, tomates, oignons, blé concassé, huile d\'olive, citron', prix:6.00, emoji:'🥗', image_url:'img/taboule.jpg', disponible:true},
+  {id:64, categorie_id:5, nom:'Salade du Moine', description:'Aubergines grillées, tomates, persil, poivrons, huile d\'olive, jus de citron', prix:6.00, emoji:'🥗', image_url:'img/salade-moine.jpg', disponible:true},
+  {id:65, categorie_id:5, nom:'Moussaka', description:'Aubergines au four, cuisinées à la sauce tomate, pois chiches', prix:7.50, emoji:'🍲', image_url:'img/plat-jour.jpg', disponible:true},
+  {id:66, categorie_id:5, nom:'Feuilles de Vignes', description:'Farcies de riz, huile d\'olive, citron', prix:6.00, emoji:'🌿', image_url:'img/feuilles-vigne.jpg', disponible:true},
+  {id:75, categorie_id:5, nom:'Pain Libanais', description:'Pain pita libanais frais', prix:2.00, emoji:'🍞', image_url:'img/pain-libanais.jpg', disponible:true},
+  {id:53, categorie_id:6, nom:'Mouhalabieh', description:'Flan fleur d\'oranger, pistaches (fait maison)', prix:4.00, emoji:'🍮', image_url:'img/mouhalabieh.jpg', disponible:true},
+  {id:54, categorie_id:6, nom:'Namoura', description:'Gâteau de semoule, sirop fleur d\'oranger', prix:4.00, emoji:'🍰', image_url:'img/namoura.jpg', disponible:true},
+  {id:55, categorie_id:6, nom:'Baklawas', description:'Boîte de 3 pièces', prix:4.50, emoji:'🍯', image_url:'img/baklaawa.jpg', disponible:true},
+  {id:73, categorie_id:6, nom:'Assortiment Baklawas 250g', description:'Assortiment de pâtisseries orientales au miel et pistache', prix:12.00, emoji:'🥮', image_url:'img/baklaawa-250g.jpg', disponible:true},
+  {id:74, categorie_id:6, nom:'Assortiment Baklawas 500g', description:'Grand assortiment de pâtisseries orientales au miel et pistache', prix:18.00, emoji:'🥮', image_url:'img/baklaawa-500g.jpg', disponible:true},
+  {id:40, categorie_id:7, nom:'Ayran', description:'Yaourt salé, rafraîchissant', prix:2.50, emoji:'🥛', image_url:'img/ayran.jpg', disponible:true},
+  {id:41, categorie_id:7, nom:'Eau Plate', description:'50cl', prix:2.00, emoji:'💧', image_url:'img/eau.jpg', disponible:true},
   {id:57, categorie_id:7, nom:'Pepsi', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/pepsi.jpg', disponible:true},
-  {id:61, categorie_id:7, nom:'Fanta', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/fanta.jpg', disponible:true},
-  {id:62, categorie_id:7, nom:'Oasis Tropical', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/oasis.jpg', disponible:true},
-  {id:63, categorie_id:7, nom:'Lipton Pêche', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/lipton.jpg', disponible:true},
-  {id:64, categorie_id:7, nom:'7Up', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/7up.jpg', disponible:true},
-  {id:65, categorie_id:7, nom:'Coca-Cola Zero', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/coca-zero.jpg', disponible:true},
-  {id:66, categorie_id:7, nom:'Perrier', description:'Canette 33cl', prix:2.00, emoji:'🫧', image_url:'img/perrier.jpg', disponible:true},
-  {id:67, categorie_id:7, nom:'Ayran', description:'Yaourt salé, rafraîchissant', prix:2.50, emoji:'🥛', disponible:true},
-  {id:68, categorie_id:7, nom:'Eau Plate', description:'50cl', prix:2.00, emoji:'💧', image_url:'img/eau.jpg', disponible:true},
+  {id:58, categorie_id:7, nom:'Fanta', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/fanta.jpg', disponible:true},
+  {id:59, categorie_id:7, nom:'Oasis Tropical', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/oasis.jpg', disponible:true},
+  {id:60, categorie_id:7, nom:'Lipton Pêche', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/lipton.jpg', disponible:true},
+  {id:61, categorie_id:7, nom:'7Up', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/7up.jpg', disponible:true},
+  {id:62, categorie_id:7, nom:'Coca-Cola Zero', description:'Canette 33cl', prix:2.00, emoji:'🥤', image_url:'img/coca-zero.jpg', disponible:true},
+  {id:63, categorie_id:7, nom:'Perrier', description:'Canette 33cl', prix:2.00, emoji:'🫧', image_url:'img/perrier.jpg', disponible:true},
+  {id:67, categorie_id:13, nom:'Falafel (pièce)', description:'Fèves et pois chiches à la coriandre', prix:1.50, emoji:'🧆', image_url:'img/falafel.jpg', disponible:true},
+  {id:68, categorie_id:13, nom:'Fattayer (pièce)', description:'Chaussons aux épinards acidulés', prix:1.50, emoji:'🥟', image_url:'img/fattayer.jpg', disponible:true},
+  {id:69, categorie_id:13, nom:'Samboussek Fromage (pièce)', description:'Fromage de feta', prix:1.50, emoji:'🥟', image_url:'img/sambousek-fromage.jpg', disponible:true},
+  {id:70, categorie_id:13, nom:'Rikakat Fromage (pièce)', description:'Fromage de feta', prix:2.00, emoji:'🧀', image_url:'img/rkakat.jpg', disponible:true},
+  {id:71, categorie_id:13, nom:'Samboussek Viande (pièce)', description:'Viande de boeuf haché', prix:1.50, emoji:'🥟', image_url:'img/sambousek-viande.jpg', disponible:true},
+  {id:72, categorie_id:13, nom:'Kebbé (pièce)', description:'Boulette de blé concassé farcies de viande hachée', prix:2.50, emoji:'🍡', image_url:'img/kebbe.jpg', disponible:true},
+  {id:76, categorie_id:17, nom:'Sauce à l\'ail', description:'Sauce à l\'ail crémeuse (toum)', prix:0.70, emoji:'🧄', image_url:'img/sauce-ail.jpg', disponible:true},
+  {id:77, categorie_id:17, nom:'Sauce Piquante', description:'Sauce piquante (harissa)', prix:0.70, emoji:'🌶️', image_url:'img/sauce-piquante.jpg', disponible:true},
+  {id:78, categorie_id:17, nom:'Sauce Tahini', description:'Sauce tahini au sésame (tarator)', prix:0.70, emoji:'🥜', image_url:'img/tahini.jpg', disponible:true},
+  {id:79, categorie_id:18, nom:'Box Beyrouth', description:'10 pièces · fromage, épinards, viande, falafel, rikakat + 3 sauces : ail, houmous, piquante', prix:19.90, emoji:'🎁', image_url:'img/box-beyrouth.jpg', disponible:true},
 ];
 
 // ===== HORAIRES =====
@@ -1078,6 +1086,7 @@ async function loadFromSupabase() {
     if (catRes.data && catRes.data.length && itemRes.data && itemRes.data.length) {
       categories = catRes.data;
       menuItems = itemRes.data;
+      menuFromFallback = false;
     } else {
       throw new Error('Données incomplètes');
     }
@@ -1085,7 +1094,29 @@ async function loadFromSupabase() {
     console.error('Erreur chargement:', e);
     categories = DEMO_CATEGORIES;
     menuItems = DEMO_ITEMS;
+    menuFromFallback = true;
   }
+}
+
+// 16/09/2026 : Paco a eu 9 refus « montant invalide » d'affilée. Son Safari avait
+// chargé le menu de secours (data coupée pendant un appel) avec la Box à 20 €
+// alors que la base disait 19,90 → create-payment refuse tout écart. Avant de
+// créer la commande, on retente une lecture de la base et on réaligne les prix
+// du panier sur les vrais prix. Retourne false si un article n'existe plus.
+async function refreshCartPricesFromDb() {
+  if (!menuFromFallback || !sb) return true;
+  await loadFromSupabase();
+  if (menuFromFallback) return true; // toujours injoignable : create-payment tranchera
+  let ok = true;
+  cart.forEach(c => {
+    const live = menuItems.find(i => i.id === c.id);
+    if (!live || !live.disponible) { ok = false; return; }
+    if (Math.abs(live.prix - c.prix) > 0.001) c.prix = live.prix;
+  });
+  saveCart();
+  renderMenu();
+  updateCartUI();
+  return ok;
 }
 
 function subscribeRealtime() {
@@ -2035,6 +2066,9 @@ async function submitOrder() {
     showToast('⚠️ ' + T('cart.empty', 'Votre panier est vide'), 'error');
     return;
   }
+
+  // Menu de secours affiché ? On réaligne d'abord les prix sur la base (voir refreshCartPricesFromDb)
+  if (menuFromFallback) { try { await refreshCartPricesFromDb(); } catch (e) { console.error('refreshCartPricesFromDb:', e); } }
 
   // 🔒 Vérifier disponibilité de TOUS les articles avant de lancer le paiement
   const unavailableItems = cart.filter(c => {
