@@ -506,7 +506,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260916a"></script>
+<script src="i18n.js?v=20260916b"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -682,7 +682,7 @@ window.T = function (cle, secours) {
           <div>
             <div style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--green);opacity:.7;" data-i18n="timepicker.pickupTime">Retrait prévu</div>
             <div style="font-size:.95rem;font-weight:700;color:var(--green);margin-top:2px;" id="cartPickupDisplay">Dès que possible</div>
-            <div style="font-size:.78rem;color:var(--green);margin-top:4px;" data-i18n="timepicker.noQueue">Sur place : pas de queue, allez directement à la caisse 🙂</div>
+            <div style="font-size:.74rem;color:var(--text-muted);margin-top:3px;" data-i18n="timepicker.noQueue">Pas de queue : direct à la caisse</div>
           </div>
         </div>
         <button onclick="openTimePicker()" style="background:var(--green);color:white;padding:6px 12px;border-radius:6px;font-size:.8rem;font-weight:600;">Modifier</button>
@@ -1754,7 +1754,7 @@ function updateCartUI() {
       }
 
       document.getElementById('timingPickLabel').textContent = `${dayLabel} ${asapTime}`;
-      document.getElementById('cartPickupDisplay').innerHTML = `${dayLabel} ${asapTime}<br><span style="font-size:.85rem;opacity:.8;">${T('timepicker.nextSlot', 'Créneau le plus proche')}</span>`;
+      document.getElementById('cartPickupDisplay').innerHTML = `${dayLabel} ${asapTime}`;
       document.getElementById('pickupTime').value = 'asap';
     } else {
       // Si fermé : prochaine ouverture
@@ -1763,7 +1763,7 @@ function updateCartUI() {
         const nextSlot = `${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}`;
         selectedPickup = nextSlot;
         document.getElementById('timingPickLabel').textContent = nextSlot;
-        document.getElementById('cartPickupDisplay').innerHTML = `${nextSlot}<br><span style="font-size:.85rem;opacity:.8;">${T('timepicker.nextSlot', 'Créneau le plus proche')}</span>`;
+        document.getElementById('cartPickupDisplay').innerHTML = `${nextSlot}`;
         document.getElementById('pickupTime').value = nextSlot;
       } else {
         document.getElementById('timingPickLabel').textContent = T('timepicker.chooseSlot', 'Choisir un créneau');
@@ -3837,7 +3837,7 @@ function selectTime(value) {
     }
 
     topLabel = `${dayLabel} ${asapTime}`;
-    cartLabel = `${dayLabel} ${asapTime}<br><span style="font-size:.85rem;opacity:.8;">${T('timepicker.nextSlot', 'Créneau le plus proche')}</span>`;
+    cartLabel = `${dayLabel} ${asapTime}`;
   } else {
     topLabel = value;
     cartLabel = value;
@@ -3906,7 +3906,7 @@ function updateAsapAfterPause() {
       }
 
       document.getElementById('timingPickLabel').textContent = `${dayLabel} ${asapTime}`;
-      document.getElementById('cartPickupDisplay').innerHTML = `${dayLabel} ${asapTime}<br><span style="font-size:.85rem;opacity:.8;">${T('timepicker.nextSlot', 'Créneau le plus proche')}</span>`;
+      document.getElementById('cartPickupDisplay').innerHTML = `${dayLabel} ${asapTime}`;
       document.getElementById('pickupTime').value = 'asap';
     } else {
       // Si fermé, passer au prochain créneau disponible
@@ -3915,7 +3915,7 @@ function updateAsapAfterPause() {
         const nextSlot = `${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}`;
         selectedPickup = nextSlot;
         document.getElementById('timingPickLabel').textContent = nextSlot;
-        document.getElementById('cartPickupDisplay').innerHTML = `${nextSlot}<br><span style="font-size:.85rem;opacity:.8;">${T('timepicker.nextSlot', 'Créneau le plus proche')}</span>`;
+        document.getElementById('cartPickupDisplay').innerHTML = `${nextSlot}`;
         document.getElementById('pickupTime').value = nextSlot;
       }
     }
