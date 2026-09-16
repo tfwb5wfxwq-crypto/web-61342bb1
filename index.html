@@ -487,6 +487,21 @@ a{color:inherit;text-decoration:none}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.15s!important;scroll-behavior:auto!important}
 }
+
+/* ===== PAIEMENT EXPRESS  ===== */
+#expressPay{display:none;margin-bottom:20px}
+#expressPay .express-title{font-size:.8rem;font-weight:600;color:var(--text-soft);text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px}
+#expressPay .express-row{display:grid;gap:10px}
+/* Bouton Apple Pay : rendu natif par Safari (marque et proportions officielles), 48 px, coins 8 px */
+@supports (-webkit-appearance: -apple-pay-button){
+  .apple-pay-button{display:block;width:100%;height:48px;-webkit-appearance:-apple-pay-button;-apple-pay-button-type:pay;-apple-pay-button-style:black;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+}
+@supports not (-webkit-appearance: -apple-pay-button){ .apple-pay-button{display:none} }
+/* Conteneur du bouton Google Pay : dessiné par la librairie officielle pay.js */
+#gpayButton{min-height:48px}
+#gpayButton > div, #gpayButton button{width:100%!important}
+#expressPay .express-or{display:flex;align-items:center;gap:12px;margin:18px 0 6px;color:var(--text-soft);font-size:.85rem}
+#expressPay .express-or::before,#expressPay .express-or::after{content:"";flex:1;height:1px;background:var(--border)}
 </style>
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
@@ -2159,7 +2174,7 @@ async function submitOrder() {
 
     // Ouvrir le paiement dans un modal (mode inline PayGreenJS)
     if (data.paymentOrderId && data.objectSecret) {
-      openPaymentModal(data.paymentOrderId, data.objectSecret, orderNum, total, email, name, phone, pickup);
+      openPaymentModal(data.paymentOrderId, data.objectSecret, orderNum, total, email, name, phone, pickup, data.paymentUrl);
       // 🔒 FIX #82: Reset flag after opening modal - the modal's "Payer" button will set it again
       setPaymentFlag(false);
     } else {
@@ -2189,6 +2204,50 @@ async function submitOrder() {
 
 // ===== PAYMENT INLINE =====
 let currentPaymentData = null;
+
+// ===== PAIEMENT EXPRESS : Apple Pay / Google Pay via la page hébergée PayGreen =====
+function payHosted(method) {
+  if (!currentPaymentData || !currentPaymentData.paymentUrl) { showToast('Paiement express indisponible, utilisez la carte ci-dessous', 'error'); return; }
+  try { sessionStorage.setItem('be_express_method', method); } catch (e) {}
+  try { ga4('add_payment_info', { currency: 'EUR', value: currentPaymentData.total, payment_type: method }); } catch (e) {}
+  window.location.href = currentPaymentData.paymentUrl;
+}
+
+function setupExpressPay() {
+  const block = document.getElementById('expressPay');
+  if (!block || !currentPaymentData || !currentPaymentData.paymentUrl) return;
+  let shown = false;
+  const appleBtn = document.getElementById('applePayButton');
+  try {
+    if (window.ApplePaySession && ApplePaySession.canMakePayments()) { shown = true; }
+    else if (appleBtn) { appleBtn.style.display = 'none'; }
+  } catch (e) { if (appleBtn) appleBtn.style.display = 'none'; }
+
+  const gpayHost = document.getElementById('gpayButton');
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  if (gpayHost && isAndroid && !window.ApplePaySession) {
+    const mount = () => {
+      try {
+        const client = new google.payments.api.PaymentsClient({ environment: 'PRODUCTION' });
+        const baseCard = { type: 'CARD', parameters: { allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'], allowedCardNetworks: ['MASTERCARD', 'VISA'] } };
+        client.isReadyToPay({ apiVersion: 2, apiVersionMinor: 0, allowedPaymentMethods: [baseCard] }).then(res => {
+          if (res && res.result) {
+            const btn = client.createButton({ buttonColor: 'black', buttonType: 'pay', buttonSizeMode: 'fill', buttonLocale: 'fr', onClick: () => payHosted('google_pay') });
+            gpayHost.appendChild(btn);
+            block.style.display = 'block';
+          } else { gpayHost.style.display = 'none'; }
+        }).catch(() => { gpayHost.style.display = 'none'; });
+      } catch (e) { gpayHost.style.display = 'none'; }
+    };
+    if (window.google && google.payments) mount();
+    else {
+      const sc = document.createElement('script'); sc.src = 'https://pay.google.com/gp/p/js/pay.js'; sc.async = true; sc.onload = mount; sc.onerror = () => { gpayHost.style.display = 'none'; };
+      document.head.appendChild(sc);
+    }
+  } else if (gpayHost) { gpayHost.style.display = 'none'; }
+
+  if (shown) block.style.display = 'block';
+}
 let isSubmittingPayment = false; // 🔒 DOUBLE-SUBMIT FIX: Global flag to prevent multiple payment submissions
 let paymentFlagTimeout = null; // 🔒 FIX #82: Fail-safe timeout to auto-reset flag
 
@@ -2205,8 +2264,8 @@ function setPaymentFlag(value) {
   }
 }
 
-function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, name, phone, pickup) {
-  currentPaymentData = { paymentOrderId, objectSecret, orderNum, total, email, name, phone, pickup };
+function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, name, phone, pickup, paymentUrl) {
+  currentPaymentData = { paymentOrderId, objectSecret, orderNum, total, email, name, phone, pickup, paymentUrl };
 
   // Mesure : le client arrive sur l'ecran de paiement. C'est la derniere marche
   // avant purchase ; l'ecart entre les deux mesure l'abandon AU PAIEMENT, a ne
@@ -2240,6 +2299,15 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
         <h2 style="margin:0 0 8px;font-size:1.3rem;font-weight:700;">Paiement sécurisé</h2>
         <p style="margin:0;color:var(--text-soft);font-size:0.9rem;">Commande ${orderNum}</p>
         <p style="margin:8px 0 24px;font-size:1.5rem;font-weight:700;color:var(--dark);">${total.toFixed(2).replace('.', ',')} €</p>
+
+        <div id="expressPay">
+          <p class="express-title">Paiement express</p>
+          <div class="express-row">
+            <div class="apple-pay-button" id="applePayButton" role="button" tabindex="0" aria-label="Payer avec Apple Pay" onclick="payHosted('apple_pay')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();payHosted('apple_pay')}"></div>
+            <div id="gpayButton"></div>
+          </div>
+          <div class="express-or">ou payer par carte ou titre-restaurant</div>
+        </div>
 
         <div id="paymentMethods" style="margin-bottom:20px;">
           <!-- Carte bancaire (prioritaire, toujours visible) -->
@@ -2327,6 +2395,7 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
   `;
 
   document.body.appendChild(paymentSection);
+  setupExpressPay();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Auto-sélectionner CB par défaut - Attendre que PayGreen soit chargé
