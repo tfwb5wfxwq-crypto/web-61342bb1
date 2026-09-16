@@ -410,7 +410,7 @@ serve(async (req) => {
               orderNumber: orderRecord.numero,
               pickupTime: orderRecord.heure_retrait || 'Dès que possible',
               total: (orderRecord.total || 0).toFixed(2),
-              paymentMethod: 'paygreen',
+              paymentMethod: paymentPlatform || 'paygreen',
               items: orderRecord.items || [],
               note: orderRecord.note || null
             })

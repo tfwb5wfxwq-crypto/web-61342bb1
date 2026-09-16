@@ -102,6 +102,21 @@ serve(async (req) => {
       clientSection = `\n👤 *Client* : ${prenomSafe}${rang}`
     }
 
+    // Libellé du moyen de paiement (16/09/2026) : le webhook transmet la plateforme réelle
+    // lue chez PayGreen ; 'paygreen' = inconnu (ancien comportement).
+    const paymentLabel = (m: string | null | undefined): string => {
+      switch (String(m || '').toLowerCase()) {
+        case 'apple_pay': return ' Apple Pay'
+        case 'google_pay': return 'Google Pay'
+        case 'bank_card': return '💳 Carte bancaire'
+        case 'swile': return '🎫 Titre-resto Swile'
+        case 'conecs': return '🎫 Titre-resto Conecs'
+        case 'restoflash': return '🎫 Titre-resto Restoflash'
+        case 'edenred': return '🎫 Edenred'
+        default: return '💳 PayGreen'
+      }
+    }
+
     // Message Telegram avec emoji et formatage
     const message = `
 🆕 *NOUVELLE COMMANDE*
@@ -109,7 +124,7 @@ serve(async (req) => {
 📦 *Commande* : \`${orderNumber}\`${clientSection}
 ⏰ *Retrait* : ${pickupTime || 'Dès que possible'}
 💰 *Total* : *${total}€*
-💳 *Paiement* : ${paymentMethod === 'edenred' ? '🎫 Edenred' : '💳 PayGreen'}
+💳 *Paiement* : ${paymentLabel(paymentMethod)}
 
 *Articles :*
 ${itemsList}${noteSection}
