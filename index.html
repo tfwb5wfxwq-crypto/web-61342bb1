@@ -610,7 +610,7 @@ window.T = function (cle, secours) {
   <div class="timepicker-title" data-i18n="cart.pickupTime">Heure de retrait</div>
   <button class="timepicker-asap" id="tpAsap" onclick="selectTime('asap')">
     <span data-i18n="timepicker.asap">Dès que possible</span>
-    <span class="timepicker-asap-sub" data-i18n="timepicker.prep15min">~5 min de préparation</span>
+    <span class="timepicker-asap-sub" data-i18n="timepicker.prep15min">~10 min de préparation</span>
   </button>
   <div class="timepicker-divider" data-i18n="timepicker.orChooseSlot">ou choisir un créneau</div>
   <div class="timepicker-days" id="tpDays"></div>
@@ -3764,10 +3764,10 @@ function renderTimeSlots() {
 // source. var est hoistée à undefined, let déclencherait une zone morte temporelle.
 // Délai de préparation affiché au client (en minutes). Le « rush » de midi (+20 min
 // entre 12h et 13h30, créneaux à la demi-heure avant 13h) a été retiré le 17/09/2026 à la
-// demande de Paco : à midi comme à 15h, « Dès que possible » = maintenant + 5 min,
-// arrondi aux 5 min. En cas de surcharge, il utilise le bouton « Pause » de la tablette.
-const PREP_DELAY_MIN = 5;
-const ASAP_ROUND_MIN = 5;
+// demande de Paco : à midi comme à 15h, « Dès que possible » = maintenant + 10 min pile,
+// sans arrondi (12h26 → 12h36). En cas de surcharge, il utilise le bouton « Pause » de la tablette.
+const PREP_DELAY_MIN = 10;
+const ASAP_ROUND_MIN = 1;
 
 var lastAsapDateTime = null;
 function getAsapTime() {

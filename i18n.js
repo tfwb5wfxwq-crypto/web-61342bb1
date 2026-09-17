@@ -27,12 +27,12 @@ const translations = {
     // Timepicker & Pickup
     timepicker: {
       chooseSlot: "Choisir un créneau",
-      prep15min: "~5 min de préparation",
+      prep15min: "~10 min de préparation",
       orChooseSlot: "ou choisir un créneau",
       pickupTime: "Retrait prévu",
       noQueue: "Pas de queue : direct à la caisse",
       asap: "Dès que possible",
-      asapDelay: "Dès que possible (~5-10 min)",
+      asapDelay: "Dès que possible (~10 min)",
       nextSlot: "Créneau le plus proche",
       closesAt: "Ferme à",
       open: "Ouvert",
@@ -361,12 +361,12 @@ const translations = {
     // Timepicker & Pickup
     timepicker: {
       chooseSlot: "Choose a time slot",
-      prep15min: "~5 min preparation",
+      prep15min: "~10 min preparation",
       orChooseSlot: "or choose a time slot",
       pickupTime: "Pickup time",
       noQueue: "No queue: straight to the counter",
       asap: "As soon as possible",
-      asapDelay: "As soon as possible (~5-10 min)",
+      asapDelay: "As soon as possible (~10 min)",
       nextSlot: "Next available slot",
       closesAt: "Closes at",
       open: "Open",
