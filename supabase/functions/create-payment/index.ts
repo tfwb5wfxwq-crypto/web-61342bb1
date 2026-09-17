@@ -81,6 +81,20 @@ async function notifyAdminBlocked(reason: string, info: { orderNum?: string, nam
   }
 }
 
+// Attribution marketing (17/09/2026, campagne Google Ads) : le front envoie ce qu'il a capté
+// dans l'URL d'arrivée (gclid/gbraid/wbraid + utm_*). On ne garde QUE les clés connues, en
+// chaînes ≤ 200 caractères ; tout le reste est ignoré sans erreur (jamais bloquant pour payer).
+const ATTRIBUTION_KEYS = ['gclid', 'gbraid', 'wbraid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'captured_at']
+function sanitizeAttribution(raw: unknown): Record<string, string> | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const out: Record<string, string> = {}
+  for (const k of ATTRIBUTION_KEYS) {
+    const v = (raw as Record<string, unknown>)[k]
+    if (typeof v === 'string' && v.length > 0 && v.length <= 200) out[k] = v
+  }
+  return Object.keys(out).length > 0 ? out : null
+}
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
 
@@ -90,7 +104,8 @@ serve(async (req) => {
   }
 
   try {
-    const { orderNum, total, email, name, phone, pickup, note, items } = await req.json()
+    const { orderNum, total, email, name, phone, pickup, note, items, attribution } = await req.json()
+    const attributionClean = sanitizeAttribution(attribution)
 
     // Validation params
     if (!orderNum || !total || !email || !name) {
@@ -367,7 +382,8 @@ serve(async (req) => {
       .from('orders')
       .update({
         paygreen_transaction_id: transactionId,
-        paygreen_status: 'pending'
+        paygreen_status: 'pending',
+        ...(attributionClean && { attribution: attributionClean })
       })
       .eq('numero', orderNum)
 
