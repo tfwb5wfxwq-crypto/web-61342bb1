@@ -506,7 +506,7 @@ a{color:inherit;text-decoration:none}
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260916b"></script>
+<script src="i18n.js?v=20260917a"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -610,7 +610,7 @@ window.T = function (cle, secours) {
   <div class="timepicker-title" data-i18n="cart.pickupTime">Heure de retrait</div>
   <button class="timepicker-asap" id="tpAsap" onclick="selectTime('asap')">
     <span data-i18n="timepicker.asap">Dès que possible</span>
-    <span class="timepicker-asap-sub" data-i18n="timepicker.prep15min">~15 min de préparation</span>
+    <span class="timepicker-asap-sub" data-i18n="timepicker.prep15min">~5 min de préparation</span>
   </button>
   <div class="timepicker-divider" data-i18n="timepicker.orChooseSlot">ou choisir un créneau</div>
   <div class="timepicker-days" id="tpDays"></div>
@@ -3728,16 +3728,12 @@ function renderTimeSlots() {
   // Déterminer le seuil minimum avec délai de préparation
   let minTimeMinutes = now.getHours() * 60 + now.getMinutes();
 
-  // Ajouter le délai de préparation (comme ASAP)
-  if (day.isToday) {
-    const currentHour = now.getHours();
-    const currentMinutes = now.getMinutes();
-    const isRushHour = (currentHour === 12 || (currentHour === 13 && currentMinutes < 30));
-    const delayMinutes = isRushHour ? 20 : 5;
-    minTimeMinutes += delayMinutes;
-  }
+  // Ajouter le délai de préparation (comme ASAP). 17/09/2026 : le « rush » de midi
+  // (+20 min entre 12h et 13h30) est retiré à la demande de Paco ; en cas de surcharge,
+  // il utilise le bouton « Pause » de la tablette.
+  if (day.isToday) minTimeMinutes += PREP_DELAY_MIN;
 
-  // Créneaux: 30 min avant 13h00, 15 min à partir de 13h00 (attente max ~15 min l'après-midi)
+  // Créneaux manuels tous les 15 min, toute la journée
   for (let m = startMin; m <= endMin; ) {
     const h = Math.floor(m / 60), min = m % 60;
     const label = `${h}h${min.toString().padStart(2, '0')}`;
@@ -3758,8 +3754,7 @@ function renderTimeSlots() {
         onclick="selectTime('${value}')">${label}</div>`;
     }
 
-    // Incrément: 15 min à partir de 13h00, 30 min avant
-    m += (m >= 13 * 60) ? 15 : 30;
+    m += 15;
   }
   slotsEl.innerHTML = html;
 }
@@ -3767,36 +3762,25 @@ function renderTimeSlots() {
 // Calcule l'heure ASAP (maintenant + délai préparation, arrondi au prochain créneau)
 // var (et non let) : la variable est lue ligne ~1998, avant sa déclaration dans le
 // source. var est hoistée à undefined, let déclencherait une zone morte temporelle.
+// Délai de préparation affiché au client (en minutes). Le « rush » de midi (+20 min
+// entre 12h et 13h30, créneaux à la demi-heure avant 13h) a été retiré le 17/09/2026 à la
+// demande de Paco : à midi comme à 15h, « Dès que possible » = maintenant + 5 min,
+// arrondi aux 5 min. En cas de surcharge, il utilise le bouton « Pause » de la tablette.
+const PREP_DELAY_MIN = 5;
+const ASAP_ROUND_MIN = 5;
+
 var lastAsapDateTime = null;
 function getAsapTime() {
   const now = new Date();
-
-  // Délai adaptatif selon l'heure (rush vs normal)
-  const currentHour = now.getHours();
-  const currentMinutes = now.getMinutes();
-  const isRushHour = (currentHour === 12 || (currentHour === 13 && currentMinutes < 30));
-
-  // RUSH (12h00-13h30) : +20 min | NORMAL : +5 min
-  const delayMinutes = isRushHour ? 20 : 5;
-  now.setMinutes(now.getMinutes() + delayMinutes);
-
-  // Arrondir au prochain créneau: 15 min à partir de 13h00, 30 min avant
-  const slotInterval = now.getHours() >= 13 ? 15 : 30;
-  const minutes = now.getMinutes();
-  const rounded = Math.ceil(minutes / slotInterval) * slotInterval;
-  now.setMinutes(rounded);
+  now.setMinutes(now.getMinutes() + PREP_DELAY_MIN);
+  now.setMinutes(Math.ceil(now.getMinutes() / ASAP_ROUND_MIN) * ASAP_ROUND_MIN);
   now.setSeconds(0, 0);
 
   // Si une pause est active et que c'est après ASAP, utiliser l'heure de pause
   let targetTime = now;
   if (nextSlotAvailableAt && nextSlotAvailableAt > now) {
     targetTime = new Date(nextSlotAvailableAt);
-    // Arrondir la pause au prochain créneau (15 min à partir de 13h, 30 min avant)
-    const pauseH = targetTime.getHours();
-    const pauseInterval = pauseH >= 13 ? 15 : 30;
-    const pauseMinutes = targetTime.getMinutes();
-    const roundedPause = Math.ceil(pauseMinutes / pauseInterval) * pauseInterval;
-    targetTime.setMinutes(roundedPause);
+    targetTime.setMinutes(Math.ceil(targetTime.getMinutes() / ASAP_ROUND_MIN) * ASAP_ROUND_MIN);
     targetTime.setSeconds(0, 0);
   }
 
