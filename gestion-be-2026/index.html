@@ -2362,6 +2362,9 @@ async function showDashboard() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.reload(); return; }
       _supabaseSession = session;
+      // 🐛 FIX 17/09 : au réveil de la tablette, la liste et le bandeau repartent
+      // de la base (le Realtime a pu manquer des événements pendant la veille).
+      loadOrders();
     }
   });
 
@@ -2428,6 +2431,21 @@ async function showDashboard() {
       updateTopbarStats();
     }
   }, 10000));
+
+  // 🐛 FIX 17/09 : CHANGEMENT DE JOUR. Le « chiffre du jour » du bandeau (🛒 n · x €)
+  // n'est recalculé que sur un événement de commande (Realtime / polling qui voit une
+  // nouvelle liste). Une nuit sans commande → le bandeau garde le total de LA VEILLE
+  // (vu le 17/09 à 10h54 : « 1 · 8,90 € » = la commande Zeli de la veille, liste vide).
+  // Toutes les minutes : si la date a changé, on recharge la liste et le bandeau.
+  let lastStatsDay = new Date().toDateString();
+  intervals.push(setInterval(() => {
+    const today = new Date().toDateString();
+    if (today === lastStatsDay) return;
+    lastStatsDay = today;
+    lastOrdersSignature = '';
+    console.log('🌅 Nouveau jour → rechargement liste + bandeau');
+    loadOrders(); // recharge depuis la base + render + updateTopbarStats
+  }, 60000));
 
   // Mode kiosque: demander permissions + wake lock + plein écran
   requestNotificationPermission();
@@ -2658,6 +2676,11 @@ function renderOrders() {
 
   if (!orders.length) {
     list.innerHTML = '<div class="no-orders">Aucune commande pour le moment</div>';
+    // 🐛 FIX 17/09 : liste vide = badge vide. Avant, on sortait sans toucher au badge :
+    // quand la dernière commande (en retard → badge « 1 ») était retirée par le Realtime,
+    // le « 1 » restait figé sur l'onglet jusqu'au prochain rechargement de la page.
+    const badge = document.getElementById('ordersBadge');
+    if (badge) { badge.style.display = 'none'; badge.textContent = '0'; }
     return;
   }
 
@@ -3280,6 +3303,9 @@ async function updateStatus(orderId, newStatus) {
     // Update local
     const order = orders.find(o => o.id === orderId);
     if (order) order.statut = newStatus;
+    // 🐛 FIX 17/09 : une commande récupérée sort tout de suite de la liste locale
+    // (comme pour annuler/archiver) au lieu d'attendre le Realtime ou le polling.
+    if (newStatus === 'recuperee') orders = orders.filter(o => o.id !== orderId);
 
     // Envoyer email de confirmation quand commande acceptée
     if (newStatus === 'acceptee') {
@@ -3300,7 +3326,7 @@ async function updateStatus(orderId, newStatus) {
 
           // SUCCÈS !
           console.log(`✅ Email confirmation envoyé (tentative ${attempt}/3):`, data);
-          showToast('✅ Email envoyé à ' + (order.client_email || 'client'), 'success', 5000);
+          showToast('✅ Email envoyé à ' + (order?.client_email || 'client'), 'success', 5000);
           emailSent = true;
 
           // Marquer visuellement la carte en VERT
@@ -3354,7 +3380,7 @@ async function updateStatus(orderId, newStatus) {
 
           // SUCCÈS !
           console.log(`✅ Ticket de caisse envoyé (tentative ${attempt}/3):`, data);
-          showToast('✅ Ticket de caisse envoyé à ' + (order.client_email || 'client'), 'success', 5000);
+          showToast('✅ Ticket de caisse envoyé à ' + (order?.client_email || 'client'), 'success', 5000);
           emailSent = true;
           break; // Succès → sortir de la boucle
 
