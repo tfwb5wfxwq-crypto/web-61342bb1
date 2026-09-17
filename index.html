@@ -3764,10 +3764,10 @@ function renderTimeSlots() {
 // source. var est hoistée à undefined, let déclencherait une zone morte temporelle.
 // Délai de préparation affiché au client (en minutes). Le « rush » de midi (+20 min
 // entre 12h et 13h30, créneaux à la demi-heure avant 13h) a été retiré le 17/09/2026 à la
-// demande de Paco : à midi comme à 15h, « Dès que possible » = maintenant + 10 min pile,
-// sans arrondi (12h26 → 12h36). En cas de surcharge, il utilise le bouton « Pause » de la tablette.
+// demande de Paco : à midi comme à 15h, « Dès que possible » = maintenant + 10 min,
+// arrondi aux 5 min (12h26 → 12h40). En cas de surcharge, il utilise le bouton « Pause » de la tablette.
 const PREP_DELAY_MIN = 10;
-const ASAP_ROUND_MIN = 1;
+const ASAP_ROUND_MIN = 5;
 
 var lastAsapDateTime = null;
 function getAsapTime() {
