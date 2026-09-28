@@ -171,6 +171,54 @@ serve(async (_req) => {
       console.error('⚠️ Nettoyage fantômes échoué (non bloquant):', e)
     }
 
+    // ===== Autorisé mais JAMAIS encaissé (ajout 28/09/2026) =====
+    // Depuis qu'on accepte `authorized` comme paye, une commande peut etre preparee alors que
+    // PayGreen n'a pas encore encaisse (Conecs/Pluxee : 2713 CR restee 25+ min en authorized).
+    // 30 min apres la confirmation, si PayGreen dit TOUJOURS authorized, on previent une fois
+    // (fenetre de 2 min = une seule passe du cron). Isole et non bloquant.
+    try {
+      const t30 = new Date(Date.now() - 30 * 60 * 1000).toISOString()
+      const t32 = new Date(Date.now() - 32 * 60 * 1000).toISOString()
+      const { data: nonEncaisses } = await supabase
+        .from('orders')
+        .select('id, numero, total, client_prenom, paygreen_transaction_id')
+        .like('paygreen_status', '%authorized%')
+        .not('statut', 'in', '(cancelled,refunded)')
+        .lte('payment_confirmed_at', t30)
+        .gt('payment_confirmed_at', t32)
+      if (nonEncaisses && nonEncaisses.length > 0) {
+        const jwtA = await getPaygreenJWT()
+        const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+        const chatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')
+        for (const o of nonEncaisses) {
+          if (!o.paygreen_transaction_id) continue
+          const r = await fetch(`https://api.paygreen.fr/payment/payment-orders/${o.paygreen_transaction_id}`, {
+            headers: { 'Authorization': `Bearer ${jwtA}`, 'Accept': 'application/json' }
+          })
+          if (!r.ok) continue
+          const st = String((await r.json())?.data?.status ?? '')
+          if (!st.includes('authorized')) {
+            // Encaisse (ou annule) entre-temps : on met juste l'etiquette a jour, sans alerte ici.
+            if (st) await supabase.from('orders').update({ paygreen_status: st }).eq('id', o.id)
+            continue
+          }
+          if (botToken && chatId) {
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: `⚠️ Paiement autorise mais PAS encore encaisse depuis 30 min — commande ${o.numero} (${o.client_prenom || '?'}, ${Number(o.total ?? 0).toFixed(2)} EUR)\n` +
+                  `Le client a bien paye (argent bloque sur sa carte), mais PayGreen n'a pas encore encaisse.\n` +
+                  `👉 Verifier dans PayGreen (paiement ${o.paygreen_transaction_id}).`
+              })
+            })
+          }
+        }
+      }
+    } catch (e) {
+      console.error('⚠️ Controle autorise-non-encaisse echoue (non bloquant):', e)
+    }
+
     // Commandes pending avec un ID PayGreen, créées il y a plus de 2 min
     const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString()
 
@@ -230,10 +278,12 @@ serve(async (_req) => {
         const pgStatus = pgData.data?.status ?? ''
 
         // Mapping statut
+        // `authorized` = argent garanti (Conecs peut y rester, cf. 2713 CR du 28/09/2026).
+        // PayGreen ecrit `canceled` (un seul L) : l'ancien test `cancelled` ne l'attrapait jamais.
         let newStatus = 'pending'
-        if (pgStatus.includes('successed') || pgStatus.includes('success') || pgStatus.includes('paid')) {
+        if (pgStatus.includes('successed') || pgStatus.includes('success') || pgStatus.includes('paid') || pgStatus.includes('authorized')) {
           newStatus = autoAccept ? 'acceptee' : 'payee'
-        } else if (pgStatus.includes('refused') || pgStatus.includes('cancelled') || pgStatus.includes('expired')) {
+        } else if (pgStatus.includes('refused') || pgStatus.includes('cancelled') || pgStatus.includes('canceled') || pgStatus.includes('expired')) {
           newStatus = 'cancelled'
         }
 
@@ -242,7 +292,8 @@ serve(async (_req) => {
         const isPaid = newStatus === 'payee' || newStatus === 'acceptee'
         const now = new Date().toISOString()
 
-        const { error: updateErr } = await supabase
+        // ATOMIQUE : seulement si ENCORE pending (le webhook a pu passer entre-temps).
+        const { data: claimed, error: updateErr } = await supabase
           .from('orders')
           .update({
             statut: newStatus,
@@ -250,11 +301,14 @@ serve(async (_req) => {
             payment_confirmed_at: isPaid ? now : null
           })
           .eq('id', order.id)
+          .eq('statut', 'pending')
+          .select('id')
 
         if (updateErr) {
           console.error(`❌ Update failed for ${order.numero}:`, updateErr)
           continue
         }
+        if (!claimed || claimed.length === 0) continue // deja traitee ailleurs, pas de doublon
 
         updated++
         console.log(`✅ Monitor: ${order.numero} → ${newStatus} (PayGreen: ${pgStatus})`)

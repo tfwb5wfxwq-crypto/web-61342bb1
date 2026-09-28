@@ -201,7 +201,7 @@ async function findOrderWithRetry(supabase: any, orderNum: string, maxRetries = 
   for (let i = 0; i < maxRetries; i++) {
     const { data } = await supabase
       .from('orders')
-      .select('id, statut, payment_confirmed_at, paygreen_transaction_id, total, heure_retrait, numero, items, note')
+      .select('id, statut, payment_confirmed_at, paygreen_transaction_id, paygreen_status, total, heure_retrait, numero, items, note')
       .eq('numero', orderNum)
       .maybeSingle()
 
@@ -271,7 +271,11 @@ serve(async (req) => {
     }
 
     // On ne traite que les événements de succès ou d'échec
-    const isSuccess = event.includes('successed') || event.includes('success') || event.includes('paid')
+    // `authorized` = paiement accepte par la banque, argent garanti (28/09/2026) : la doc PayGreen
+    // recommande de confirmer la commande sur cet evenement. Carte/Swile/Apple Pay passent
+    // authorized -> successed dans la meme seconde, mais Conecs (Pluxee, Up, Bimpli) peut rester
+    // en authorized : commande 2713 CR jamais arrivee au resto alors que le client avait paye.
+    const isSuccess = event.includes('successed') || event.includes('success') || event.includes('paid') || event.includes('authorized')
     const isFailure = event.includes('refused') || event.includes('cancelled') || event.includes('canceled') || event.includes('expired')
     const isRefund = event.includes('refunded')
 
@@ -299,6 +303,36 @@ serve(async (req) => {
 
     const wasAlreadyPaid = existingOrder.statut !== 'pending'
     if (wasAlreadyPaid && !isRefund) {
+      const etaitAutorise = String(existingOrder.paygreen_status ?? '').includes('authorized')
+
+      // Encaissement arrive apres l'autorisation : la commande est deja payee et notifiee,
+      // on note seulement que l'argent est encaisse (sert a l'alerte « jamais encaisse »).
+      if (etaitAutorise && event.includes('successed')) {
+        try {
+          await supabase.from('orders').update({ paygreen_status: event }).eq('id', existingOrder.id)
+        } catch (_) { /* non bloquant */ }
+      }
+
+      // Autorise puis annule/expire SANS jamais avoir ete encaisse : la commande a pu etre
+      // preparee alors que l'argent ne rentrera pas. On previent, sans toucher au statut.
+      if (etaitAutorise && isFailure) {
+        try {
+          const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+          const chatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')
+          if (botToken && chatId) {
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: `⚠️ Paiement annule APRES autorisation — commande ${existingOrder.numero} (${Number(existingOrder.total ?? 0).toFixed(2)} EUR)\n` +
+                  `PayGreen : ${event}. L'argent n'a jamais ete encaisse.\n` +
+                  `Si c'est toi qui as annule/rembourse, rien a faire. Sinon verifie la commande.`
+              })
+            })
+          }
+        } catch (_) { /* non bloquant */ }
+      }
+
       console.log(`Commande ${orderNum} déjà traitée (statut: ${existingOrder.statut}) — ignoré`)
       return new Response(JSON.stringify({ skipped: true, statut: existingOrder.statut }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -317,7 +351,7 @@ serve(async (req) => {
         )
       }
 
-      if (!pgVerification.status.includes('successed') && !pgVerification.status.includes('success') && !pgVerification.status.includes('paid')) {
+      if (!pgVerification.status.includes('successed') && !pgVerification.status.includes('success') && !pgVerification.status.includes('paid') && !pgVerification.status.includes('authorized')) {
         console.warn(`❌ PayGreen confirme que le paiement ${paymentOrderId} N'EST PAS réussi (${pgVerification.status}) — rejeté`)
         return new Response(
           JSON.stringify({ error: 'Paiement non confirmé par PayGreen', pg_status: pgVerification.status }),
@@ -345,7 +379,11 @@ serve(async (req) => {
     else if (isRefund) newStatus = 'refunded'
 
     // Mettre à jour la commande
-    const { data, error } = await supabase
+    // ATOMIQUE (28/09/2026) : depuis qu'on ecoute `authorized`, une carte envoie DEUX webhooks
+    // quasi simultanes (authorized puis successed). Sans garde, les deux passeraient la lecture
+    // « pending » ci-dessus et Paco recevrait deux notifs, le client deux mails. On ne change le
+    // statut que s'il est ENCORE pending : un seul appel gagne, l'autre ne fait rien.
+    let updateQuery = supabase
       .from('orders')
       .update({
         statut: newStatus,
@@ -355,11 +393,26 @@ serve(async (req) => {
         ...(paymentPlatform ? { payment_method: paymentPlatform } : {})
       })
       .eq('numero', orderNum)
-      .select()
+    if (!isRefund) updateQuery = updateQuery.eq('statut', 'pending')
+    const { data, error } = await updateQuery.select()
 
     if (error) {
       console.error('Erreur mise à jour commande:', error)
       throw error
+    }
+
+    if (!isRefund && (!data || data.length === 0)) {
+      // Un autre webhook (ou le fallback) a deja traite la commande entre-temps.
+      // Si c'est l'encaissement qui arrive en second, on le note quand meme.
+      if (event.includes('successed')) {
+        try {
+          await supabase.from('orders').update({ paygreen_status: event }).eq('id', existingOrder.id)
+        } catch (_) { /* non bloquant */ }
+      }
+      console.log(`Commande ${orderNum} traitée en parallèle par un autre appel — ${event} ignoré`)
+      return new Response(JSON.stringify({ skipped: true, reason: 'deja_traitee' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
     }
 
     console.log(`✅ Commande ${orderNum} → ${newStatus}`)
@@ -434,7 +487,7 @@ serve(async (req) => {
             orderNumber: orderRecord.numero,
             pickupTime: orderRecord.heure_retrait || 'Dès que possible',
             total: (orderRecord.total || 0).toFixed(2),
-            paymentMethod: 'paygreen',
+            paymentMethod: paymentPlatform || 'paygreen',
             items: orderRecord.items || []
           })
         })

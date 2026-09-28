@@ -226,10 +226,12 @@ serve(async (req) => {
     console.log(`Order ${orderNum} — PayGreen status: ${pgStatus}`)
 
     // Mapping PayGreen → notre statut
+    // `authorized` = argent garanti par la banque (Conecs peut y rester, cf. 2713 CR du 28/09/2026).
+    // PayGreen ecrit `canceled` (un seul L) : l'ancien test `cancelled` ne l'attrapait jamais.
     let newStatus = 'pending'
-    if (pgStatus.includes('successed') || pgStatus.includes('success') || pgStatus.includes('paid')) {
+    if (pgStatus.includes('successed') || pgStatus.includes('success') || pgStatus.includes('paid') || pgStatus.includes('authorized')) {
       newStatus = 'payee'
-    } else if (pgStatus.includes('refused') || pgStatus.includes('cancelled') || pgStatus.includes('expired')) {
+    } else if (pgStatus.includes('refused') || pgStatus.includes('cancelled') || pgStatus.includes('canceled') || pgStatus.includes('expired')) {
       newStatus = 'cancelled'
     }
 
@@ -251,7 +253,9 @@ serve(async (req) => {
     const finalStatus = (newStatus === 'payee' && autoAccept) ? 'acceptee' : newStatus
     const now = new Date().toISOString()
 
-    const { error: updateErr } = await supabase
+    // ATOMIQUE : on ne change le statut que s'il est ENCORE pending. Le webhook peut traiter la
+    // meme commande a la meme seconde ; sans cette garde, Paco recevait deux notifs.
+    const { data: claimed, error: updateErr } = await supabase
       .from('orders')
       .update({
         statut: finalStatus,
@@ -259,11 +263,21 @@ serve(async (req) => {
         payment_confirmed_at: newStatus === 'payee' ? now : null
       })
       .eq('id', order.id)
+      .eq('statut', 'pending')
+      .select('id')
 
     if (updateErr) {
       console.error('Erreur update order:', updateErr)
       return new Response(JSON.stringify({ statut: 'pending', updated: false, reason: 'db_update_failed' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    if (!claimed || claimed.length === 0) {
+      // Deja traitee par le webhook entre notre lecture et notre ecriture : on renvoie son statut.
+      const { data: fresh } = await supabase.from('orders').select('statut').eq('id', order.id).maybeSingle()
+      return new Response(JSON.stringify({ statut: fresh?.statut ?? finalStatus, updated: false }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
