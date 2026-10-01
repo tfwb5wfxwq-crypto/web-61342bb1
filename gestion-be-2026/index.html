@@ -2365,6 +2365,9 @@ async function showDashboard() {
       // 🐛 FIX 17/09 : au réveil de la tablette, la liste et le bandeau repartent
       // de la base (le Realtime a pu manquer des événements pendant la veille).
       loadOrders();
+      // 🐛 FIX 01/10 : idem pour l'onglet Menu (sinon les plats remis en vente
+      // à minuit restent grisés à l'écran alors qu'ils sont dispo en base).
+      loadMenuItems();
     }
   });
 
@@ -2445,6 +2448,16 @@ async function showDashboard() {
     lastOrdersSignature = '';
     console.log('🌅 Nouveau jour → rechargement liste + bandeau');
     loadOrders(); // recharge depuis la base + render + updateTopbarStats
+    // 🐛 FIX 01/10 (Paco : « les articles mis indisponibles la veille restent
+    // indisponibles le matin, et il suffit d'en changer un pour que tout repasse
+    // disponible »). Le cron reset-menu-disponibilite remet bien tout en vente à
+    // minuit EN BASE, mais la tablette ne relisait le menu que sur un événement
+    // Realtime menu_items, manqué pendant la nuit. Le premier toggle du matin
+    // déclenchait l'événement → loadMenuItems() → tout réapparaissait d'un coup.
+    // On relit le menu au changement de jour, puis 2 min après (le cron tourne
+    // à 00:00:00, ce contrôle peut passer juste avant lui).
+    loadMenuItems();
+    setTimeout(loadMenuItems, 2 * 60 * 1000);
   }, 60000));
 
   // Mode kiosque: demander permissions + wake lock + plein écran
@@ -3992,6 +4005,9 @@ function subscribeRealtime() {
     })
     .subscribe((status) => {
       console.log('📡 Subscription status:', status);
+      // 🐛 FIX 01/10 : à chaque (re)connexion du Realtime, relire le menu :
+      // les événements menu_items émis pendant la coupure ne sont jamais rejoués.
+      if (status === 'SUBSCRIBED') loadMenuItems();
     });
 
   // Vérifier l'état de la connexion
