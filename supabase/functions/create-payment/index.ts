@@ -84,7 +84,8 @@ async function notifyAdminBlocked(reason: string, info: { orderNum?: string, nam
 // Attribution marketing (17/09/2026, campagne Google Ads) : le front envoie ce qu'il a capté
 // dans l'URL d'arrivée (gclid/gbraid/wbraid + utm_*). On ne garde QUE les clés connues, en
 // chaînes ≤ 200 caractères ; tout le reste est ignoré sans erreur (jamais bloquant pour payer).
-const ATTRIBUTION_KEYS = ['gclid', 'gbraid', 'wbraid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'captured_at']
+// 02/10/2026 : + gad_source / gad_campaignid (gardés par Safari quand le gclid est retiré).
+const ATTRIBUTION_KEYS = ['gclid', 'gbraid', 'wbraid', 'gad_source', 'gad_campaignid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'captured_at']
 function sanitizeAttribution(raw: unknown): Record<string, string> | null {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
   const out: Record<string, string> = {}

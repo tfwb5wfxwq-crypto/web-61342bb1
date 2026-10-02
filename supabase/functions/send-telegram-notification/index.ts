@@ -64,7 +64,8 @@ function attributionLine(a: Attribution): string {
   if (!a) return ''
   const src = String(a.utm_source || '').toLowerCase()
   const medium = String(a.utm_medium || '').toLowerCase()
-  const isGoogleAds = !!(a.gclid || a.gbraid || a.wbraid) || (src.includes('google') && medium === 'cpc')
+  // gad_source (02/10/2026) : ajouté par Google à tout clic d'annonce, survit quand Safari retire le gclid.
+  const isGoogleAds = !!(a.gclid || a.gbraid || a.wbraid || a.gad_source || a.gad_campaignid) || (src.includes('google') && medium === 'cpc')
   if (isGoogleAds) {
     let line = '\n📣 *Pub Google Ads*'
     if (a.utm_term) line += ` · mot-clé : ${safeMd(a.utm_term)}`

@@ -1033,7 +1033,9 @@ function updateOpenStatus() {
 // Capte gclid/gbraid/wbraid + utm_* de l'URL d'arrivée, gardés 30 jours dans localStorage
 // (clé be_attribution). Une visite SANS paramètres n'écrase pas une attribution existante.
 // Envoyé à create-payment avec la commande → Paco voit « 📣 Pub Google Ads » sur Telegram.
-const ATTRIBUTION_KEYS = ['gclid', 'gbraid', 'wbraid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+// 02/10/2026 : + gad_source / gad_campaignid. Google les ajoute à TOUT clic d'annonce, et Safari
+// (iOS, protection contre le pistage) peut retirer le gclid mais garde ceux-là.
+const ATTRIBUTION_KEYS = ['gclid', 'gbraid', 'wbraid', 'gad_source', 'gad_campaignid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
 const ATTRIBUTION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 function captureAttribution() {
   try {
@@ -2191,6 +2193,9 @@ async function submitOrder() {
     client_telephone: phone || null,
     note: note || null,
     language: (window.i18n && window.i18n.get()) || 'fr',
+    // Origine de la visite écrite DÈS la création (02/10/2026) : avant, seule create-payment
+    // l'écrivait, APRÈS la réponse PayGreen → rien pour Edenred ni pour un paiement non créé.
+    attribution: getAttribution(),
     created_at: new Date().toISOString(),
     ...(isTestMode && { payment_confirmed_at: new Date().toISOString() })
   };
