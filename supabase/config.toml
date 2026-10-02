@@ -14,3 +14,21 @@ verify_jwt = false
 # vérifie elle-même le jeton (service role ou JWT admin), ne pas la remettre en verify_jwt=true.
 [functions.send-order-confirmation]
 verify_jwt = false
+
+# 02/10/2026 : état constaté en prod (supabase functions list) AVANT la branche
+# fix/alertes-beyrouth, écrit noir sur blanc pour qu'un redéploiement ne change rien.
+# Ces fonctions sont appelées avec un JWT valide (clé anon du site ou service_role du cron).
+[functions.system-heartbeat]
+verify_jwt = true
+
+[functions.check-payment-status]
+verify_jwt = true
+
+[functions.monitor-pending-orders]
+verify_jwt = true
+
+[functions.create-payment]
+verify_jwt = true
+
+[functions.send-telegram-notification]
+verify_jwt = true
