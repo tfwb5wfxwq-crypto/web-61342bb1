@@ -206,7 +206,7 @@ export async function alertPaiementEchoue(supabase: any, orderId: string, pgStat
       tentatives.ligne +
       insiste +
       `\n👉 Tu peux le rappeler pour recuperer la commande.` +
-      `\n(Si il paie dans les 2 h, tu recevras « ✅ finalement paye ».)`
+      `\n(S il paie dans les 2 h, tu recevras « ✅ finalement paye ».)`
     await envoyerTelegram(text)
   } catch (e) {
     console.error('alertPaiementEchoue failed (non bloquant):', e)
