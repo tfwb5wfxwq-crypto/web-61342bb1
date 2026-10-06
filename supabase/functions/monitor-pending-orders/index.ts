@@ -56,48 +56,66 @@ serve(async (_req) => {
       console.error('⚠️ Nettoyage fantômes échoué (non bloquant):', e)
     }
 
-    // ===== Autorisé mais JAMAIS encaissé (ajout 28/09/2026) =====
+    // ===== Autorisé mais JAMAIS encaissé (ajout 28/09/2026, revu 06/10/2026) =====
     // Depuis qu'on accepte `authorized` comme paye, une commande peut etre preparee alors que
-    // PayGreen n'a pas encore encaisse (Conecs/Pluxee : 2713 CR restee 25+ min en authorized).
-    // 30 min apres la confirmation, si PayGreen dit TOUJOURS authorized, on previent une fois
-    // (fenetre de 2 min = une seule passe du cron). Isole et non bloquant.
+    // PayGreen n'a pas encore encaisse. PayGreen l'a confirme (ticket PGHD-15090, 06/10/2026) :
+    // pour Conecs (Pluxee, Up, Bimpli), l'encaissement peut arriver JUSQU'A 2 JOURS apres
+    // l'autorisation, c'est NORMAL. Une annulation a ce stade = argent jamais encaisse.
+    //  - carte / autres : encore autorise 30 min apres -> anormal, on previent (sans annuler).
+    //  - Conecs : on ne previent qu'apres 50 h (au-dela des 2 jours annonces par PayGreen).
+    // Fenetres de 2 min = une seule passe du cron par commande. Isole et non bloquant.
     try {
-      const t30 = new Date(Date.now() - 30 * 60 * 1000).toISOString()
-      const t32 = new Date(Date.now() - 32 * 60 * 1000).toISOString()
-      const { data: nonEncaisses } = await supabase
-        .from('orders')
-        .select('id, numero, total, client_prenom, paygreen_transaction_id')
-        .like('paygreen_status', '%authorized%')
-        .not('statut', 'in', '(cancelled,refunded)')
-        .lte('payment_confirmed_at', t30)
-        .gt('payment_confirmed_at', t32)
-      if (nonEncaisses && nonEncaisses.length > 0) {
-        const jwtA = await getPaygreenJWT()
-        const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
-        const chatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')
+      const fenetre = (min: number) => ({
+        de: new Date(Date.now() - (min + 2) * 60 * 1000).toISOString(),
+        a: new Date(Date.now() - min * 60 * 1000).toISOString(),
+      })
+      const passes = [
+        { min: 30, conecs: false },       // cartes : 30 min
+        { min: 50 * 60, conecs: true },   // Conecs : 50 h
+      ]
+      const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+      const chatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')
+      let jwtA: string | null = null
+      for (const passe of passes) {
+        const f = fenetre(passe.min)
+        const { data: nonEncaisses } = await supabase
+          .from('orders')
+          .select('id, numero, total, client_prenom, paygreen_transaction_id')
+          .like('paygreen_status', '%authorized%')
+          .not('statut', 'in', '(cancelled,refunded)')
+          .lte('payment_confirmed_at', f.a)
+          .gt('payment_confirmed_at', f.de)
+        if (!nonEncaisses || nonEncaisses.length === 0) continue
+        if (!jwtA) jwtA = await getPaygreenJWT()
         for (const o of nonEncaisses) {
           if (!o.paygreen_transaction_id) continue
           const r = await fetch(`https://api.paygreen.fr/payment/payment-orders/${o.paygreen_transaction_id}`, {
             headers: { 'Authorization': `Bearer ${jwtA}`, 'Accept': 'application/json' }
           })
           if (!r.ok) continue
-          const st = String((await r.json())?.data?.status ?? '')
+          const brut = await r.text()
+          let st = ''
+          try { st = String(JSON.parse(brut)?.data?.status ?? '') } catch { continue }
           if (!st.includes('authorized')) {
             // Encaisse (ou annule) entre-temps : on met juste l'etiquette a jour, sans alerte ici.
             if (st) await supabase.from('orders').update({ paygreen_status: st }).eq('id', o.id)
             continue
           }
-          if (botToken && chatId) {
-            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                chat_id: chatId,
-                text: `⚠️ Paiement autorise mais PAS encore encaisse depuis 30 min — commande ${o.numero} (${o.client_prenom || '?'}, ${Number(o.total ?? 0).toFixed(2)} EUR)\n` +
-                  `Le client a bien paye (argent bloque sur sa carte), mais PayGreen n'a pas encore encaisse.\n` +
-                  `👉 Verifier dans PayGreen (paiement ${o.paygreen_transaction_id}).`
-              })
-            })
-          }
+          // Conecs repere dans la reponse PayGreen (plateforme de la transaction).
+          const estConecs = /conecs/i.test(brut)
+          if (estConecs !== passe.conecs) continue  // Conecs a 30 min : normal, on attend les 50 h
+          if (!botToken || !chatId) continue
+          const texte = passe.conecs
+            ? `⚠️ Paiement Conecs (titre-restaurant) TOUJOURS pas encaisse apres 2 jours — commande ${o.numero} (${o.client_prenom || '?'}, ${Number(o.total ?? 0).toFixed(2)} EUR)\n` +
+              `PayGreen annonce jusqu'a 2 jours, on les a depasses.\n` +
+              `⛔ NE PAS annuler dans PayGreen (l'argent serait perdu). 👉 Ecrire au support PayGreen avec le paiement ${o.paygreen_transaction_id}.`
+            : `⚠️ Paiement carte autorise mais PAS encore encaisse depuis 30 min — commande ${o.numero} (${o.client_prenom || '?'}, ${Number(o.total ?? 0).toFixed(2)} EUR)\n` +
+              `Le client a bien paye (argent bloque sur sa carte), PayGreen n'a pas encore encaisse. La commande peut etre preparee.\n` +
+              `⛔ NE PAS annuler dans PayGreen (l'argent serait perdu). 👉 Surveiller ; si ca dure, ecrire au support PayGreen (paiement ${o.paygreen_transaction_id}).`
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: texte })
+          })
         }
       }
     } catch (e) {
