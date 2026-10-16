@@ -200,7 +200,9 @@
           document.getElementById('spinner').style.display = 'none';
         })
         .catch(error => {
-          document.getElementById('error').textContent = `⚠️ Erreur : ${error.message}`;
+          // Message lisible pour le client, le détail technique reste dans la console.
+          console.error('Reçu :', error.message);
+          document.getElementById('error').textContent = '⚠️ Ce reçu est introuvable. Vérifiez le lien reçu par mail, ou écrivez-nous à contact@beyrouth.express et on vous le renvoie.';
           document.getElementById('error').style.display = 'block';
           document.getElementById('spinner').style.display = 'none';
         });
