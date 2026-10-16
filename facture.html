@@ -169,8 +169,13 @@
       document.getElementById('error').style.display = 'block';
       document.getElementById('spinner').style.display = 'none';
     } else {
-      // Charger la facture via token sécurisé
-      fetch(`https://xbuftfwcyontgqbbrrjt.supabase.co/functions/v1/generate-invoice-pdf?token=${encodeURIComponent(token)}`)
+      // Charger la facture via token sécurisé.
+      // Clé PUBLIQUE (anon, la même que index.html et confirmation.html) : la passerelle Supabase
+      // exige un JWT (verify_jwt = true), sans elle chaque reçu répondait 401 (constaté le 16/10/2026).
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhidWZ0ZndjeW9udGdxYmJycmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Njg1NzksImV4cCI6MjA4NjI0NDU3OX0.ROkSccADlpLsWMgqyiX_xNaFdJNR8P4R-LJCnZV2Gzg';
+      fetch(`https://xbuftfwcyontgqbbrrjt.supabase.co/functions/v1/generate-invoice-pdf?token=${encodeURIComponent(token)}`, {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+      })
         .then(response => {
           if (!response.ok) throw new Error(`Erreur ${response.status}`);
           return response.text();
