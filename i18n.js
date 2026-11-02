@@ -39,6 +39,7 @@ const translations = {
       // Ajouts etape 6 (statut d en tete, accueil et traiteur)
       closed: "Fermé",
       tempClosure: "Fermeture temporaire",
+      nextPickup: "prochain retrait",
       until: "jusqu'à",
       // Separateur d heure : « 20h30 » en francais, « 20:30 » en anglais.
       hourSep: "h",
@@ -68,12 +69,12 @@ const translations = {
       optin: "Me tenir informé des offres et promotions",
       securePayment: "Paiement en ligne sécurisé (CB, carte restaurant)",
       payNow: "Payer",
-      openingPayment: "Ouverture du paiement...",
+      openingPayment: "Ouverture du paiement…",
       orderNow: "Commander maintenant",
       // Ajouts etape 6 (bloc panier). Les valeurs FR sont copiees a l identique
       // depuis index.html : aucun texte francais ne change a l ecran.
       tempClosed: "Le click & collect est temporairement fermé.\nRéouverture prochaine.",
-      formulaAdded: "Formule ajoutée au panier !",
+      formulaAdded: "Formule ajoutée au panier",
       drinkWithThat: "Une boisson avec ça ?",
       // Message d indisponibilite. Fonction car le pluriel et les noms varient.
       removedUnavailable: (noms, pluriel) =>
@@ -82,7 +83,7 @@ const translations = {
 
     // Menu Items
     menu: {
-      loading: "Chargement du menu...",
+      loading: "Chargement du menu…",
       customize: "Personnalisez votre formule",
       soonAvailable: "Bientôt disponible",
       formula1: "Formule 1",
@@ -99,19 +100,19 @@ const translations = {
       acceptedDesc: "Le restaurant a accepté votre commande",
       preparing: "En préparation",
       preparingDesc: "Votre commande est en cours de préparation",
-      ready: "Prête !",
+      ready: "Prête",
       readyDesc: "Venez récupérer votre commande",
       pickedUp: "Récupérée",
-      pickedUpDesc: "Bon appétit !",
+      pickedUpDesc: "Bon appétit",
       cancelled: "Annulée"
     },
 
     // Confirmation Page
     confirmation: {
       backToMenu: "Retour au menu",
-      loading: "Chargement de votre commande...",
+      loading: "Chargement de votre commande…",
       title: "Commande confirmée | Beyrouth Express",
-      paymentValidated: "Paiement validé !",
+      paymentValidated: "Paiement validé",
       orderRegistered: "Votre commande a été enregistrée",
       pickupTime: "Retrait prévu",
       whereToPickup: "Où récupérer",
@@ -127,27 +128,27 @@ const translations = {
       preparing: "Préparation en cours",
       readyAt: "Votre commande sera prête à",
       orderAccepted: "Commande acceptée",
-      orderReady: "Votre commande est prête !",
+      orderReady: "Votre commande est prête",
       canPickup: "Vous pouvez venir la récupérer au restaurant",
       skipQueue: "<b>Pas besoin de faire la queue</b> : présentez-vous directement à la caisse, votre commande",
       skipQueueEnd: "vous y attend.",
       skipQueueAt: "À l'heure du retrait, <b>pas besoin de faire la queue</b> : présentez-vous directement à la caisse avec le numéro",
       yourNumber: "Votre numéro",
-      commandReady: "Commande prête !",
+      commandReady: "Commande prête",
       pickupNow: "Venez la récupérer chez A Beyrouth",
-      seeyouSoon: "À très bientôt chez A Beyrouth 🧆",
+      seeyouSoon: "À très bientôt chez A Beyrouth",
       // Ajouts etape 6 (page de confirmation). Textes copies A L IDENTIQUE
       // depuis confirmation.html, y compris la ponctuation : certains
       // ressemblent aux cles ci dessus mais n en sont pas (« Commande
       // acceptée » sans point d exclamation existe deja au dessus).
       willConfirmSoon: "Votre commande va être confirmée dans quelques instants",
-      orderAcceptedExcl: "Commande acceptée !",
+      orderAcceptedExcl: "Commande acceptée",
       beingPrepared: "Votre commande est en préparation",
       comePickUp: "Venez la récupérer",
-      enjoyMeal: "Bon appétit !",
+      enjoyMeal: "Bon appétit",
       orderPickedUp: "Commande récupérée",
-      thanksForOrder: "Merci pour votre commande !",
-      thankYouSoon: "Merci et à bientôt !",
+      thanksForOrder: "Merci pour votre commande",
+      thankYouSoon: "Merci et à bientôt",
       orderCancelled: "Commande annulée",
       refundInProgress: "Remboursement en cours",
       refundDelay: "Le remboursement sera effectué sous 5 à 7 jours ouvrés.",
@@ -165,31 +166,31 @@ const translations = {
       toggleDishes: "Activez/désactivez des plats individuellement. Les changements sont visibles instantanément chez les clients.",
       year: "Année",
       delaySlots: "⏸️ Décaler créneaux :",
-      untilTomorrow: "🌙 Jusqu'à demain",
-      reminded: "📧 Relancé il y a",
-      asap: "⚡ Dès que possible",
-      pickedUp: "📦 Récupérée",
+      untilTomorrow: "Jusqu'à demain",
+      reminded: "Relancé il y a",
+      asap: "Dès que possible",
+      pickedUp: "Récupérée",
       completed: "✓ Terminée",
       irreversible: "Cette action est irréversible.",
       spent: "dépensé",
       last: "dernière",
       totalSpent: "Total dépensé",
-      favDishes: "🍽️ Plats préférés"
+      favDishes: "Plats préférés"
     },
 
     // Emails
     email: {
       orderConfirmed: "Commande confirmée",
       number: "Numéro",
-      seeyouSoon: "À bientôt !",
+      seeyouSoon: "À bientôt",
       paymentConfirmed: "Paiement confirmé",
-      paymentReceived: "✅ Paiement reçu",
+      paymentReceived: "Paiement reçu",
       secondEmail: "Vous recevrez un second email avec le récapitulatif dès que le restaurant aura validé votre commande.",
       orderNumber: "Numéro de commande",
       scheduledTime: "Heure prévue",
       quoteReceived: "Demande bien reçue",
       answerIn48h: "Réponse sous 48h",
-      requestRegistered: "✅ Demande enregistrée",
+      requestRegistered: "Demande enregistrée",
       studyRequest: "Notre équipe va étudier votre demande et vous envoyer un devis personnalisé dans les 48 heures.",
       summary: "Récapitulatif",
       eventType: "Type d'événement",
@@ -197,25 +198,32 @@ const translations = {
       orderDetail: "Détail de votre commande",
       pickupLocation: "Lieu de retrait",
       atBeyrouth: "A Beyrouth",
-      viewMaps: "→ Voir sur Google Maps",
+      viewMaps: "Voir sur Google Maps",
       totalHT: "Total HT",
       vat10: "TVA 10%",
       totalTTC: "Total TTC",
       yourOrderReady: "Votre commande vous attend",
       reminderReady: "Rappel : votre commande est prête au retrait.",
-      orderAccepted: "Commande acceptée !",
+      orderAccepted: "Commande acceptée",
       preparing: "En cours de préparation",
       pickupCode: "Votre code de retrait",
       showCounter: "À présenter au comptoir",
       readyFor: "Sera prête pour",
-      viewRoute: "📍 Voir l'itinéraire",
-      preparingCare: "🍽️ On prépare votre commande avec soin",
+      viewRoute: "Voir l'itinéraire",
+      preparingCare: "On prépare votre commande avec soin",
       questions: "Des questions ? contact@beyrouth.express",
       beyrouthDesc: "A Beyrouth · Cuisine libanaise authentique"
     },
 
     // Catering
     catering: {
+      promoTitle: "Traiteur & événements",
+      promoSubtitle: "Buffets et plateaux pour vos événements professionnels et privés, devis gratuit sous 48h",
+      promoCta: "Demander un devis",
+      promoCtaArrow: "Demander un devis →",
+      promoCtaShort: "Découvrir",
+      promoCompactCta: "Devis",
+      closeAnnouncement: "Fermer",
       freeQuote: "Devis gratuit sous 48h",
       buffetsSubtitle: "Buffets sur mesure, préparés avec passion.",
       title: "Cuisine Libanaise<br>pour vos Événements",
@@ -230,16 +238,16 @@ const translations = {
       cocktail: "Cocktail / Réception",
       answerIn48h: "Nous vous répondrons sous 48h avec un devis personnalisé",
       // Ajouts etape 6 (envoi du formulaire de devis)
-      quoteSent: "Demande envoyée ! Vous recevrez un email de confirmation. Réponse sous 48h.",
+      quoteSent: "Demande envoyée. Vous recevrez un email de confirmation. Réponse sous 48h.",
       quoteSentBtn: "Demande envoyée ✓",
-      quoteSending: "Envoi en cours...",
+      quoteSending: "Envoi en cours…",
       quoteError: "Erreur lors de l'envoi. Veuillez réessayer ou nous contacter à traiteur@beyrouth.express"
     },
 
     // Form Labels
     form: {
       other: "Autre",
-      choose: "-- Choisir --",
+      choose: "Choisir",
       name: "Votre nom",
       firstName: "Prénom",
       lastName: "Nom",
@@ -259,6 +267,10 @@ const translations = {
     // Textes copies a l identique depuis index.html : le francais ne change pas.
     // Les emojis restent dans le code appelant, pas dans le dictionnaire.
     validation: {
+      required: "Ce champ est obligatoire",
+      emailFormat: "Saisissez une adresse email valide",
+      phoneFormat: "Saisissez un numéro de téléphone valide",
+      minGuests: "Prévoyez au moins 10 personnes",
       firstNameRequired: "Entrez votre prénom",
       firstNameInvalid: "Prénom invalide (lettres uniquement, 2-50 car.)",
       phoneRequired: "Entrez votre téléphone",
@@ -288,22 +300,24 @@ const translations = {
 
     // Tunnel de paiement (etape 6, bloc 3). Textes copies a l identique.
     payment: {
-      secureLoading: "Chargement sécurisé...",
+      secureLoading: "Chargement sécurisé…",
       sdkFailed: "Erreur de chargement du système de paiement, rechargez la page",
       declined: "Paiement refusé par votre banque",
       tooLong: "Le paiement prend trop de temps. Si vous avez validé, vérifiez votre commande dans quelques minutes.",
-      checking: "Vérification du paiement...",
+      checking: "Vérification du paiement…",
       checkTimeout: "Délai de vérification dépassé. Vérifiez vos emails.",
-      confirmed: "Paiement confirmé !",
+      confirmed: "Paiement confirmé",
       cancelled: "Paiement annulé ou refusé",
       inProgress: "Vérification en cours... Vous recevrez un email de confirmation.",
       checkFailed: "Erreur de vérification. Contactez-nous si vous avez payé.",
       // Cartes restaurant (Edenred). Les horaires different selon l ecran :
       // ils sont repris tels quels, sans les uniformiser.
-      mealCardWeekdaysHtml: "⏰ <strong>Les cartes restaurant sont acceptées du lundi au samedi de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.",
-      mealCardHoursHtml: "⏰ <strong>Les cartes restaurant sont uniquement acceptées de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.",
+      mealCardWeekdaysHtml: "<strong>Les cartes restaurant sont acceptées du lundi au samedi de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.",
+      mealCardHoursHtml: "<strong>Les cartes restaurant sont uniquement acceptées de 11h30 à 22h00.</strong><br>Veuillez utiliser une carte bancaire.",
       mealCardWeekdays: "Les cartes restaurant ne sont acceptées que du lundi au samedi de 11h30 à 21h00",
       mealCardHours: "Les cartes restaurant ne sont acceptées que de 11h30 à 21h00",
+      mealCardCapHtml: "<strong>Les cartes restaurant sont plafonnées à {cap} par jour.</strong><br>Votre panier est à {total}, le paiement sera refusé. Réglez par carte bancaire, ou retirez un article pour repasser sous {cap}.",
+      mealCardCapToast: "Plafond des cartes restaurant : {cap} par jour. Votre panier est à {total}, le paiement sera refusé.",
       // Ecrans d erreur du retour carte restaurant
       timeoutTitle: "Délai dépassé",
       timeoutMsg: "Le serveur de paiement ne répond pas.<br><br>Veuillez vérifier votre connexion et réessayer, ou utiliser une carte bancaire.",
@@ -319,17 +333,18 @@ const translations = {
     // Messages & Notifications
     messages: {
       orderNotFound: "Commande introuvable. Vérifiez le numéro.",
-      invoiceGenerated: "✅ Facture générée",
-      generatingInvoice: "📄 Génération de facture",
+      orderLoadError: "Erreur de chargement de la commande",
+      invoiceGenerated: "Facture générée",
+      generatingInvoice: "Génération de facture",
       emailConfirmSent: "Email de confirmation envoyé",
-      enjoyMeal: "Bon appétit !",
-      thankYou: "Merci et à bientôt !",
+      enjoyMeal: "Bon appétit",
+      thankYou: "Merci et à bientôt",
       detail: "Détail"
     },
 
     // Footer
     banner: {
-      message: "Le four se repose, l'équipe aussi. Bel été à vous&nbsp;!",
+      message: "Le four se repose, l'équipe aussi. Bel été à vous.",
       reopening: "Réouverture le lundi 31 août",
       closed: "Fermé pour congés",
     },
@@ -338,7 +353,20 @@ const translations = {
       hours: "Click & collect 7j/7 · Retrait Lun-Ven 11h30-20h30",
       onlineService: "Service en ligne de A Beyrouth",
       address: "4 Esplanade du Général de Gaulle, 92400 Courbevoie",
-      metro: "Sortie 4 du métro"
+      metro: "Sortie 4 du métro",
+      visit: "Nous trouver",
+      openingHours: "Horaires",
+      pickup: "Retrait",
+      weekHours: "Lun-ven · 11h30-20h30",
+      everyDay: "7j/7",
+      cateringTitle: "Traiteur & événements",
+      cateringDescription: "Buffets et plateaux pour vos événements",
+      cateringCta: "Demander un devis →",
+      menu: "La carte",
+      sandwiches: "Sandwichs",
+      formulas: "Formules",
+      plates: "Assiettes",
+      mezze: "Mezzés"
     }
   },
 
@@ -376,6 +404,7 @@ const translations = {
       // Step 6 additions (header status)
       closed: "Closed",
       tempClosure: "Temporarily closed",
+      nextPickup: "next pickup",
       until: "until",
       // Hour separator: "20:30" in English, "20h30" in French.
       hourSep: ":",
@@ -405,11 +434,11 @@ const translations = {
       optin: "Keep me informed of offers and promotions",
       securePayment: "Secure online payment (credit card, restaurant voucher)",
       payNow: "Pay Now",
-      openingPayment: "Opening payment...",
+      openingPayment: "Opening payment…",
       orderNow: "Order Now",
       // Ajouts etape 6 (bloc panier)
       tempClosed: "Click & collect is temporarily closed.\nReopening soon.",
-      formulaAdded: "Meal deal added to cart!",
+      formulaAdded: "Meal deal added to cart",
       drinkWithThat: "A drink with that?",
       removedUnavailable: (noms, pluriel) =>
         `${noms} ${pluriel ? 'are no longer available' : 'is no longer available'} and ${pluriel ? 'have' : 'has'} been removed from your cart`
@@ -417,7 +446,7 @@ const translations = {
 
     // Menu Items
     menu: {
-      loading: "Loading menu...",
+      loading: "Loading menu…",
       customize: "Customise your meal deal",
       soonAvailable: "Available soon",
       formula1: "Combo 1",
@@ -434,19 +463,19 @@ const translations = {
       acceptedDesc: "The restaurant accepted your order",
       preparing: "Preparing",
       preparingDesc: "Your order is being prepared",
-      ready: "Ready!",
+      ready: "Ready",
       readyDesc: "Come pick up your order",
       pickedUp: "Picked up",
-      pickedUpDesc: "Enjoy your meal!",
+      pickedUpDesc: "Enjoy your meal",
       cancelled: "Cancelled"
     },
 
     // Confirmation Page
     confirmation: {
       backToMenu: "Back to menu",
-      loading: "Loading your order...",
+      loading: "Loading your order…",
       title: "Order Confirmed | Beyrouth Express",
-      paymentValidated: "Payment validated!",
+      paymentValidated: "Payment validated",
       orderRegistered: "Your order has been registered",
       pickupTime: "Scheduled pickup",
       whereToPickup: "Where to pick up",
@@ -462,24 +491,24 @@ const translations = {
       preparing: "Preparation in progress",
       readyAt: "Your order will be ready at",
       orderAccepted: "Order accepted",
-      orderReady: "Your order is ready!",
+      orderReady: "Your order is ready",
       canPickup: "You can pick it up at the restaurant",
       skipQueue: "<b>No need to queue</b>: go straight to the till, your order",
       skipQueueEnd: "is waiting for you there.",
       skipQueueAt: "At pickup time, <b>no need to queue</b>: go straight to the till with order number",
       yourNumber: "Your number",
-      commandReady: "Order ready!",
+      commandReady: "Order ready",
       pickupNow: "Come pick it up at A Beyrouth",
-      seeyouSoon: "See you soon at A Beyrouth 🧆",
+      seeyouSoon: "See you soon at A Beyrouth",
       // Step 6 additions (confirmation page)
       willConfirmSoon: "Your order will be confirmed in a moment",
-      orderAcceptedExcl: "Order accepted!",
+      orderAcceptedExcl: "Order accepted",
       beingPrepared: "Your order is being prepared",
       comePickUp: "Come and collect it",
-      enjoyMeal: "Enjoy your meal!",
+      enjoyMeal: "Enjoy your meal",
       orderPickedUp: "Order collected",
-      thanksForOrder: "Thank you for your order!",
-      thankYouSoon: "Thank you and see you soon!",
+      thanksForOrder: "Thank you for your order",
+      thankYouSoon: "Thank you and see you soon",
       orderCancelled: "Order cancelled",
       refundInProgress: "Refund in progress",
       refundDelay: "The refund will be processed within 5 to 7 business days.",
@@ -497,31 +526,31 @@ const translations = {
       toggleDishes: "Enable/disable dishes individually. Changes are visible instantly to customers.",
       year: "Year",
       delaySlots: "⏸️ Delay slots:",
-      untilTomorrow: "🌙 Until tomorrow",
-      reminded: "📧 Reminded",
-      asap: "⚡ ASAP",
-      pickedUp: "📦 Picked up",
+      untilTomorrow: "Until tomorrow",
+      reminded: "Reminded",
+      asap: "ASAP",
+      pickedUp: "Picked up",
       completed: "✓ Completed",
       irreversible: "This action is irreversible.",
       spent: "spent",
       last: "last",
       totalSpent: "Total spent",
-      favDishes: "🍽️ Favorite dishes"
+      favDishes: "Favorite dishes"
     },
 
     // Emails
     email: {
       orderConfirmed: "Order confirmed",
       number: "Number",
-      seeyouSoon: "See you soon!",
+      seeyouSoon: "See you soon",
       paymentConfirmed: "Payment confirmed",
-      paymentReceived: "✅ Payment received",
+      paymentReceived: "Payment received",
       secondEmail: "You will receive a second email with the summary once the restaurant has validated your order.",
       orderNumber: "Order number",
       scheduledTime: "Scheduled time",
       quoteReceived: "Request received",
       answerIn48h: "Answer within 48h",
-      requestRegistered: "✅ Request registered",
+      requestRegistered: "Request registered",
       studyRequest: "Our team will review your request and send you a personalized quote within 48 hours.",
       summary: "Summary",
       eventType: "Event type",
@@ -529,25 +558,32 @@ const translations = {
       orderDetail: "Order details",
       pickupLocation: "Pickup location",
       atBeyrouth: "A Beyrouth",
-      viewMaps: "→ View on Google Maps",
+      viewMaps: "View on Google Maps",
       totalHT: "Total excl. VAT",
       vat10: "VAT 10%",
       totalTTC: "Total incl. VAT",
       yourOrderReady: "Your order is waiting for you",
       reminderReady: "Reminder: your order is ready for pickup.",
-      orderAccepted: "Order accepted!",
+      orderAccepted: "Order accepted",
       preparing: "Being prepared",
       pickupCode: "Your pickup code",
       showCounter: "Show at the counter",
       readyFor: "Will be ready for",
-      viewRoute: "📍 View route",
-      preparingCare: "🍽️ We're preparing your order with care",
+      viewRoute: "View route",
+      preparingCare: "We're preparing your order with care",
       questions: "Questions? contact@beyrouth.express",
       beyrouthDesc: "A Beyrouth · Authentic Lebanese cuisine"
     },
 
     // Catering
     catering: {
+      promoTitle: "Catering & events",
+      promoSubtitle: "Buffets and platters for professional and private events, free quote within 48 hours",
+      promoCta: "Request a quote",
+      promoCtaArrow: "Request a quote →",
+      promoCtaShort: "Discover",
+      promoCompactCta: "Quote",
+      closeAnnouncement: "Close",
       freeQuote: "Free quote within 48 hours",
       buffetsSubtitle: "Bespoke buffets, prepared with care.",
       title: "Lebanese Cuisine<br>for Your Events",
@@ -562,16 +598,16 @@ const translations = {
       cocktail: "Cocktail / Reception",
       answerIn48h: "We'll get back to you within 48h with a personalized quote",
       // Step 6 additions (quote form submission)
-      quoteSent: "Request sent! You will receive a confirmation email. Reply within 48 hours.",
+      quoteSent: "Request sent. You will receive a confirmation email. Reply within 48 hours.",
       quoteSentBtn: "Request sent \u2713",
-      quoteSending: "Sending...",
+      quoteSending: "Sending…",
       quoteError: "Sending failed. Please try again or contact us at traiteur@beyrouth.express"
     },
 
     // Form Labels
     form: {
       other: "Other",
-      choose: "-- Choose --",
+      choose: "Choose",
       name: "Your name",
       firstName: "First name",
       lastName: "Last name",
@@ -589,6 +625,10 @@ const translations = {
 
     // Order form validation (step 6, block 2)
     validation: {
+      required: "This field is required",
+      emailFormat: "Enter a valid email address",
+      phoneFormat: "Enter a valid phone number",
+      minGuests: "Plan for at least 10 guests",
       firstNameRequired: "Enter your first name",
       firstNameInvalid: "Invalid first name (letters only, 2-50 characters)",
       phoneRequired: "Enter your phone number",
@@ -609,20 +649,22 @@ const translations = {
 
     // Payment flow (step 6, block 3)
     payment: {
-      secureLoading: "Secure loading...",
+      secureLoading: "Secure loading…",
       sdkFailed: "The payment system failed to load. Please reload the page.",
       declined: "Payment declined by your bank",
       tooLong: "The payment is taking too long. If you confirmed it, check your order in a few minutes.",
-      checking: "Checking payment...",
+      checking: "Checking payment…",
       checkTimeout: "Verification timed out. Please check your emails.",
-      confirmed: "Payment confirmed!",
+      confirmed: "Payment confirmed",
       cancelled: "Payment cancelled or declined",
       inProgress: "Verification in progress... You will receive a confirmation email.",
       checkFailed: "Verification error. Contact us if you have paid.",
-      mealCardWeekdaysHtml: "⏰ <strong>Luncheon vouchers are accepted Monday to Saturday, 11:30 to 22:00.</strong><br>Please use a credit card.",
-      mealCardHoursHtml: "⏰ <strong>Luncheon vouchers are only accepted between 11:30 and 22:00.</strong><br>Please use a credit card.",
+      mealCardWeekdaysHtml: "<strong>Luncheon vouchers are accepted Monday to Saturday, 11:30 to 22:00.</strong><br>Please use a credit card.",
+      mealCardHoursHtml: "<strong>Luncheon vouchers are only accepted between 11:30 and 22:00.</strong><br>Please use a credit card.",
       mealCardWeekdays: "Luncheon vouchers are only accepted Monday to Saturday, 11:30 to 21:00",
       mealCardHours: "Luncheon vouchers are only accepted between 11:30 and 21:00",
+      mealCardCapHtml: "<strong>Luncheon vouchers are capped at {cap} per day.</strong><br>Your basket is {total}; the payment will be declined. Pay by credit card or remove an item to bring the total below {cap}.",
+      mealCardCapToast: "Luncheon voucher limit: {cap} per day. Your basket is {total}; the payment will be declined.",
       timeoutTitle: "Timed out",
       timeoutMsg: "The payment server is not responding.<br><br>Please check your connection and try again, or use a credit card.",
       notAllowedTitle: "Payment not allowed",
@@ -637,17 +679,18 @@ const translations = {
     // Messages & Notifications
     messages: {
       orderNotFound: "Order not found. Check the number.",
-      invoiceGenerated: "✅ Invoice generated",
-      generatingInvoice: "📄 Generating invoice",
+      orderLoadError: "The order could not be loaded",
+      invoiceGenerated: "Invoice generated",
+      generatingInvoice: "Generating invoice",
       emailConfirmSent: "Confirmation email sent",
-      enjoyMeal: "Enjoy your meal!",
-      thankYou: "Thank you and see you soon!",
+      enjoyMeal: "Enjoy your meal",
+      thankYou: "Thank you and see you soon",
       detail: "Details"
     },
 
     // Footer
     banner: {
-      message: "The oven is resting, and so is the team. Have a great summer!",
+      message: "The oven is resting, and so is the team. Have a great summer.",
       reopening: "Reopening Monday 31 August",
       closed: "Closed for holidays",
     },
@@ -656,7 +699,20 @@ const translations = {
       hours: "Click & collect 7 days a week · Pickup Mon to Fri 11.30am to 8.30pm",
       onlineService: "Online service by A Beyrouth",
       address: "4 Esplanade du Général de Gaulle, 92400 Courbevoie",
-      metro: "Metro Exit 4"
+      metro: "Metro Exit 4",
+      visit: "Find us",
+      openingHours: "Opening hours",
+      pickup: "Pickup",
+      weekHours: "Mon-Fri · 11.30am-8.30pm",
+      everyDay: "7 days a week",
+      cateringTitle: "Catering & events",
+      cateringDescription: "Buffets and platters for your events",
+      cateringCta: "Request a quote →",
+      menu: "Menu",
+      sandwiches: "Sandwiches",
+      formulas: "Meal deals",
+      plates: "Plates",
+      mezze: "Mezze"
     }
   }
 };

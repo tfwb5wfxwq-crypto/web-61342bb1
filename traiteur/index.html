@@ -57,7 +57,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -272,35 +272,47 @@ a{color:inherit;text-decoration:none}
   bottom:24px;
   left:50%;
   transform:translateX(-50%) translateY(120px);
-  background:var(--white);
-  color:var(--text);
-  padding:16px 24px;
-  border-radius:var(--r-sm);
-  box-shadow:0 12px 28px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  background:var(--dark);
+  color:#F7F4EE;
+  padding:12px 16px;
+  border:1px solid rgba(247,244,238,.18);
+  border-radius:10px;
+  box-shadow:0 2px 8px rgba(22,21,19,.12);
   z-index:10000;
   font-size:0.94rem;
   line-height:1.5;
   max-width:calc(100vw - 48px);
   width:max-content;
   opacity:0;
-  transition:transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transition:transform .18s ease-out,opacity .18s ease-out;
   pointer-events:none;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
+.toast::before{content:"";width:6px;height:6px;border-radius:50%;background:#AAA398;flex:0 0 6px}
 .toast.show{
   transform:translateX(-50%) translateY(0);
   opacity:1;
 }
-.toast.success{
-  border-left:3px solid var(--green);
-}
-.toast.error{
-  border-left:3px solid var(--red);
-}
+.toast.success::before{background:#7FA389}
+.toast.error::before{background:#C7776A}
+.toast.warning::before{background:#C49558}
 .toast-icon{
-  display:inline-block;
-  margin-right:8px;
-  font-size:1.1em;
+  display:none;
 }
+.form-input.field-invalid,.form-select.field-invalid,.form-textarea.field-invalid{
+  border-color:#9F5549;
+  box-shadow:0 0 0 3px rgba(143,63,53,.1);
+}
+.field-error{
+  display:none;
+  color:#8F3F35;
+  font-size:.76rem;
+  line-height:1.35;
+  margin-top:4px;
+}
+.field-error.visible{display:block}
 @media(max-width:640px){
   .toast{
     bottom:16px;
@@ -309,31 +321,199 @@ a{color:inherit;text-decoration:none}
   }
 }
 /* === POPUP LOCALISATION === */
-.loc-modal{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);padding:20px}
+.loc-modal{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(22,21,19,.58);backdrop-filter:blur(4px);padding:20px}
 .loc-modal.open{display:flex;animation:locFadeIn .25s ease}
-.loc-sheet{width:100%;max-width:440px;border-radius:22px;overflow:hidden;background:#0f0f0f;position:relative;box-shadow:0 24px 60px rgba(0,0,0,0.6);animation:locScaleIn .3s cubic-bezier(.22,1,.36,1)}
+.loc-sheet{width:100%;max-width:440px;border-radius:20px;overflow:hidden;background:var(--bg);position:relative;border:1px solid var(--border);box-shadow:0 8px 24px rgba(22,21,19,.14);animation:locFadeIn .25s ease}
 .loc-video-wrap{position:relative;width:100%;height:320px}
 .loc-video{width:100%;height:100%;object-fit:cover;display:block}
-.loc-video-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 45%,rgba(0,0,0,0.75) 100%)}
-.loc-close{position:absolute;top:14px;right:14px;z-index:10;background:rgba(0,0,0,0.5);border:1.5px solid rgba(255,255,255,0.15);color:#fff;font-size:1rem;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1}
-.loc-close:hover{background:rgba(0,0,0,0.8);border-color:rgba(255,255,255,0.35)}
-.loc-body{padding:22px 24px 28px}
-.loc-name{font-weight:700;font-size:1.1rem;color:#fff;margin:0 0 4px}
-.loc-addr{font-size:.88rem;color:rgba(255,255,255,.65);margin:0 0 4px;line-height:1.5}
-.loc-note{font-size:.8rem;color:rgba(255,255,255,.4);margin:0 0 18px}
-.loc-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;background:#C2410C;color:#fff;border-radius:11px;text-decoration:none;font-size:.88rem;font-weight:600;transition:background .2s;width:100%;justify-content:center}
-.loc-btn:hover{background:#BF360C}
-@media(max-width:500px){.loc-modal{padding:0;align-items:flex-end}.loc-sheet{border-radius:24px 24px 0 0;max-width:100%}.loc-video-wrap{height:55vw;min-height:200px}}
+.loc-video-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(22,21,19,0) 60%,rgba(22,21,19,.28) 100%)}
+.loc-close{position:absolute;top:14px;right:14px;z-index:10;background:rgba(22,21,19,.62);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:.9rem;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background-color .15s cubic-bezier(.22,1,.36,1),border-color .15s cubic-bezier(.22,1,.36,1);line-height:1}
+.loc-close:hover{background:rgba(22,21,19,.82);border-color:rgba(255,255,255,.55)}
+.loc-body{padding:24px}
+.loc-name{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.5rem;line-height:1.15;color:var(--text);margin:0 0 8px}
+.loc-addr{font-family:'DM Sans','Inter',system-ui,sans-serif;font-size:.9rem;color:var(--text-soft);margin:0 0 4px;line-height:1.5}
+.loc-note{font-family:'DM Sans','Inter',system-ui,sans-serif;font-size:.8rem;color:var(--text-muted);margin:0 0 20px}
+.loc-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;background:var(--dark);color:#fff;border-radius:9px;text-decoration:none;font-size:.88rem;font-weight:600;transition:background-color .15s cubic-bezier(.22,1,.36,1);width:100%;justify-content:center}
+.loc-btn:hover{background:#000}
+@media(max-width:500px){.loc-modal{padding:0;align-items:flex-end}.loc-sheet{border-radius:20px 20px 0 0;max-width:100%;border-bottom:0}.loc-video-wrap{height:55vw;min-height:200px}}
 @keyframes locFadeIn{from{opacity:0}to{opacity:1}}
-@keyframes locScaleIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.15s!important}}
+
+/* Version crème : en-tête */
+.header{background:#F7F4EE!important;color:#1F1B16!important;border-bottom:1px solid #E6DFD3!important}
+.header .brand{color:#1F1B16}
+.mode-switch{border-color:rgba(31,27,22,.14)!important;background:rgba(31,27,22,.03)!important}
+.header-mode-active{background:#161513!important;color:#F7F4EE!important}
+.header-mode-link{color:#5E554A!important}
+.header-mode-link:hover{background:rgba(31,27,22,.06)!important;color:#1F1B16!important}
+.header-status{color:#1F1B16!important}.header-sub{color:#6B6256!important}
+.lang-switch button{color:#5E554A}
+
+/* Version crème : footer */
+.footer{background:#EDE6DA!important;color:var(--text)!important;border-top:1px solid var(--border);--on-dark:#1F1B16;--on-dark-soft:#5E554A;--on-dark-muted:#6B6256;--on-dark-hair:rgba(31,27,22,.14)}
+.footer-social a:hover,.footer-review:hover{background:rgba(31,27,22,.05)}
+.footer-review .stars{color:#C26A12}
 </style>
+<style>
+/* Refonte 2026 : continuité avec la carte Click & Collect validée */
+:root{--dark:#161513;--text:#1F1B16;--text-soft:#5E554A;--text-muted:#6B6256;--bg:#F7F4EE;--white:#FFF;--border:#E6DFD3;--border-light:#EFE9DF;--sage:#3E5A44;--sage-dark:#304936;--sage-soft:#E3E9DF;--gold:#DE8320;--r:14px;--r-sm:9px}
+body{font-family:'DM Sans','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.logo-olives,.brand:hover .logo-olives{animation:none;transform:none}
+.header{background:var(--dark);color:#EFE9DE;padding:20px 24px;margin-bottom:0;height:auto;min-height:0;border-bottom:0}
+.header-inner{max-width:1000px;gap:24px}.brand{color:#EFE9DE}.brand-express{color:var(--gold);font-style:normal;font-weight:400}
+.header-right{gap:24px}.mode-switch{display:inline-flex;align-items:center;gap:4px;padding:4px;border:1px solid rgba(239,233,222,.18);border-radius:12px;background:rgba(239,233,222,.04)}
+.header-mode-active,.header-mode-link{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px;border-radius:8px;border:0;font-size:13px;font-weight:500;letter-spacing:0;text-decoration:none;white-space:nowrap;box-shadow:none}
+.header-mode-link{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;color:#AAA398;transition:background-color .15s cubic-bezier(.22,1,.36,1),color .15s cubic-bezier(.22,1,.36,1)}
+.header-mode-link:hover{background:rgba(239,233,222,.07);color:#EFE9DE;box-shadow:none}
+.header-mode-active{background:#EFE9DE;color:var(--dark)}
+.header-mode-active svg,.header-mode-link svg{width:16px;height:16px;flex-shrink:0}
+.header-status{gap:8px;font-size:13px;color:#EFE9DE}.header-status .dot{width:8px;height:8px;background:#4CC38A}.header-sub{font-size:13px;color:#AAA398;opacity:1}
+.brand-stack{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+.brand-stack .header-status{gap:6px;font-size:12px;color:var(--text-soft)!important;line-height:1.25}
+.brand-stack .header-status .dot{width:6px;height:6px;background:#5F8068}
+.brand-stack .header-status.closed .dot{background:#B7675C}
+.brand-stack .header-sub{font-size:12px;color:var(--text-muted)!important}
+.info-inner{max-width:1000px;padding:8px 24px}.info-address{gap:8px;font-size:14px}.info-address svg{stroke-width:1.5;opacity:1;color:var(--text-muted)}
+.hero-video-section{position:relative;display:grid;grid-template-columns:minmax(320px,.82fr) minmax(0,1.18fr);gap:48px;align-items:center;height:auto;min-height:0;max-height:none;max-width:1120px;margin:48px auto 0;padding:0 24px 48px;overflow:visible;border-bottom:1px dotted #B8AA98}
+.hero-video-bg{position:relative;inset:auto;order:2;width:100%;height:400px;min-width:0;min-height:0;transform:none;object-fit:cover;object-position:center;border:1px solid var(--border);border-radius:14px;filter:saturate(.92) contrast(.98)}
+.hero-video-overlay{display:none}
+.hero-video-content{order:1;position:relative;z-index:auto;text-align:left;color:var(--text);max-width:none;width:auto;margin:0;padding:32px 0}
+.hero-video-title,.section-title{font-family:'DM Serif Display',Georgia,serif;font-weight:400;text-shadow:none}
+.hero-video-title{font-size:clamp(3rem,5vw,4.5rem);max-width:520px;line-height:1.02;margin-bottom:20px;animation:none;letter-spacing:-.02em;color:var(--text)}
+.hero-video-subtitle{max-width:460px;font-size:1.05rem;line-height:1.65;color:var(--text-soft);opacity:1;animation:none;text-shadow:none;margin:0}
+.hero-video-cta{background:var(--sage);color:#fff;border-radius:9px;box-shadow:none;font-weight:600;letter-spacing:0;transition:background .16s}
+.hero-video-cta:hover{background:var(--sage-dark);transform:none}
+.container{max-width:1120px;padding:48px 24px 80px}
+.content-grid{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:32px}
+.section{box-shadow:none}.section-prestations{position:sticky;top:24px;padding:0;border-radius:14px;border:1px solid var(--border);box-shadow:none;background:#FDFBF7;overflow:hidden}
+.prestations-video-wrap{display:flex;flex-direction:column;height:auto;overflow:visible;border-radius:0}
+.prestations-image{height:240px;object-position:center 42%;border-bottom:1px solid var(--border)}
+.prestations-image-overlay,.prestations-vignette,.prestations-grain,.prestations-no-save{display:none}
+.prestations-content{position:relative;inset:auto;padding:28px;background:#FDFBF7;color:var(--text)}
+.prestations-content .section-title{font-size:2rem;line-height:1.1;color:var(--text);margin-bottom:16px;padding-bottom:16px;border-bottom:1px dotted #B8AA98}
+.prestations-content .section-list{margin:0}
+.prestations-content .section-list li{display:flex;align-items:baseline;min-height:44px;padding:12px 0;color:var(--text-soft);font-size:.9rem;line-height:1.45;border-bottom:1px dotted #CFC3B3}
+.prestations-content .section-list li:before{content:'·';position:static;flex:0 0 20px;color:var(--sage);font-size:1.3rem;font-weight:600;line-height:1;transform:none}
+.prestations-content .section-list li:nth-child(4){display:flex;position:relative;padding-left:0;text-align:left;color:var(--text-soft);font-weight:400;font-variant-numeric:tabular-nums}
+.prestations-content .section-list li:nth-child(4):before{position:static}
+.prestations-content .section-list li:last-child{border-bottom:0}
+.form-card{background:var(--white);border:1px solid var(--border);box-shadow:none;border-radius:14px}
+.form{padding:32px;background:#FDFBF7;border:1px solid var(--border);box-shadow:none}.form-header{margin-bottom:28px;padding-bottom:24px;border-bottom:1px dotted #B8AA98}.form-header .section-title{font-size:2rem;line-height:1.1;margin-bottom:8px}.form-header-subtitle{color:var(--text-soft);line-height:1.6}
+.form-group{margin-bottom:16px}.form-label{font-weight:500;letter-spacing:0;color:var(--text);margin-bottom:8px}.form-label svg{display:none}
+.form-row{gap:16px}.form-input,.form-textarea,.form-select{min-height:44px;padding:11px 12px;border:1px solid #D8CFC2;border-radius:8px;background:#FFFDF9;transition:border-color .16s,box-shadow .16s}
+.form-input:hover,.form-textarea:hover,.form-select:hover{border-color:#B8AA98}.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--sage);box-shadow:0 0 0 3px rgba(62,90,68,.14);transform:none}
+.form-textarea{min-height:104px}.form-submit{min-height:48px;background:var(--sage);border-radius:9px;box-shadow:none;font-weight:600;letter-spacing:0;transition:background .16s}
+.form-submit:before{display:none}.form-submit:hover{background:var(--sage-dark);transform:none;box-shadow:none}
+.footer{background:var(--dark);margin-top:0;padding:32px 24px;color:#EFE9DE;text-align:left}
+.footer-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:.8fr 1.25fr 1.4fr;align-items:start;gap:32px}
+.footer-inner>p,.footer-social,.footer-review{margin:0}.footer-row{min-width:0}.footer-brand{font-family:'DM Serif Display',Georgia,serif;font-size:21px;line-height:1.2;margin-bottom:4px}.footer-sub,.footer-address,.footer-phone,.footer-hours,.footer-link{font-size:13px;line-height:1.5;color:#AAA398;opacity:1}
+.footer-address,.footer-hours{margin-bottom:4px}.footer-link{margin-top:8px;color:#777168}.footer-phone{font-variant-numeric:tabular-nums}
+.footer-social{display:flex;gap:8px;margin-top:12px}.footer-social a{display:flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border:1px solid rgba(239,233,222,.18);border-radius:6px;color:#EFE9DE;font-size:12px;transition:background-color .15s}
+.footer-social svg{width:15px;height:15px}
+.footer-social a:hover,.footer-review:hover{background:rgba(239,233,222,.07)}
+.footer-review{display:inline-flex;align-items:center;gap:6px;height:32px;margin-top:8px;padding:0 10px;border:1px solid rgba(239,233,222,.18);border-radius:6px;font-size:12px}.footer-review .stars{color:var(--gold);font-size:10px;letter-spacing:1px}
+.header-mode-active{background:var(--sage)!important;color:#fff!important}
+.nav-cat.active{color:var(--sage);border-bottom-color:var(--sage);background:transparent}
+.section-prestations{position:relative;top:auto}
+.footer{background:#EDE6DA!important;color:var(--text)!important;border-top:1px solid var(--border)}
+.footer-sub,.footer-address,.footer-phone,.footer-hours{color:var(--text-soft)!important}.footer-link{color:var(--text-muted)!important}
+.footer-social a,.footer-review{color:var(--text)!important;border-color:rgba(31,27,22,.14)!important}
+.footer-social a:hover,.footer-review:hover{background:rgba(31,27,22,.05)!important}
+@media(max-width:800px){.hero-video-section{grid-template-columns:1fr;gap:24px;margin-top:24px;padding:0 16px 32px}.hero-video-content{order:1;padding:20px 0 0}.hero-video-bg{order:2;height:320px}.hero-video-title{font-size:2.75rem}.container{padding:32px 16px 56px}.content-grid{gap:24px}.section-prestations{position:relative;top:auto}.form{padding:24px}}
+@media(max-width:640px){
+  .header{padding:16px;height:auto}
+  .header-inner{flex-wrap:wrap;gap:10px;align-items:flex-start;row-gap:8px}
+  .header-right{gap:10px;flex-wrap:wrap;justify-content:flex-end;row-gap:7px;margin-left:auto}
+  .brand-stack{gap:3px}
+  .brand-stack .header-status,.brand-stack .header-sub{font-size:11px}
+  .info-inner{padding:8px 16px}
+}
+@media(max-width:759px){
+  .content-grid{grid-template-columns:minmax(0,1fr);gap:24px}
+  .section-prestations,.form{width:100%;min-width:0}
+  .prestations-video-wrap{display:flex;flex-direction:column;height:auto}
+  .prestations-image{order:1;width:100%;height:220px;object-fit:cover}
+  .prestations-content{order:2;position:relative;inset:auto;width:100%;padding:24px 20px}
+  .prestations-content .section-title,.prestations-content .section-list li,.form,.form *{overflow-wrap:normal;word-break:normal}
+  .form-row{grid-template-columns:minmax(0,1fr)}
+  .footer{padding:16px 20px;text-align:center}
+  .footer-inner{display:grid;grid-template-columns:1fr;gap:0}
+  .footer-row{display:block;width:100%;padding:8px 0}
+  .footer-row:first-child{padding-top:0}
+  .footer-row+.footer-row{border-top:1px solid rgba(31,27,22,.14)}
+  .footer-brand{font-size:21px;line-height:1.2}
+  .footer-sub,.footer-address,.footer-phone,.footer-hours,.footer-link{font-size:13px;line-height:1.45}
+  .footer-address{min-width:0;white-space:normal;text-wrap:balance}
+  .footer-phone,.footer-phone a{white-space:nowrap;word-break:normal;flex-shrink:0}
+  .footer-row-links{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+  .footer-row-links .footer-hours,.footer-row-links .footer-link{flex:0 0 100%;margin:0}
+  .footer-social{justify-content:center;gap:8px;margin-top:12px}
+  .footer-row-links .footer-social,.footer-row-links .footer-review{margin-top:0}
+  .footer-social a{height:32px;padding:0 10px}
+  .footer-review{height:32px;margin-top:8px;padding:0 10px}
+}
+</style>
+<style>
+/* Mission 32 — page traiteur simple, dans la direction visuelle de l'accueil. */
+:root{--cream:#F7F1E7;--cream-deep:#EDE4D3;--paper:#FFFDF9;--ink:#1F1B16;--ink-soft:#5E554A;--ink-muted:#6B6256;--hair:#E0D6C8;--sage:#3E5A44;--sage-dark:#304936;--sage-soft:#E3E9DF;--ease:cubic-bezier(.22,1,.36,1)}
+html{background:var(--cream);scroll-behavior:smooth}body{min-width:0;background:var(--cream);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;overflow-x:hidden}button,input,select,textarea{font:inherit}a,button,input,select,textarea{-webkit-tap-highlight-color:transparent}
+.header{position:relative;z-index:2!important;min-height:0!important;padding:16px 24px 12px!important;background:var(--cream-deep)!important;color:var(--ink)!important;border:0!important}.header-inner{width:100%;max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand-stack{display:block}.brand{margin:0}.brand a{display:flex;align-items:center;gap:12px;border-radius:8px}.brand a:focus-visible,.header-back:focus-visible{outline:2px solid var(--sage);outline-offset:4px}.brand .logo-olives{width:auto!important;height:44px!important}.brand .logo-text{width:auto!important;height:40px!important;max-width:160px}.header-right{display:block;margin:0}.header-back{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;color:var(--sage-dark);font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}.header-back:hover{text-decoration:underline;text-underline-offset:4px}.info-bar,.nav{display:none!important}.header-curve{height:44px;color:var(--cream-deep)}
+.hero-video-section{width:min(100% - 32px,1000px);max-width:1000px;margin:28px auto 0;padding:0 0 56px;display:flex;flex-direction:column;gap:32px;border:0;overflow:visible}.hero-video-content{order:1;width:100%;max-width:760px;margin:0;padding:0;text-align:left;color:var(--ink)}.hero-video-title{max-width:720px;margin:0 0 16px;color:var(--ink);font-family:'DM Serif Display',Georgia,serif;font-size:clamp(44px,8vw,72px);font-weight:400;line-height:.98;letter-spacing:0;text-shadow:none}.hero-video-subtitle{max-width:680px;margin:0 0 24px;color:var(--ink-soft);font-size:17px;line-height:1.6;opacity:1;text-shadow:none}.hero-facts{display:flex;flex-wrap:wrap;gap:12px 28px;margin:0;padding:0;list-style:none}.hero-facts li{display:flex;align-items:center;gap:8px;color:var(--ink-soft);font-size:14px;line-height:1.4;font-variant-numeric:tabular-nums}.hero-facts svg{width:18px;height:18px;flex:0 0 18px;color:var(--sage);stroke-width:1.5}.hero-video-bg{order:2;position:static;width:100%;height:auto;max-height:none;aspect-ratio:5/2;min-width:0;min-height:0;border:0;border-radius:18px;object-fit:cover;object-position:center 48%;filter:sepia(.025) saturate(.94) contrast(.98);transform:none}.hero-video-overlay{display:none}
+.container{width:min(100% - 32px,1000px);max-width:1000px;margin:0 auto;padding:0 0 80px}.content-grid{display:flex;flex-direction:column;gap:72px}.section-prestations{position:static;width:100%;margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;overflow:visible}.prestations-video-wrap{display:block;height:auto;overflow:visible}.prestations-image,.prestations-image-overlay,.prestations-vignette,.prestations-grain,.prestations-no-save{display:none}.prestations-content{position:static;width:100%;max-width:760px;margin:0;padding:0;background:transparent;color:var(--ink)}.section-title{display:block;margin:0;color:var(--ink);font-family:'DM Serif Display',Georgia,serif;font-size:36px;font-weight:400;line-height:1.1}.section-title::before{display:none}.prestations-content .section-title{margin:0 0 20px;padding:0;border:0;color:var(--ink);font-size:36px}.prestations-content .section-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px;margin:0;padding:0;list-style:none}.prestations-content .section-list li,.prestations-content .section-list li:nth-child(4){display:flex;align-items:flex-start;gap:12px;min-height:0;margin:0;padding:16px 0;border-bottom:1px solid var(--hair);color:var(--ink-soft);font-size:15px;font-weight:400;line-height:1.5;text-align:left}.prestations-content .section-list li::before,.prestations-content .section-list li:nth-child(4)::before{content:'';position:static;width:18px;height:18px;flex:0 0 18px;margin-top:2px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233E5A44' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 4 4L19 6'/%3E%3C/svg%3E") center/18px no-repeat}
+.form{width:100%;margin:0;padding:48px;background:var(--paper);border:1px solid var(--hair);border-radius:18px;box-shadow:none}.form-header{max-width:680px;margin:0 0 32px;padding:0 0 24px;border-bottom:1px solid var(--hair)}.form-header .section-title{margin:0 0 12px;font-size:40px;line-height:1.08}.form-header-subtitle{font-size:15px;line-height:1.6;color:var(--ink-soft)}.form-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.form-group{min-width:0;margin:0 0 20px}.form-label{display:block;margin:0 0 8px;color:var(--ink);font-size:14px;font-weight:500;letter-spacing:0}.form-label svg{display:none}.form-input,.form-textarea,.form-select{display:block;width:100%;min-height:48px;padding:12px 14px;border:1px solid #CFC3B3;border-radius:9px;background:#fff;color:var(--ink);font-size:16px;line-height:1.4;box-shadow:none;transition:border-color .15s var(--ease),box-shadow .15s var(--ease);appearance:auto}.form-input:hover,.form-textarea:hover,.form-select:hover{border-color:#AFA08D}.form-input:focus,.form-textarea:focus,.form-select:focus{outline:0;border-color:var(--sage);box-shadow:0 0 0 3px rgba(62,90,68,.14);transform:none}.form-textarea{min-height:132px;resize:vertical}.form-input.field-invalid,.form-select.field-invalid,.form-textarea.field-invalid{border-color:#A9473D;box-shadow:0 0 0 3px rgba(169,71,61,.1)}.field-error{margin-top:6px;font-size:13px;line-height:1.4;color:#8E352E}.form-submit{display:inline-flex;width:auto;min-height:52px;margin:4px 0 0;padding:0 24px;align-items:center;justify-content:center;border:0;border-radius:9px;background:var(--sage);color:#fff;font-size:16px;font-weight:600;letter-spacing:0;box-shadow:none;transition:background-color .15s var(--ease)}.form-submit::before{display:none}.form-submit:hover{background:var(--sage-dark);box-shadow:none;transform:none}.form-submit:focus-visible{outline:2px solid var(--sage-dark);outline-offset:3px}.form-submit:disabled{opacity:.55}
+.footer{position:relative;margin-top:48px!important;padding:40px 24px 24px!important;background:#E8DECC!important;color:var(--ink)!important;border:0!important;text-align:left;isolation:isolate}.footer-curve{height:48px;color:#E8DECC}.footer-inner{position:relative;z-index:2;width:100%;max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1.35fr 1fr 1.2fr 1.2fr;gap:28px}.footer-row{min-width:0}.footer-heading{margin:0 0 12px;color:var(--ink);font-size:12px;font-weight:600}.footer-brand{margin:0 0 6px;font-family:'DM Serif Display',Georgia,serif;font-size:24px;font-weight:400}.footer-sub,.footer-address,.footer-phone,.footer-hours,.footer-catering-text{margin:0;color:var(--ink-soft)!important;font-size:13px;line-height:1.5}.footer-address-link{display:block;margin-bottom:8px}.footer-hours-list{margin:0;padding:0;list-style:none}.footer-hours-list li{display:grid;grid-template-columns:auto 1fr;gap:8px;font-size:13px;line-height:1.5;color:var(--ink-soft)}.footer-hours-list li+li{margin-top:4px}.footer-hours-list strong{font-weight:500;color:var(--ink)}.footer-catering-text{margin-bottom:8px}.footer-catering-link{color:var(--sage-dark);font-size:13px;font-weight:600}.footer-actions{display:grid;gap:8px}.footer-actions .footer-social{display:contents}.footer-actions .footer-social a,.footer-actions .footer-review{display:inline-flex;align-items:center;gap:8px;width:max-content;max-width:100%;height:auto;margin:0;padding:0;border:0;color:var(--ink-soft)!important;font-size:13px;text-decoration:none;background:transparent}.footer-actions svg{width:16px;height:16px;color:var(--sage-dark)}.footer-review .stars{display:none}.footer-meta{position:relative;z-index:2;max-width:1000px;margin:24px auto 0;padding-top:16px;border-top:1px solid rgba(31,27,22,.14);display:flex;justify-content:space-between;gap:16px;color:var(--ink-muted);font-size:12px}.toast,.toast.error,.toast.success,.toast.warning{max-width:calc(100vw - 32px);background:var(--paper);color:var(--ink);border:1px solid var(--hair);border-radius:10px;box-shadow:0 8px 24px rgba(31,27,22,.12);font-family:'DM Sans',system-ui,sans-serif}
+@media(max-width:800px){.footer-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}.footer-row{padding:20px 0;border-bottom:1px solid rgba(31,27,22,.12)}}
+@media(max-width:640px){.header{padding:12px 16px 8px!important}.header-inner{gap:12px;flex-wrap:nowrap;align-items:center}.brand .logo-olives{height:36px!important}.brand .logo-text{height:32px!important;max-width:128px}.header-back{font-size:13px}.header-curve{height:32px}.hero-video-section{margin-top:20px;padding-bottom:48px;gap:28px}.hero-video-title{font-size:46px;line-height:1}.hero-video-subtitle{font-size:16px;line-height:1.55;margin-bottom:20px}.hero-facts{display:grid;gap:12px}.hero-video-bg{aspect-ratio:4/3;border-radius:14px}.container{padding-bottom:64px}.content-grid{gap:56px}.prestations-content .section-title{font-size:32px}.prestations-content .section-list{grid-template-columns:1fr}.prestations-content .section-list li{padding:14px 0}.form{padding:28px 20px;border-radius:14px}.form-header{margin-bottom:28px}.form-header .section-title{font-size:34px}.form-row{grid-template-columns:1fr;gap:0}.form-group{margin-bottom:18px}.form-submit{width:100%}.footer{margin-top:36px!important;padding:28px 20px 20px!important}.footer-curve{height:36px}.footer-inner{grid-template-columns:1fr;gap:0}.footer-row{padding:20px 0}.footer-row:first-child{padding-top:4px}.footer-row-links{display:block;text-align:left}.footer-meta{margin-top:4px;flex-direction:column;gap:4px}}
+@media(max-width:390px){.brand .logo-olives{height:32px!important}.brand .logo-text{height:28px!important;max-width:112px}.brand a{gap:8px}.header-back{font-size:12px}.hero-video-title{font-size:42px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal-card,.reveal-card.visible{opacity:1;transform:none;transition:none}}
+/* Retour au Click & Collect : même encart vert organique que l'en-tête de l'accueil. */
+.header-back{display:inline-flex!important;align-items:center;height:38px;padding:0 16px!important;background:var(--sage-dark,#304936)!important;color:#F7F1E7!important;font-weight:600!important;font-size:14px!important;text-decoration:none!important;border-radius:16px 28px 14px 30px / 14px 22px 16px 24px!important;white-space:nowrap}
+.header-back:hover{background:#3E5A44!important}
+@media(max-width:640px){.header-back{height:36px;padding:0 14px!important;font-size:13px!important}}
+@media(max-width:390px){.header-back{height:34px;padding:0 12px!important;font-size:12px!important}}
+
+/* Forme organique commune aux boutons d'action. */
+.form-submit,.loc-btn{border-radius:16px 28px 14px 30px / 14px 22px 16px 24px!important}
+</style>
+
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="../i18n.js?v=20260811h"></script>
+<script src="../i18n.js?v=20261103c"></script>
 <script>
+// Textes propres à cette mise en page, gardés ici pour ne modifier que la page traiteur.
+if (window.i18n && window.i18n.translations) {
+  Object.assign(window.i18n.translations.fr.catering, {
+    backToOrder: 'Click & Collect',
+    pageTitle: 'Traiteur & événements',
+    pageIntro: 'Buffets sur mesure pour vos événements professionnels et privés à La Défense et aux alentours.',
+    priceFrom: 'À partir de 18 €/pers',
+    minimumGuests: 'Minimum 10 personnes',
+    servicesTitle: 'Nos prestations',
+    quoteTitle: 'Demande de devis',
+    requestDetails: 'Détails de votre demande',
+    requestPlaceholder: 'Décrivez votre événement, vos préférences culinaires, contraintes alimentaires, lieu, horaires…',
+    requestQuote: 'Demander mon devis',
+    orderOnlineTitle: 'Click & Collect',
+    orderOnlineText: 'Commandez vos plats libanais en ligne et retirez-les à La Défense',
+    orderOnlineCta: 'Commander en ligne'
+  });
+  Object.assign(window.i18n.translations.en.catering, {
+    backToOrder: 'Click & Collect',
+    pageTitle: 'Catering & events',
+    pageIntro: 'Bespoke buffets for professional and private events in La Défense and nearby.',
+    priceFrom: 'From €18/person',
+    minimumGuests: 'Minimum 10 people',
+    servicesTitle: 'Our services',
+    quoteTitle: 'Request a quote',
+    requestDetails: 'Tell us about your request',
+    requestPlaceholder: 'Describe your event, food preferences, dietary requirements, location and schedule…',
+    requestQuote: 'Request my quote',
+    orderOnlineTitle: 'Click & Collect',
+    orderOnlineText: 'Order Lebanese dishes online and collect them in La Défense',
+    orderOnlineCta: 'Order online'
+  });
+}
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
 // ne se charge pas (coupure reseau, cache, blocage). On ne fait donc JAMAIS
@@ -364,7 +544,7 @@ window.T = function (cle, secours) {
      bloc et son script. -->
 <div id="bandeauVacances" style="display:none;background:#FAF6EC;border-bottom:1px solid #E8DCC0;color:#1A1A1A;padding:clamp(11px,2.6vw,13px) 18px;text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:clamp(12px,3.2vw,13px);line-height:1.5;letter-spacing:.01em;">
   <span data-i18n="banner.closed" style="opacity:.55;">Fermé pour congés</span><span style="opacity:.3;margin:0 8px;">·</span><span data-i18n="banner.reopening" style="font-weight:600;">Réouverture le lundi 31 août</span><br>
-  <span data-i18n="banner.message" style="opacity:.5;font-size:.92em;">Le four se repose, l'équipe aussi. Bel été à vous&nbsp;!</span>
+  <span data-i18n="banner.message" style="opacity:.5;font-size:.92em;">Le four se repose, l'équipe aussi. Bel été à vous.</span>
 </div>
 <script>
   (function () {
@@ -376,63 +556,117 @@ window.T = function (cle, secours) {
   })();
 </script>
 
+<style>
+/* Courbes de marque — traitement partagé avec l'accueil */
+.header{position:relative;z-index:2;background:#EDE4D3!important;color:var(--text)!important;border-bottom:0!important}
+.header .brand{color:var(--text)!important}
+.info-bar{position:relative;z-index:2;background:#EDE4D3!important;border-bottom:0!important}
+.header-curve{display:block;width:100%;height:44px;margin-top:-1px;color:#EDE4D3;pointer-events:none}
+.footer{position:relative;margin-top:48px!important;padding-top:40px!important;background:#E8DECC!important;color:var(--text)!important;border-top:0!important;isolation:isolate}
+.footer-curve{position:absolute;z-index:0;left:0;bottom:calc(100% - 1px);width:100%;height:48px;color:#E8DECC;pointer-events:none}
+.footer-inner{position:relative;z-index:2}
+.footer .footer-sub,.footer .footer-address,.footer .footer-phone,.footer .footer-hours{color:var(--text-soft)!important}
+.footer .footer-link{color:var(--text-muted)!important}
+.footer .footer-social a,.footer .footer-review{color:var(--text)!important;border-color:rgba(31,27,22,.16)!important}
+.footer .footer-social a:hover,.footer .footer-review:hover{background:rgba(62,90,68,.08)!important}
+.footer .footer-row+.footer-row{border-color:rgba(31,27,22,.14)!important}
+.brand-stack .header-status{margin-left:54px}
+.toast{background:#FDFBF7;color:#1F1B16;border-color:#E6DFD3;box-shadow:0 8px 24px rgba(31,27,22,.12),0 1px 3px rgba(31,27,22,.06)}
+.footer{padding-bottom:24px!important}
+.footer-pattern{position:absolute;z-index:1;top:12px;left:0;width:100%;height:28px;color:#A9854F;opacity:.38;pointer-events:none}
+.footer-inner{grid-template-columns:1.05fr 1.35fr 1fr 1.25fr;gap:40px;max-width:1120px}
+.footer-heading{font-size:12px;font-weight:600;color:var(--text);margin:0 0 12px}
+.footer-brand{font-size:24px;margin-bottom:6px}
+.footer-address-link{display:block;color:inherit;text-decoration:none;margin-bottom:8px}
+.footer-address-link:hover,.footer-shortcuts a:hover{text-decoration:underline;text-underline-offset:3px}
+.footer-hours-list{list-style:none;margin:0;padding:0}
+.footer-hours-list li{display:grid;grid-template-columns:auto 1fr;column-gap:16px;white-space:nowrap;gap:8px;font-size:13px;line-height:1.5;color:var(--text-soft)}
+.footer-hours-list li+li{margin-top:4px}
+.footer-hours-list strong{font-weight:500;color:var(--text)}
+.footer-shortcuts{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.footer-shortcuts a{font-size:13px;line-height:1.4;color:var(--text-soft);text-decoration:none}
+.footer-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.footer-actions .footer-social,.footer-actions .footer-review{margin:0}
+.footer-meta{max-width:1120px;margin:24px auto 0;padding-top:16px;border-top:1px solid rgba(31,27,22,.14);display:flex;justify-content:space-between;gap:16px;color:var(--text-muted);font-size:12px}
+.footer-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+.footer-actions .footer-social{display:contents}
+.footer-actions .footer-social a,.footer-actions .footer-review{display:inline-flex;align-items:center;justify-content:flex-start;gap:8px;width:max-content;max-width:100%;height:auto;padding:0;border:0!important;border-radius:0;color:var(--text-soft)!important;font-size:13px;line-height:1.4;text-decoration:none;background:transparent!important}
+.footer-actions .footer-social svg,.footer-actions .footer-review svg{width:15px;height:15px;flex:0 0 15px;color:var(--sage-dark)}
+.footer-actions .footer-review .stars{display:none}
+.footer-actions .footer-social a:hover,.footer-actions .footer-review:hover{text-decoration:underline;text-underline-offset:3px;background:transparent!important}
+.reveal-card{opacity:0;transform:translateY(8px);transition:opacity .32s cubic-bezier(.22,1,.36,1),transform .32s cubic-bezier(.22,1,.36,1)}
+.reveal-card.visible{opacity:1;transform:translateY(0)}
+/* Photos et titres traités comme une même série éditoriale que la carte. */
+.hero-video-bg,.prestations-image{background:#F1E8DA;object-fit:cover;object-position:center;filter:sepia(.035) saturate(.94) contrast(.98) brightness(1.01)}
+.section-title{display:flex;align-items:center;gap:12px}
+.section-title::before{content:'';width:24px;height:24px;flex:0 0 24px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4l8 8-8 8-8-8z' fill='none' stroke='%23A9854F' stroke-width='1.25'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%233E5A44'/%3E%3C/svg%3E");background-position:center;background-repeat:no-repeat}
+.prestations-content .section-title,.form-header .section-title{border-bottom:1px solid #E6DFD3}
+@media(max-width:700px){
+  .header-curve{height:32px}
+  .footer{margin-top:36px!important;padding:28px 20px 20px!important}
+  .footer-curve{height:36px}
+  .brand-stack .header-status{margin-left:46px}
+  .footer-pattern{top:8px;height:20px}
+  .footer-inner{grid-template-columns:1fr;gap:0;text-align:left}
+  .footer-row{padding:20px 0}
+  .footer-row:first-child{padding-top:4px}
+  .footer-heading{margin-bottom:10px}
+  .footer-hours-list li{grid-template-columns:minmax(104px,max-content) minmax(0,1fr)}
+  .footer-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+  .footer-row-links{display:block;text-align:left}
+  .footer-actions{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;margin-top:16px}
+  .footer-meta{margin-top:4px;padding-top:16px;flex-direction:column;gap:4px;text-align:left}
+}
+@media(max-width:380px){.brand-stack .header-status{margin-left:42px}.footer-shortcuts{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){.reveal-card,.reveal-card.visible{opacity:1;transform:none;transition:none}}
+</style>
+<style>
+/* Correctifs de cascade : ce bloc reste après les styles historiques partagés. */
+.section-title{display:block}.section-title::before{display:none}.prestations-content .section-title{border:0}
+.footer-inner{grid-template-columns:1fr 1.35fr 1fr 1.2fr 1.2fr;gap:28px;max-width:1000px}
+@media(max-width:800px){.footer-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}}
+@media(max-width:640px){.footer-inner{grid-template-columns:1fr;gap:0}}
+/* Corrections audit 03/11 : pied de page aligné sur le contenu (1000 px), séparateur du formulaire pleine largeur, petits textes contrastés. */
+@media(min-width:801px){.footer-inner,.footer-meta{max-width:1000px}}
+@media(min-width:1051px){.footer-inner{grid-template-columns:max-content minmax(0,1fr) max-content minmax(0,1fr) max-content;column-gap:32px}.footer-actions{grid-template-columns:1fr}.footer-actions .footer-social a,.footer-actions .footer-review{white-space:nowrap}}
+.form-header{max-width:none}
+.footer .footer-link,.footer-meta{color:var(--text-soft)!important}
+</style>
+
 <!-- HEADER -->
 <header class="header">
   <div class="header-inner">
-    <h1 class="brand">
-      <div style="display:flex;align-items:center;gap:12px;">
+    <div class="brand-stack">
+    <p class="brand">
+      <a href="../" aria-label="Beyrouth Express · accueil Click &amp; Collect">
         <img src="../img/logo-olives.svg" alt="Falafels" class="logo-olives" style="height:42px;width:auto;">
-        <img src="../img/logo-text.svg" alt="Beyrouth Express" class="logo-text" style="height:38px;width:auto;">
-      </div>
-    </h1>
-    <div class="header-right">
-      <a href="/" class="header-mode-link">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M12 6v6l4 2"/>
-        </svg>
-        Click & Collect
+        <img src="../img/logo-text-dark.svg" alt="Beyrouth Express" class="logo-text" style="height:38px;width:auto;">
       </a>
-      <span class="header-mode-active">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-          <path d="M7 2v20"/>
-          <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
-        </svg>
-        Traiteur
-      </span>
-      <div class="header-status" id="headerStatus">
-        <span class="dot"></span>
-        <span id="statusText">Ouvert</span>
-        <span id="headerHours" class="header-sub"></span>
-      </div>
+    </p>
+    </div>
+    <div class="header-right">
+      <a href="../" class="header-back" data-i18n="catering.backToOrder">Click &amp; Collect</a>
     </div>
   </div>
 </header>
 
-<!-- INFO BAR -->
-<div class="info-bar">
-  <div class="info-inner">
-    <a class="info-address" href="#" onclick="openLocModal(event)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      La Défense · Sortie 4 Métro
-    </a>
-  </div>
-</div>
+<svg class="header-curve" viewBox="0 0 1440 64" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 0h1440v18c-236 42-468 42-696 10C494-7 254 5 0 52V0Z"/></svg>
 
 <!-- NAV (hidden for traiteur) -->
 <nav class="nav"></nav>
 
 <!-- HERO PHOTO -->
 <section class="hero-video-section">
-  <img class="hero-video-bg" src="../img/traiteur-buffet.png" alt="Buffet libanais A Beyrouth">
+  <img class="hero-video-bg" src="../img/traiteur-buffet-hd.jpg" alt="Buffet libanais préparé par A Beyrouth">
   <div class="hero-video-overlay"></div>
   <div class="hero-video-content">
-    <h1 class="hero-video-title" data-i18n="catering.title" data-i18n-html>Cuisine Libanaise<br>pour vos Événements</h1>
-    <p class="hero-video-subtitle">
-      Buffets sur mesure, préparés avec passion.<br>
-      Pour vos événements professionnels et privés à La Défense.
-    </p>
+    <h1 class="hero-video-title" data-i18n="catering.pageTitle">Traiteur &amp; événements</h1>
+    <p class="hero-video-subtitle" data-i18n="catering.pageIntro">Buffets sur mesure pour vos événements professionnels et privés à La Défense et aux alentours.</p>
+    <ul class="hero-facts">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8M9 3v8M17 3c-1.7 0-3 2-3 5s1.3 4 3 4v9"/></svg><span data-i18n="catering.priceFrom">À partir de 18 €/pers</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8M20 8v6M17 11h6"/></svg><span data-i18n="catering.minimumGuests">Minimum 10 personnes</span></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span data-i18n="catering.freeQuote">Devis gratuit sous 48h</span></li>
+    </ul>
   </div>
 </section>
 
@@ -442,30 +676,26 @@ window.T = function (cle, secours) {
     <!-- Colonne 1: Prestations -->
     <div class="section section-prestations">
       <div class="prestations-video-wrap">
-        <video class="prestations-image" autoplay loop muted playsinline preload="auto" oncontextmenu="return false">
-          <source src="../traiteur-prestations.mp4" type="video/mp4">
-        </video>
         <div class="prestations-image-overlay"></div>
         <div class="prestations-vignette"></div>
         <div class="prestations-grain"></div>
         <div class="prestations-no-save" oncontextmenu="return false"></div>
         <div class="prestations-content">
-          <h2 class="section-title">Nos prestations</h2>
+          <h2 class="section-title" data-i18n="catering.servicesTitle">Nos prestations</h2>
           <ul class="section-list">
             <li data-i18n="catering.customBuffets">Buffets personnalisés pour événements pro et privés</li>
             <li data-i18n="catering.delivery">Livraison et installation possible (La Défense & environs)</li>
             <li data-i18n="catering.vegOptions">Options végétariennes et vegan</li>
             <li data-i18n="catering.pricing">À partir de 18€/pers · Minimum 10 personnes</li>
-            <li>Devis gratuit sous 48h</li>
           </ul>
         </div>
       </div>
     </div>
 
     <!-- Colonne 2: Formulaire -->
-    <form class="form" id="traiteurForm" name="devis">
+    <form class="form" id="traiteurForm" name="devis" novalidate>
       <div class="form-header">
-        <h2 class="section-title">Demande de devis</h2>
+        <h2 class="section-title" data-i18n="catering.quoteTitle">Demande de devis</h2>
         <p class="form-header-subtitle" data-i18n="catering.formIntro">Remplissez ce formulaire et nous vous répondrons sous 48h avec un devis personnalisé</p>
       </div>
 
@@ -526,67 +756,102 @@ window.T = function (cle, secours) {
           <span data-i18n="form.eventType">Type d'événement</span> *
         </label>
         <select id="type" name="type" class="form-select" required>
-          <option value="">-- Choisir --</option>
+          <option value="" data-i18n="form.choose">Choisir</option>
           <option value="professionnel" data-i18n="catering.professional">Événement professionnel</option>
           <option value="prive" data-i18n="catering.private">Célébration privée</option>
           <option value="seminaire" data-i18n="catering.seminar">Séminaire / Formation</option>
           <option value="cocktail" data-i18n="catering.cocktail">Cocktail / Réception</option>
-          <option value="autre">Autre</option>
+          <option value="autre" data-i18n="form.other">Autre</option>
         </select>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="message">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          Détails de votre demande *
+          <span data-i18n="catering.requestDetails">Détails de votre demande</span> *
         </label>
-        <textarea id="message" name="message" class="form-textarea" placeholder="Décrivez votre événement, vos préférences culinaires, contraintes alimentaires, lieu, horaires..." required></textarea>
+        <textarea id="message" name="message" class="form-textarea" placeholder="Décrivez votre événement, vos préférences culinaires, contraintes alimentaires, lieu, horaires…" data-i18n="catering.requestPlaceholder" data-i18n-placeholder required></textarea>
       </div>
 
-      <button type="submit" class="form-submit" data-i18n="form.submit">Envoyer ma demande</button>
+      <button type="submit" class="form-submit" data-i18n="catering.requestQuote">Demander mon devis</button>
     </form>
 
   </div>
 </div>
 
 <footer class="footer">
+  <svg class="footer-curve" viewBox="0 0 1440 64" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 64V36C254 59 494 64 744 47c228-16 460-16 696 5v12H0Z"/></svg>
   <div class="footer-inner">
-    <p class="footer-brand">Beyrouth Express</p>
-    <p data-i18n="footer.onlineService" class="footer-sub">Service en ligne de A Beyrouth</p>
-    <p class="footer-address" data-i18n="footer.address">4 Esplanade du Général de Gaulle, 92400 Courbevoie</p>
-    <p class="footer-phone"><a href="tel:+33147748812" style="color:inherit;text-decoration:none">01 47 74 88 12</a></p>
-    <p data-i18n="footer.hours" class="footer-hours">Click & collect 7j/7 · Retrait Lun-Ven 11h30-20h30</p>
-    <div style="display:flex;gap:16px;margin:20px 0;justify-content:center">
-      <a href="https://www.instagram.com/a_beyrouth/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F77737 100%);border-radius:12px;transition:all .3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(131,58,180,0.5)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(131,58,180,0.3)'" aria-label="Instagram">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="footer-row footer-row-brand">
+      <p class="footer-brand">Beyrouth Express</p>
+      <p data-i18n="footer.onlineService" class="footer-sub">Service en ligne de A Beyrouth</p>
+    </div>
+    <div class="footer-row footer-row-contact">
+      <p class="footer-heading" data-i18n="footer.visit">Nous trouver</p>
+      <a class="footer-address footer-address-link" href="https://www.google.com/maps/search/?api=1&amp;query=4%20Esplanade%20du%20G%C3%A9n%C3%A9ral%20de%20Gaulle%2092400%20Courbevoie" target="_blank" rel="noopener" data-i18n="footer.address">4 Esplanade du Général de Gaulle, 92400 Courbevoie</a>
+      <p class="footer-phone"><a href="tel:+33147748812" style="color:inherit;text-decoration:none">01 47 74 88 12</a></p>
+    </div>
+    <div class="footer-row footer-row-hours">
+      <p class="footer-heading" data-i18n="footer.openingHours">Horaires</p>
+      <ul class="footer-hours-list"><li><strong data-i18n="footer.pickup">Retrait</strong><span data-i18n="footer.weekHours">Lun-ven · 11h30-20h30</span></li><li><strong>Click &amp; collect</strong><span data-i18n="footer.everyDay">7j/7</span></li></ul>
+    </div>
+    <div class="footer-row footer-row-catering">
+      <p class="footer-heading" data-i18n="catering.orderOnlineTitle">Click &amp; Collect</p>
+      <p class="footer-catering-text" data-i18n="catering.orderOnlineText">Commandez vos plats libanais en ligne et retirez-les à La Défense</p>
+      <a class="footer-catering-link" href="../" data-i18n="catering.orderOnlineCta">Commander en ligne</a>
+    </div>
+    <div class="footer-row footer-row-links">
+      <div class="footer-actions"><div class="footer-social">
+      <a href="https://www.instagram.com/a_beyrouth/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
           <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
           <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
         </svg>
+        <span>Instagram</span>
       </a>
-      <a href="https://maps.app.goo.gl/mKChLAAquBDL2C5c6" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:#fff;border-radius:12px;transition:all .3s ease;box-shadow:0 2px 8px rgba(0,0,0,0.1)" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 6px 16px rgba(66,133,244,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" aria-label="Laisser un avis Google">
-        <svg width="22" height="22" viewBox="0 0 48 48" fill="none">
-          <path d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" fill="#FFC107"/>
-          <path d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" fill="#FF3D00"/>
-          <path d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" fill="#4CAF50"/>
-          <path d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" fill="#1976D2"/>
+      <a href="https://maps.app.goo.gl/mKChLAAquBDL2C5c6" target="_blank" rel="noopener" aria-label="Laisser un avis Google">
+        <svg width="16" height="16" viewBox="0 0 48 48" fill="none">
+          <path d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" fill="currentColor"/>
         </svg>
+        <span>Google</span>
       </a>
-    </div>
+      </div>
     <!-- Lien direct vers la fenetre de notation Google (g.page/.../review).
          On ne demande PAS de note chiffree : Google interdit d'orienter la
          notation et supprime les avis obtenus ainsi. Les etoiles sont la en
          visuel, ce qui n'est pas une consigne. Meme regle que dans les emails. -->
-    <a href="https://g.page/r/CVVy4iE1igTkEBE/review" target="_blank" rel="noopener"
-       style="display:inline-flex;align-items:center;gap:8px;margin:0 0 18px;padding:9px 18px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:inherit;text-decoration:none;font-size:.82rem;letter-spacing:.01em;">
-      <span style="letter-spacing:1px;font-size:.78rem;">★★★★★</span>
+    <a href="https://g.page/r/CVVy4iE1igTkEBE/review" target="_blank" rel="noopener" class="footer-review">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg>
+      <span class="stars" aria-hidden="true">★★★★★</span>
       <span data-i18n="footer.leaveReview">Laisser un avis</span>
     </a>
-    <p class="footer-link">beyrouth.express</p>
+      </div>
+    </div>
   </div>
+  <div class="footer-meta"><span>© A Beyrouth</span><span>beyrouth.express</span></div>
 </footer>
 
 <script>
+// Apparition sobre des deux cartes de contenu, une fois au défilement.
+(function () {
+  const cards = document.querySelectorAll('.section-prestations, .form');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+    cards.forEach(card => card.classList.add('visible'));
+    return;
+  }
+  cards.forEach(card => card.classList.add('reveal-card'));
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      const index = Array.prototype.indexOf.call(cards, entry.target);
+      setTimeout(function () { entry.target.classList.add('visible'); }, index * 60);
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: .1, rootMargin: '0px 0px -40px 0px' });
+  cards.forEach(card => observer.observe(card));
+})();
+
 // ===== TOAST NOTIFICATION =====
 function showToast(message, type = 'success') {
   const toast = document.createElement('div');
@@ -778,14 +1043,57 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 })();
 
 // Form
-document.getElementById('traiteurForm').addEventListener('submit', async (e) => {
+const traiteurForm = document.getElementById('traiteurForm');
+
+function validateTraiteurForm(form) {
+  const fields = Array.from(form.querySelectorAll('input, select, textarea')).filter(field => field.willValidate);
+  fields.forEach(field => {
+    field.setCustomValidity('');
+    let message = '';
+    if (field.validity.valueMissing) message = T('validation.required', 'Ce champ est obligatoire');
+    else if (field.validity.typeMismatch && field.type === 'email') message = T('validation.emailFormat', 'Saisissez une adresse email valide');
+    else if (field.id === 'telephone' && field.value && field.value.replace(/\D/g,'').length < 8) message = T('validation.phoneFormat', 'Saisissez un numéro de téléphone valide');
+    else if (field.validity.rangeUnderflow) message = T('validation.minGuests', 'Prévoyez au moins 10 personnes');
+    else if (!field.validity.valid) message = T('validation.required', 'Vérifiez ce champ');
+
+    field.setCustomValidity(message);
+    field.classList.toggle('field-invalid', Boolean(message));
+    field.setAttribute('aria-invalid', message ? 'true' : 'false');
+    let error = field.parentElement.querySelector('.field-error');
+    if (!error) {
+      error = document.createElement('p');
+      error.className = 'field-error';
+      error.setAttribute('aria-live', 'polite');
+      field.insertAdjacentElement('afterend', error);
+    }
+    error.textContent = message;
+    error.classList.toggle('visible', Boolean(message));
+  });
+
+  const valid = form.checkValidity();
+  if (!valid) fields.find(field => !field.validity.valid)?.focus();
+  return valid;
+}
+
+traiteurForm.querySelectorAll('input, select, textarea').forEach(field => {
+  field.addEventListener('input', () => {
+    field.setCustomValidity('');
+    field.classList.remove('field-invalid');
+    field.setAttribute('aria-invalid', 'false');
+    const error = field.parentElement.querySelector('.field-error');
+    if (error) { error.textContent = ''; error.classList.remove('visible'); }
+  });
+});
+
+traiteurForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (!validateTraiteurForm(e.target)) return;
   const btn = e.target.querySelector('.form-submit');
   const formData = new FormData(e.target);
   const data = Object.fromEntries(formData.entries());
 
   btn.disabled = true;
-  btn.textContent = T('catering.quoteSending', 'Envoi en cours...');
+  btn.textContent = T('catering.quoteSending', 'Envoi en cours…');
 
   try {
     // Appeler l'Edge Function pour envoyer l'email de confirmation
@@ -825,11 +1133,11 @@ document.getElementById('traiteurForm').addEventListener('submit', async (e) => 
       nombre_personnes: parseInt(data.personnes) || undefined
     });
 
-    showToast(T('catering.quoteSent', 'Demande envoyée ! Vous recevrez un email de confirmation. Réponse sous 48h.'), 'success');
+    showToast(T('catering.quoteSent', 'Demande envoyée. Vous recevrez un email de confirmation. Réponse sous 48h.'), 'success');
     e.target.reset();
     btn.textContent = T('catering.quoteSentBtn', 'Demande envoyée ✓');
     setTimeout(() => {
-      btn.textContent = 'Envoyer ma demande';
+      btn.textContent = T('catering.requestQuote', 'Demander mon devis');
       btn.disabled = false;
     }, 3000);
 
@@ -837,7 +1145,7 @@ document.getElementById('traiteurForm').addEventListener('submit', async (e) => 
     console.error('Erreur:', error);
     showToast(T('catering.quoteError', "Erreur lors de l'envoi. Veuillez réessayer ou nous contacter à traiteur@beyrouth.express"), 'error');
     btn.disabled = false;
-    btn.textContent = 'Envoyer ma demande';
+    btn.textContent = T('catering.requestQuote', 'Demander mon devis');
   }
 });
 

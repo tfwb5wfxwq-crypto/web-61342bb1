@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Facture - A Beyrouth</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -11,50 +12,52 @@
       box-sizing: border-box;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: #f5f5f5;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #F7F4EE;
       min-height: 100vh;
       padding: 20px;
     }
     .container {
       max-width: 900px;
       margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      background: #FDFBF7;
+      border-radius: 14px;
+      border: 1px solid #E6DFD3;
+      box-shadow: 0 1px 2px rgba(31,27,22,0.05);
       overflow: hidden;
     }
     .header {
-      background: linear-gradient(135deg, #000 0%, #2d2d2d 100%);
-      padding: 30px;
+      background: #FDFBF7;
+      padding: 32px 32px 28px;
       text-align: center;
-      color: white;
-      border-bottom: 3px solid #D4A853;
+      color: #1F1B16;
+      border-bottom: 1px dotted #B8AA98;
     }
     .header img {
       width: 180px;
       height: auto;
-      margin-bottom: 15px;
+      margin-bottom: 16px;
     }
     .header h1 {
-      font-size: 24px;
-      font-weight: 600;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 30px;
+      font-weight: 400;
       margin: 0;
     }
     .download-section {
-      padding: 24px 30px;
+      padding: 24px 32px;
       text-align: center;
-      background: #fff;
-      border-bottom: 1px solid #e0e0e0;
+      background: #FDFBF7;
+      border-bottom: 1px solid #E6DFD3;
     }
     .download-btn {
-      background: #000;
+      background: #3E5A44;
       color: #fff;
       border: none;
       padding: 14px 32px;
-      border-radius: 8px;
+      border-radius: 9px;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       transition: opacity 0.15s;
       display: inline-flex;
@@ -74,8 +77,8 @@
     .spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(0,0,0,0.1);
-      border-top-color: #000;
+      border: 3px solid #E6DFD3;
+      border-top-color: #3E5A44;
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 40px auto;
@@ -84,12 +87,12 @@
       to { transform: rotate(360deg); }
     }
     .error {
-      background: #fee;
-      border: 2px solid #ef4444;
+      background: #FDFBF7;
+      border: 1px solid #C9A99C;
       border-radius: 8px;
       padding: 20px;
       margin: 20px;
-      color: #991b1b;
+      color: #714035;
       text-align: center;
     }
     @media (max-width: 768px) {
@@ -136,26 +139,32 @@
         padding: 0;
       }
     }
+    /* Corrections audit 03/11 : logo de l'accueil, rien à imprimer quand le lien est invalide. */
+    .header .facture-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px}
+    .header .facture-logo img{width:auto;margin:0}
+    .header .facture-olives{height:40px}
+    .header .facture-texte{height:36px}
+    @media (max-width: 768px){.header .facture-olives{height:32px}.header .facture-texte{height:29px}}
+    .container:has(#error[style*="block"]) .download-section{display:none}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header" id="header">
-      <img src="/img/logo-email-final.png" alt="A Beyrouth">
+      <div class="facture-logo"><img src="/img/logo-olives.svg" alt="" class="facture-olives"><img src="/img/logo-text-dark.svg" alt="Beyrouth Express" class="facture-texte"></div>
       <h1>Votre ticket</h1>
     </div>
 
     <div class="download-section" id="download-section">
       <button class="download-btn" onclick="window.print()">
-        <span style="font-size: 20px;">📄</span>
         Télécharger / Imprimer en PDF
       </button>
-      <p style="margin-top: 15px; color: #666; font-size: 14px;">
-        Utilisez "Enregistrer en PDF" dans la boîte de dialogue d'impression
+      <p style="margin-top: 16px; color: #5E554A; font-size: 14px;">
+        Utilisez « Enregistrer en PDF » dans la boîte de dialogue d'impression
       </p>
     </div>
 
-    <div class="spinner" id="spinner" style="border-color:rgba(0,0,0,0.1);border-top-color:#000;"></div>
+    <div class="spinner" id="spinner"></div>
     <div id="error" class="error" style="display: none;"></div>
     <div id="invoice-content"></div>
   </div>
@@ -165,7 +174,7 @@
     const token = urlParams.get('token');
 
     if (!token) {
-      document.getElementById('error').textContent = '⚠️ Lien invalide ou expiré';
+      document.getElementById('error').textContent = 'Lien invalide ou expiré';
       document.getElementById('error').style.display = 'block';
       document.getElementById('spinner').style.display = 'none';
     } else {
@@ -202,7 +211,7 @@
         .catch(error => {
           // Message lisible pour le client, le détail technique reste dans la console.
           console.error('Reçu :', error.message);
-          document.getElementById('error').textContent = '⚠️ Ce reçu est introuvable. Vérifiez le lien reçu par mail, ou écrivez-nous à contact@beyrouth.express et on vous le renvoie.';
+          document.getElementById('error').textContent = 'Ce reçu est introuvable. Vérifiez le lien reçu par mail, ou écrivez-nous à contact@beyrouth.express et on vous le renvoie.';
           document.getElementById('error').style.display = 'block';
           document.getElementById('spinner').style.display = 'none';
         });

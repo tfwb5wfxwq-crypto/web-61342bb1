@@ -20,13 +20,13 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-  --green: #10B981;
+  --green: #39734B;
   --orange: #F59E0B;
-  --blue: #2563EB;
+  --blue: #4E6874;
   --dark: #1A1A1A;
   --cream: #FFF8F0;
   --gold: #D4A853;
@@ -59,9 +59,9 @@ body {
   margin: 0 auto 16px;
   font-size: 2rem;
 }
-.icon.green { background: var(--green); color: white; }
+.icon.green { background: var(--dark); color: white; }
 .icon.orange { background: var(--orange); color: white; }
-.icon.blue { background: var(--blue); color: white; }
+.icon.blue { background: var(--gold); color: #24160A; }
 h1 {
   font-size: 1.5rem;
   font-weight: 700;
@@ -96,11 +96,11 @@ h1.blue { color: var(--blue); }
   border: 2px solid var(--orange);
 }
 .status-banner.accepted {
-  background: #D1FAE5;
+  background: #FDFBF7;
   border: 2px solid var(--green);
 }
 .status-banner.ready {
-  background: #DBEAFE;
+  background: #FDFBF7;
   border: 2px solid var(--blue);
 }
 .status-banner-icon {
@@ -170,6 +170,7 @@ h1.blue { color: var(--blue); }
   margin-bottom: 8px;
   font-size: 0.9rem;
 }
+.item > span:first-child { min-width: 0; overflow-wrap: anywhere; }
 .item-price {
   font-weight: 600;
   white-space: nowrap;
@@ -262,7 +263,7 @@ h1.blue { color: var(--blue); }
   animation: fadeInUp 0.5s ease forwards;
 }
 .email-section {
-  background: #E3F2FD;
+  background: #FDFBF7;
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 20px;
@@ -291,11 +292,11 @@ h1.blue { color: var(--blue); }
   transition: all 0.2s;
 }
 .btn-primary {
-  background: var(--green);
+  background: var(--dark);
   color: white;
 }
 .btn-primary:hover {
-  background: #0EA572;
+  background: #2A2723;
 }
 .btn-secondary {
   background: transparent;
@@ -311,6 +312,17 @@ h1.blue { color: var(--blue); }
   padding: 60px 20px;
   color: #666;
 }
+.system-error{
+  display:none;
+  background:#FDFBF7;
+  color:var(--dark);
+  border:1px solid #9F5549;
+  border-radius:10px;
+  padding:16px;
+  margin:0 0 16px;
+  font:500 .9rem/1.5 'DM Sans',system-ui,sans-serif;
+}
+.system-error.visible{display:block}
 .pulse {
   animation: pulse 2s infinite;
 }
@@ -349,10 +361,38 @@ h1.blue { color: var(--blue); }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .15s !important; }
 }
 </style>
+<style>
+/* Refonte 2026 : carte imprimée, palette et rythme de l'accueil */
+:root{--sage:#3E5A44;--sage-dark:#304936;--sage-soft:#E3E9DF;--green:#3E5A44;--orange:#3E5A44;--blue:#355D72;--dark:#1F1B16;--cream:#F7F4EE;--gold:#DE8320;--bordeaux:#8B1A1A;--line:#E6DFD3;--surface:#FFF}
+html{min-height:100%;background:var(--cream)}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);padding:32px 24px;align-items:flex-start}
+.container{max-width:560px;background:transparent;border:0;border-radius:0;padding:40px 32px;box-shadow:none}
+.icon{width:16px;height:16px;border-radius:50%;font-size:0;margin:0 auto 16px;border:4px solid var(--cream);box-shadow:0 0 0 1px var(--line)}
+.icon.green,.icon.orange{background:var(--sage)}.icon.blue{background:#4E6874}
+h1{font-family:'DM Serif Display',Georgia,serif;font-size:28px;line-height:1.15;font-weight:400;color:var(--dark)!important}
+.order-num{font-family:'DM Sans',system-ui,sans-serif;font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
+.subtitle,.status-banner-text,.email-sub{color:#5E554A}
+.status-banner,.section,.email-section{border-radius:10px;border:1px solid var(--line);background:#FDFBF7;padding:20px;margin-bottom:16px}
+.status-banner.waiting,.status-banner.accepted,.status-banner.ready{border-width:1px;background:#FDFBF7}
+.status-banner{position:relative;padding-left:32px;text-align:left}.status-banner:before{content:"";position:absolute;left:16px;top:25px;width:6px;height:6px;border-radius:50%;background:var(--sage)}.status-banner.accepted:before{background:var(--sage)}.status-banner.ready:before{background:#4E6874}
+.status-banner-title{font-family:'DM Serif Display',Georgia,serif;font-size:1.2rem;font-weight:400;color:var(--dark)!important}.status-banner-icon{display:none}
+.status-banner-callout{background:var(--cream);border:1px dotted #B8AA98;border-radius:8px;padding:12px;margin-top:16px}.callout-ico{display:none}
+.section-title,.address-title{text-transform:none;letter-spacing:0;font-weight:500;color:#6B6256}
+.section-value,.item-price,.total-row{font-weight:500}
+.total-row{border-top:1px dotted #B8AA98}
+.email-section{text-align:left}.email-text{color:var(--dark)}.email-section:has(.email-text:empty){display:none}
+.btn{border-radius:9px;font-weight:500;transition:background .16s,border-color .16s}
+.btn-primary{background:var(--sage)}.btn-primary:hover{background:var(--sage-dark)}
+.btn-secondary{border:1px solid var(--line)}.btn-secondary:hover{background:#EFE9DF}
+.address-section{height:auto;min-height:248px;border-radius:10px;border:1px solid var(--line);background:var(--dark)}.address-video-bg{opacity:.42}.address-video-overlay{background:linear-gradient(90deg,rgba(22,21,19,.88),rgba(22,21,19,.42))}.address-video-content{padding:24px}.address-title{text-transform:none;letter-spacing:0}.address-name{font-family:'DM Serif Display',Georgia,serif;font-size:1.4rem;font-weight:400}.address-maps-btn{background:var(--sage);color:#fff}.address-maps-btn:hover{background:var(--sage-dark)}
+.item{padding:8px 0;margin:0;border-bottom:1px dotted #D8CDBE}.item:last-child{border-bottom:0}
+.pulse{animation:none}
+@media(max-width:560px){body{padding:0}.container{min-height:100vh;border:0;border-radius:0;padding:32px 20px}}
+</style>
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20260917a"></script>
+<script src="i18n.js?v=20261103c"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -373,21 +413,24 @@ window.T = function (cle, secours) {
   } catch (e) { /* on retombe sur le francais, jamais d erreur a l ecran */ }
   return (typeof secours === 'function') ? secours.apply(null, args) : secours;
 };
+// Affichage seulement : « 12:30 » devient « 12h30 » (la valeur envoyée ou lue reste intacte).
+window.heureAffichee = function (t) { return String(t == null ? '' : t).replace(/(\d{1,2}):(\d{2})/g, '$1h$2'); };
 </script>
 
 </head>
 <body>
 
 <div class="container" id="app">
+  <div class="system-error" id="systemError" role="alert" aria-live="assertive"></div>
   <div class="loading" id="loading">
-    <div style="font-size:3rem;margin-bottom:16px;" class="pulse">⏳</div>
-    <p>Chargement de votre commande...</p>
+    <div class="icon orange pulse"></div>
+    <p>Chargement de votre commande…</p>
   </div>
 
   <div id="content" style="display:none;">
     <!-- Icon & Title (changent selon statut) -->
     <div class="icon green" id="statusIcon">✓</div>
-    <h1 class="green" id="statusTitle">Paiement validé !</h1>
+    <h1 class="green" id="statusTitle">Paiement validé</h1>
     <div class="order-num" id="orderNum">BE-0001</div>
     <p class="subtitle" id="statusSubtitle">Votre commande a été enregistrée</p>
 
@@ -407,7 +450,7 @@ window.T = function (cle, secours) {
       </video>
       <div class="address-video-overlay"></div>
       <div class="address-video-content">
-        <p class="address-title">📍 <span data-i18n="confirmation.whereToPickup">Où récupérer</span></p>
+        <p class="address-title"><span data-i18n="confirmation.whereToPickup">Où récupérer</span></p>
         <p class="address-name">A Beyrouth</p>
         <p class="address-text" data-i18n="confirmation.address" data-i18n-html>4 Esplanade du Général de Gaulle<br>92400 Courbevoie (La Défense)</p>
         <p class="address-note" data-i18n="confirmation.metro">Sortie 4 du métro La Défense</p>
@@ -431,7 +474,7 @@ window.T = function (cle, secours) {
     <!-- Email info -->
     <div class="email-section" id="emailSection">
       <p class="email-text" id="emailMessage">
-        ✉️ Email de confirmation envoyé
+        Email de confirmation envoyé
       </p>
     </div>
 
@@ -557,54 +600,54 @@ function updateDisplay(order) {
   if (effectiveStatus === 'pending') {
     // Paiement en cours de traitement
     icon.classList.add('orange');
-    icon.textContent = '⏳';
+    icon.textContent = '';
     title.classList.add('orange');
-    title.textContent = 'Paiement en cours...';
+    title.textContent = 'Paiement en cours…';
     subtitle.textContent = 'Validation du paiement en cours';
 
     banner.innerHTML = `
       <div class="status-banner waiting">
-        <div class="status-banner-icon spinner">⏳</div>
-        <div class="status-banner-title">Traitement du paiement...</div>
+        <div class="status-banner-icon spinner"></div>
+        <div class="status-banner-title">Traitement du paiement…</div>
         <div class="status-banner-text">
           Votre paiement est en cours de validation.<br>
           La page se met à jour automatiquement.
         </div>
         <div class="live-indicator">
           <div class="live-dot"></div>
-          <span>En attente de confirmation...</span>
+          <span>En attente de confirmation…</span>
         </div>
       </div>
     `;
 
-    emailMsg.innerHTML = '⏳ <strong>Paiement en cours de validation</strong>';
+    emailMsg.innerHTML = '<strong>Paiement en cours de validation</strong>';
 
   } else if (effectiveStatus === 'payee') {
     icon.classList.add('orange');
-    icon.textContent = '⏳';
+    icon.textContent = '';
     title.classList.add('orange');
 
     if (autoAcceptEnabled) {
       // Auto-accept ON : validation automatique imminente
-      title.textContent = 'Validation automatique...';
+      title.textContent = 'Validation automatique…';
       subtitle.textContent = T('confirmation.willConfirmSoon', 'Votre commande va être confirmée dans quelques instants');
 
       banner.innerHTML = `
         <div class="status-banner waiting">
-          <div class="status-banner-icon spinner">⏳</div>
-          <div class="status-banner-title">Validation automatique en cours...</div>
+          <div class="status-banner-icon spinner"></div>
+          <div class="status-banner-title">Validation automatique en cours…</div>
           <div class="status-banner-text">
             Votre commande est en cours d'acceptation.<br>
             Vous recevrez un email de confirmation dans quelques instants.
           </div>
           <div class="live-indicator">
             <div class="live-dot"></div>
-            <span>Traitement en cours...</span>
+            <span>Traitement en cours…</span>
           </div>
         </div>
       `;
 
-      emailMsg.innerHTML = '✉️ <strong>Email de confirmation en route</strong><br><span class="email-sub">Quelques secondes...</span>';
+      emailMsg.innerHTML = '<strong>Email de confirmation en route</strong><br><span class="email-sub">Quelques secondes…</span>';
     } else {
       // Auto-accept OFF : validation manuelle par le restaurant
       title.textContent = 'En attente de validation';
@@ -612,8 +655,8 @@ function updateDisplay(order) {
 
       banner.innerHTML = `
         <div class="status-banner waiting">
-          <div class="status-banner-icon spinner">⏳</div>
-          <div class="status-banner-title">En attente du restaurant...</div>
+          <div class="status-banner-icon spinner"></div>
+          <div class="status-banner-title">En attente du restaurant…</div>
           <div class="status-banner-text">
             Le restaurant examine votre commande.<br>
             Vous recevrez un email dès validation.
@@ -625,7 +668,7 @@ function updateDisplay(order) {
         </div>
       `;
 
-      emailMsg.innerHTML = '✉️ <strong>' + T('confirmation.emailSent', 'Email envoyé') + '</strong><br><span class="email-sub">' + T('confirmation.willNotify', 'Vous serez notifié dès validation') + '</span>';
+      emailMsg.innerHTML = '<strong>' + T('confirmation.emailSent', 'Email envoyé') + '</strong><br><span class="email-sub">' + T('confirmation.willNotify', 'Vous serez notifié dès validation') + '</span>';
     }
 
   } else if (effectiveStatus === 'acceptee') {
@@ -633,7 +676,7 @@ function updateDisplay(order) {
     icon.classList.add('green');
     icon.textContent = '✓';
     title.classList.add('green');
-    title.textContent = T('confirmation.orderAcceptedExcl', 'Commande acceptée !');
+    title.textContent = T('confirmation.orderAcceptedExcl', 'Commande acceptée');
     subtitle.textContent = T('confirmation.beingPrepared', 'Votre commande est en préparation');
 
     const rawHeure = order.heure_retrait || ''
@@ -642,96 +685,96 @@ function updateDisplay(order) {
       heureText = T('confirmation.asapLower', 'dès que possible');
     } else if (/^Aujourd'hui\s+/i.test(rawHeure)) {
       const heure = rawHeure.replace(/^Aujourd'hui\s+/i, '');
-      heureText = `à <strong>${heure}</strong>`;
+      heureText = `à <strong>${heureAffichee(heure)}</strong>`;
     } else {
       // "Lundi 11h30", "Demain 12h00" etc. → "lundi à 11h30"
       const match = rawHeure.match(/^(\S+)\s+(.+)$/);
       if (match) {
-        heureText = `<strong>${match[1].toLowerCase()}</strong> à <strong>${match[2]}</strong>`;
+        heureText = `<strong>${match[1].toLowerCase()}</strong> à <strong>${heureAffichee(match[2])}</strong>`;
       } else {
-        heureText = `<strong>${rawHeure}</strong>`;
+        heureText = `<strong>${heureAffichee(rawHeure)}</strong>`;
       }
     }
     banner.innerHTML = `
       <div class="status-banner accepted">
-        <div class="status-banner-icon">👨‍🍳</div>
+        <div class="status-banner-icon"></div>
         <div class="status-banner-title">${T('confirmation.preparing', 'Préparation en cours')}</div>
         <div class="status-banner-text">${T('confirmation.willBeReady', 'Votre commande sera prête')} ${heureText}</div>
-        <div class="status-banner-callout"><span class="callout-ico">🛎️</span><span>${T('confirmation.skipQueueAt', "À l'heure du retrait, <b>pas besoin de faire la queue</b> : présentez-vous directement à la caisse avec le numéro")} <span class="callout-num">${escapeHtml(order.numero || '')}</span>.</span></div>
+        <div class="status-banner-callout"><span>${T('confirmation.skipQueueAt', "À l'heure du retrait, <b>pas besoin de faire la queue</b> : présentez-vous directement à la caisse avec le numéro")} <span class="callout-num">${escapeHtml(order.numero || '')}</span>.</span></div>
       </div>
     `;
 
-    emailMsg.innerHTML = '✉️ <strong>' + T('confirmation.orderAccepted', 'Commande acceptée') + '</strong>';
+    emailMsg.innerHTML = ''; // déjà dit par le titre et la bannière
 
   } else if (effectiveStatus === 'prete') {
     // Prête à récupérer
     icon.classList.add('blue');
-    icon.textContent = '🎉';
+    icon.textContent = '';
     title.classList.add('blue');
-    title.textContent = T('confirmation.commandReady', 'Commande prête !');
+    title.textContent = T('confirmation.commandReady', 'Commande prête');
     subtitle.textContent = T('confirmation.comePickUp', 'Venez la récupérer');
 
     banner.innerHTML = `
       <div class="status-banner ready">
-        <div class="status-banner-icon">🎉</div>
-        <div class="status-banner-title">${T('confirmation.orderReady', 'Votre commande est prête !')}</div>
-        <div class="status-banner-callout"><span class="callout-ico">🛎️</span><span>${T('confirmation.skipQueue', '<b>Pas besoin de faire la queue</b> : présentez-vous directement à la caisse, votre commande')} <span class="callout-num">${escapeHtml(order.numero || '')}</span> ${T('confirmation.skipQueueEnd', 'vous y attend.')}</span></div>
+        <div class="status-banner-icon"></div>
+        <div class="status-banner-title">${T('confirmation.orderReady', 'Votre commande est prête')}</div>
+        <div class="status-banner-callout"><span>${T('confirmation.skipQueue', '<b>Pas besoin de faire la queue</b> : présentez-vous directement à la caisse, votre commande')} <span class="callout-num">${escapeHtml(order.numero || '')}</span> ${T('confirmation.skipQueueEnd', 'vous y attend.')}</span></div>
       </div>
     `;
 
-    emailMsg.innerHTML = '<strong>' + T('confirmation.commandReady', 'Commande prête !') + '</strong><br><span class="email-sub">' + T('confirmation.pickupNow', 'Venez la récupérer chez A Beyrouth') + '</span>';
+    emailMsg.innerHTML = ''; // déjà dit par le titre et la bannière
 
   } else if (effectiveStatus === 'recuperee') {
     // Récupérée
     icon.classList.add('green');
-    icon.textContent = '✅';
+    icon.textContent = '';
     title.classList.add('green');
-    title.textContent = T('confirmation.enjoyMeal', 'Bon appétit !');
+    title.textContent = T('confirmation.enjoyMeal', 'Bon appétit');
     subtitle.textContent = T('confirmation.orderPickedUp', 'Commande récupérée');
 
     banner.innerHTML = `
       <div class="status-banner accepted">
-        <div class="status-banner-icon">✅</div>
-        <div class="status-banner-title">${T('confirmation.thanksForOrder', 'Merci pour votre commande !')}</div>
-        <div class="status-banner-text">${T('confirmation.seeyouSoon', 'À très bientôt chez A Beyrouth 🧆')}</div>
+        <div class="status-banner-icon"></div>
+        <div class="status-banner-title">${T('confirmation.thanksForOrder', 'Merci pour votre commande')}</div>
+        <div class="status-banner-text">${T('confirmation.seeyouSoon', 'À très bientôt chez A Beyrouth')}</div>
       </div>
     `;
 
-    emailMsg.innerHTML = '<strong>' + T('confirmation.thankYouSoon', 'Merci et à bientôt !') + '</strong>';
+    emailMsg.innerHTML = ''; // déjà dit par le titre et la bannière
 
   } else if (effectiveStatus === 'cancelled') {
     icon.classList.add('orange');
-    icon.textContent = '❌';
+    icon.textContent = '';
     title.className = 'orange';
     title.textContent = T('confirmation.orderCancelled', 'Commande annulée');
     subtitle.textContent = T('confirmation.refundInProgress', 'Remboursement en cours');
 
     banner.innerHTML = `
       <div class="status-banner waiting">
-        <div class="status-banner-icon">💳</div>
+        <div class="status-banner-icon"></div>
         <div class="status-banner-title">${T('confirmation.orderCancelled', 'Commande annulée')}</div>
         <div class="status-banner-text">${T('confirmation.refundDelay', 'Le remboursement sera effectué sous 5 à 7 jours ouvrés.')}</div>
       </div>
     `;
 
-    emailMsg.innerHTML = '✉️ <strong>' + T('confirmation.cancellationEmailSent', "Email d'annulation envoyé") + '</strong>';
+    emailMsg.innerHTML = '<strong>' + T('confirmation.cancellationEmailSent', "Email d'annulation envoyé") + '</strong>';
 
   } else if (effectiveStatus === 'refunded') {
     icon.classList.add('orange');
-    icon.textContent = '↩️';
+    icon.textContent = '';
     title.className = 'orange';
     title.textContent = T('confirmation.orderCancelled', 'Commande annulée');
     subtitle.textContent = T('confirmation.refundInProgress', 'Remboursement en cours');
 
     banner.innerHTML = `
       <div class="status-banner waiting">
-        <div class="status-banner-icon">💳</div>
+        <div class="status-banner-icon"></div>
         <div class="status-banner-title">${T('confirmation.orderCancelled', 'Commande annulée')}</div>
         <div class="status-banner-text">${T('confirmation.refundDelay', 'Le remboursement sera effectué sous 5 à 7 jours ouvrés.')}</div>
       </div>
     `;
 
-    emailMsg.innerHTML = '✉️ <strong>' + T('confirmation.cancellationEmailSent', "Email d'annulation envoyé") + '</strong>';
+    emailMsg.innerHTML = '<strong>' + T('confirmation.cancellationEmailSent', "Email d'annulation envoyé") + '</strong>';
   }
 }
 
@@ -741,6 +784,19 @@ async function fetchOrder(orderNum) {
   });
   if (!res.ok) return null;
   return await res.json();
+}
+
+function showSystemError(message) {
+  const error = document.getElementById('systemError');
+  error.textContent = message;
+  error.classList.add('visible');
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display = 'none';
+}
+
+function redirectAfterError(message) {
+  showSystemError(message);
+  window.setTimeout(() => { window.location.href = '/'; }, 2400);
 }
 
 async function loadOrder() {
@@ -763,8 +819,7 @@ async function loadOrder() {
     autoAcceptEnabled = autoAcceptSetting?.value === 'true';
 
     if (!data || data.error) {
-      alert(T('messages.orderNotFound', 'Commande introuvable. Vérifiez le numéro.'));
-      window.location.href = '/';
+      redirectAfterError(T('messages.orderNotFound', 'Commande introuvable. Vérifiez le numéro.'));
       return;
     }
 
@@ -773,7 +828,7 @@ async function loadOrder() {
     // Remplir les infos fixes
     document.getElementById('orderNum').textContent = data.numero;
     const rawPickup = data.heure_retrait || ''
-    document.getElementById('pickupTime').textContent = (!rawPickup || rawPickup === 'asap' || rawPickup === 'ASAP') ? (window.i18n ? window.i18n.t('timepicker.asap') : 'Dès que possible') : rawPickup.replace(/^Aujourd'hui\s+/i, '');
+    document.getElementById('pickupTime').textContent = (!rawPickup || rawPickup === 'asap' || rawPickup === 'ASAP') ? (window.i18n ? window.i18n.t('timepicker.asap') : 'Dès que possible') : heureAffichee(rawPickup.replace(/^Aujourd'hui\s+/i, ''));
 
     // Items - 🔒 SÉCURISÉ contre XSS
     const itemsHtml = data.items.map(item => {
@@ -782,8 +837,8 @@ async function loadOrder() {
       const safeName = escapeHtml(item.nom);
 
       const imgHtml = item.image_url
-        ? `<img src="${safeImageUrl}" alt="${safeName}" style="width:50px;height:50px;border-radius:10px;object-fit:cover;margin-right:12px;">`
-        : `<div style="width:50px;height:50px;border-radius:10px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin-right:12px;font-size:1.5rem;">🍽️</div>`;
+        ? `<img src="${safeImageUrl}" alt="${safeName}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;margin-right:12px;">`
+        : `<div style="width:48px;height:48px;border-radius:8px;background:#EFE9DF;border:1px solid #E6DFD3;display:flex;align-items:center;justify-content:center;margin-right:12px;"></div>`;
       return `
         <div class="item" style="display:flex;align-items:center;margin-bottom:12px;">
           ${imgHtml}
@@ -854,8 +909,7 @@ async function loadOrder() {
 
   } catch (error) {
     console.error('Erreur:', error);
-    alert('Erreur de chargement de la commande');
-    window.location.href = '/';
+    redirectAfterError(T('messages.orderLoadError', 'Erreur de chargement de la commande'));
   }
 }
 
