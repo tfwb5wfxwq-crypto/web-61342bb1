@@ -1721,6 +1721,20 @@ async function init() {
       if (cpd) cpd.textContent = document.getElementById('timingPickLabel').textContent;
     } catch (e) {}
   }, 60000);
+  // 03/11/2026 : un onglet laissé ouvert (Chrome le met en veille) restait sur
+  // « Fermé · Aujourd'hui 11h30 » l'après-midi. Au retour sur l'onglet, on
+  // remet tout de suite le statut et le créneau automatique à l'heure.
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    try {
+      updateOpenStatus();
+      const pt = document.getElementById('pickupTime');
+      if (!creneauAuto || !pt || pt.value !== creneauAuto.valeur || window.indefinitePause === true) return;
+      updateTimingBar();
+      const cpd = document.getElementById('cartPickupDisplay');
+      if (cpd) cpd.textContent = document.getElementById('timingPickLabel').textContent;
+    } catch (e) {}
+  });
   if (sb) {
     await loadFromSupabase();
     cleanUnavailableFromCart(); // Nettoyer le panier au chargement (articles désactivés depuis la dernière visite)
