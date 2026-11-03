@@ -3745,12 +3745,18 @@ async function toggleMenuItem(id, newValue) {
   }
 
   // Appeler Edge Function sécurisée
-  const response = await sb.functions.invoke('toggle-menu-item', {
-    headers: {
-      Authorization: `Bearer ${adminToken}`
-    },
-    body: { item_id: numId, disponible: boolValue }
-  });
+  // Coupure réseau passagère (« Failed to send a request ») : on réessaie 2 fois, la modif est sans risque à rejouer
+  let response;
+  for (let essai = 0; essai < 3; essai++) {
+    response = await sb.functions.invoke('toggle-menu-item', {
+      headers: {
+        Authorization: `Bearer ${adminToken}`
+      },
+      body: { item_id: numId, disponible: boolValue }
+    });
+    if (!response.error || response.error.name !== 'FunctionsFetchError') break;
+    await new Promise(r => setTimeout(r, 1200 * (essai + 1)));
+  }
 
   // Debug complet de la réponse
   console.log('📥 Response toggle:', response);
@@ -3759,7 +3765,7 @@ async function toggleMenuItem(id, newValue) {
     console.error('❌ Erreur toggle menu item:', response.error);
     // Tenter de récupérer l'erreur détaillée
     const errorMsg = response.data?.error || response.error.message || 'Erreur inconnue';
-    alert('Erreur lors de la modification:\n' + errorMsg + '\n\nVérifiez que vous êtes bien reconnecté.');
+    alert(response.error.name === 'FunctionsFetchError' ? 'La tablette n\'arrive pas à joindre le serveur (connexion internet ?). Réessayez dans un instant.' : 'Erreur lors de la modification:\n' + errorMsg + '\n\nVérifiez que vous êtes bien reconnecté.');
     haptic.trigger('error');
     return;
   }
