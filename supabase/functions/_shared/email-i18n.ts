@@ -7,51 +7,51 @@ export type Lang = 'fr' | 'en'
 export const emailI18n = {
   fr: {
     // Order confirmation
-    orderConfirmed: '✅ Commande confirmée',
+    orderConfirmed: 'Commande confirmée',
     order: 'Commande',
     pickup: 'Retrait',
     asap: 'Dès que possible',
     totalTTC: 'Total TTC',
-    wherePickup: '📍 Où retirer',
-    viewMaps: '📍 Voir sur Google Maps',
-    metro: '🚇 La Défense · Sortie 4',
+    wherePickup: 'Où retirer',
+    viewMaps: 'Voir sur Google Maps',
+    metro: 'La Défense · Sortie 4',
     followUs: 'Retrouvez-nous sur',
 
     // Payment confirmation
-    paymentConfirmed: '✅ Paiement confirmé',
+    paymentConfirmed: 'Paiement confirmé',
     awaitingValidation: 'En attente de validation',
     paymentPendingMsg: 'Vous recevrez un email de confirmation dès que le restaurant aura accepté votre commande.',
-    pickupAddress: '📍 Retrait',
-    openMaps: '📍 Ouvrir dans Google Maps',
+    pickupAddress: 'Retrait',
+    openMaps: 'Ouvrir dans Google Maps',
 
     // Reminder
-    orderWaiting: '⏰ Votre commande vous attend',
+    orderWaiting: 'Votre commande vous attend',
 
     // Cancellation
-    orderCancelled: '❌ Commande annulée',
+    orderCancelled: 'Commande annulée',
     reason: 'Raison',
-    refundTitle: '💳 Remboursement automatique',
+    refundTitle: 'Remboursement automatique',
     refundMsg: (amount: string) => `Le montant de <strong>${amount}</strong> vous sera remboursé sous 5 à 7 jours ouvrés.`,
-    contact: '📍 Contact',
+    contact: 'Contact',
 
     // Order completed
     thankYou: 'Merci pour votre visite !',
     orderPickedUp: (numero: string) => `Votre commande <strong>${numero}</strong> a bien été récupérée.<br>À très bientôt chez A Beyrouth !`,
-    downloadReceipt: '📄 Télécharger mon reçu',
+    downloadReceipt: 'Télécharger mon reçu',
 
     // Google review (footer)
     yourReviewMatters: 'Votre avis compte !',
     // Les 5 etoiles restent en visuel juste au-dessus. On ne demande PAS de note
     // chiffree : Google interdit d'orienter la notation et supprime les avis obtenus
     // ainsi, voire sanctionne la fiche.
-    rateUs: 'Votre retour nous aide énormément 🙏',
-    leaveReview: '🌟 Laisser un avis',
+    rateUs: 'Votre retour nous aide énormément',
+    leaveReview: 'Laisser un avis',
 
     // Email subjects
     subjectConfirmed: (numero: string, pickup: string) => `Commande ${numero} validée · Retrait ${pickup} - A Beyrouth`,
 
     // Retrait sans file d'attente (15/09/2026)
-    skipQueueTitle: '🛎️ Ne faites pas la queue',
+    skipQueueTitle: 'Ne faites pas la queue',
     skipQueueText: (numero: string) => `Allez directement à la caisse : votre commande <strong>${numero}</strong> vous y attend.`,
     skipQueueShort: 'Direct à la caisse, sans faire la queue',
     confirmedPreheader: (numero: string) => `Commande ${numero} validée · Ne faites pas la queue, allez directement à la caisse`,
@@ -61,8 +61,8 @@ export const emailI18n = {
     subjectCompleted: (numero: string) => `Merci pour votre visite - Commande ${numero} - A Beyrouth`,
 
     // Devis traiteur (11/08/2026)
-    quoteTitle: '📋 Demande de devis reçue',
-    quoteRegistered: '✅ Votre demande a été enregistrée',
+    quoteTitle: 'Demande de devis reçue',
+    quoteRegistered: 'Votre demande a été enregistrée',
     quoteStudy: 'Notre équipe va étudier votre demande et vous envoyer un devis personnalisé dans les 48 heures.',
     quoteSummary: 'Récapitulatif',
     quoteName: 'Nom',
@@ -78,48 +78,48 @@ export const emailI18n = {
   },
   en: {
     // Order confirmation
-    orderConfirmed: '✅ Order confirmed',
+    orderConfirmed: 'Order confirmed',
     order: 'Order',
     pickup: 'Pickup',
     asap: 'As soon as possible',
     totalTTC: 'Total incl. VAT',
-    wherePickup: '📍 Where to pick up',
-    viewMaps: '📍 View on Google Maps',
-    metro: '🚇 La Défense · Exit 4',
+    wherePickup: 'Where to pick up',
+    viewMaps: 'View on Google Maps',
+    metro: 'La Défense · Exit 4',
     followUs: 'Follow us on',
 
     // Payment confirmation
-    paymentConfirmed: '✅ Payment confirmed',
+    paymentConfirmed: 'Payment confirmed',
     awaitingValidation: 'Awaiting validation',
     paymentPendingMsg: 'You will receive a confirmation email once the restaurant has accepted your order.',
-    pickupAddress: '📍 Pickup',
-    openMaps: '📍 Open in Google Maps',
+    pickupAddress: 'Pickup',
+    openMaps: 'Open in Google Maps',
 
     // Reminder
-    orderWaiting: '⏰ Your order is waiting for you',
+    orderWaiting: 'Your order is waiting for you',
 
     // Cancellation
-    orderCancelled: '❌ Order cancelled',
+    orderCancelled: 'Order cancelled',
     reason: 'Reason',
-    refundTitle: '💳 Automatic refund',
+    refundTitle: 'Automatic refund',
     refundMsg: (amount: string) => `The amount of <strong>${amount}</strong> will be refunded within 5 to 7 business days.`,
-    contact: '📍 Contact',
+    contact: 'Contact',
 
     // Order completed
     thankYou: 'Thank you for your visit!',
     orderPickedUp: (numero: string) => `Your order <strong>${numero}</strong> has been picked up.<br>See you soon at A Beyrouth!`,
-    downloadReceipt: '📄 Download my receipt',
+    downloadReceipt: 'Download my receipt',
 
     // Google review (footer)
     yourReviewMatters: 'Your opinion matters!',
-    rateUs: 'Your feedback helps us enormously 🙏',
-    leaveReview: '🌟 Leave a review',
+    rateUs: 'Your feedback helps us enormously',
+    leaveReview: 'Leave a review',
 
     // Email subjects
     subjectConfirmed: (numero: string, pickup: string) => `Order ${numero} confirmed · Pickup ${pickup} - A Beyrouth`,
 
     // Skip the queue (15/09/2026)
-    skipQueueTitle: '🛎️ No need to queue',
+    skipQueueTitle: 'No need to queue',
     skipQueueText: (numero: string) => `Go straight to the till: your order <strong>${numero}</strong> is waiting for you there.`,
     skipQueueShort: 'Straight to the till, no queuing',
     confirmedPreheader: (numero: string) => `Order ${numero} confirmed · No need to queue, go straight to the till`,
@@ -129,8 +129,8 @@ export const emailI18n = {
     subjectCompleted: (numero: string) => `Thank you for your visit - Order ${numero} - A Beyrouth`,
 
     // Catering quote (11/08/2026)
-    quoteTitle: '📋 Quote request received',
-    quoteRegistered: '✅ Your request has been registered',
+    quoteTitle: 'Quote request received',
+    quoteRegistered: 'Your request has been registered',
     quoteStudy: 'Our team will review your request and send you a tailored quote within 48 hours.',
     quoteSummary: 'Summary',
     quoteName: 'Name',

@@ -92,37 +92,60 @@ serve(async (req) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="only light">
   <meta name="supported-color-schemes" content="light">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <style>
-    :root { color-scheme: light; }
-    .email-header-bg { background-color: #000000 !important; }
+    :root { color-scheme: light only; supported-color-schemes: light; }
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #F7F4EE !important; }
+      .header-dark { background-color: #304936 !important; }
+      .card-dark { background-color: #304936 !important; }
+      .btn-dark { background-color: #304936 !important; color: #F7F1E7 !important; }
+      .content-white { background-color: #ffffff !important; color: #1F1B16 !important; }
+    }
+    [data-ogsb] .header-dark, [data-ogsb] .card-dark, [data-ogsb] .btn-dark { background-color: #304936 !important; }
+    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+    u + #body a { color: inherit; text-decoration: none; font-size: inherit; font-family: inherit; font-weight: inherit; line-height: inherit; }
+    @media only screen and (max-width: 480px) {
+      .outer { padding: 0 !important; }
+      .px { padding-left: 20px !important; padding-right: 20px !important; }
+      .h1 { font-size: 28px !important; }
+      .num { font-size: 38px !important; }
+      .round { border-radius: 0 !important; }
+    }
   </style>
+  <!--[if mso]>
+  <style>
+    body, table, td, div, p, a, span { font-family: Arial, Helvetica, sans-serif !important; }
+    .serif { font-family: Georgia, 'Times New Roman', serif !important; }
+  </style>
+  <![endif]-->
   <title>${L.quotePreheader}</title>
 </head>
-<body bgcolor="#f5f5f5" style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f5" style="background:#f5f5f5;">
+<body id="body" bgcolor="#F7F4EE" style="margin:0;padding:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;background:#F7F4EE;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F7F4EE" style="background:#F7F4EE;">
     <tr>
-      <td align="center" bgcolor="#f5f5f5" style="background:#f5f5f5;padding:0;">
+      <td align="center" class="outer" bgcolor="#F7F4EE" style="background:#F7F4EE;padding:24px 12px 0 12px;">
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 
-          <!-- Header fond noir avec logo -->
+          <!-- En-tête vert foncé (forcé : !important + classe header-dark), logo PNG à fond vert intégré, aligné à gauche comme sur le site -->
           <tr>
-            <td bgcolor="#000000" style="background:#000000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
+            <td bgcolor="#304936" class="header-dark px round" style="background-color:#304936 !important;padding:22px 32px;border-radius:12px 12px 0 0;text-align:left;">
+              <img src="https://beyrouth.express/img/logo-email-v2.png" alt="A Beyrouth" width="176" style="width:176px;height:auto;max-width:100%;display:block;border:0;">
             </td>
           </tr>
 
-          <!-- Contenu principal -->
+          <!-- Contenu (fond blanc, sans !important) -->
           <tr>
-            <td bgcolor="#ffffff" style="background:#ffffff;padding:24px 20px;">
-              <div style="font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">${L.quoteTitle}</div>
-              <div style="font-size:14px;color:#666;line-height:1.5;margin-bottom:20px;">Merci ${name.split(' ')[0]}, nous revenons vers vous sous 48h.</div>
+            <td bgcolor="#FFFFFF" class="px round" style="background:#FFFFFF;padding:36px 32px 36px 32px;border-radius:0 0 12px 12px;">
+<h1 class="serif h1" style="margin:0 0 6px 0;font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:32px;line-height:1.15;font-weight:400;color:#1F1B16;">${L.quoteTitle}</h1>
+              <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#5E554A;">Merci ${name.split(' ')[0]}, nous revenons vers vous sous 48h.</p>
 
               <!-- Info principale -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
                 <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:14px;color:#1a1a1a;font-weight:600;margin-bottom:8px;">${L.quoteRegistered}</div>
-                    <div style="font-size:13px;color:#666;line-height:1.5;">
+                  <td bgcolor="#E3E9DF" style="background:#E3E9DF;border-radius:10px;padding:16px 20px;">
+                    <div style="font-size:15px;color:#304936;font-weight:600;margin-bottom:4px;">${L.quoteRegistered}</div>
+                    <div style="font-size:14px;color:#3E5A44;line-height:1.55;">
                       ${L.quoteStudy}
                     </div>
                   </td>
@@ -132,14 +155,14 @@ serve(async (req) => {
               <!-- Récapitulatif -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
                 <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">${L.quoteSummary}</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.8;">
-                      ${eventType ? `<div>📅 <strong>${eventType}</strong></div>` : ''}
-                      ${guestCount ? `<div>👥 ${guestCount} ${lang === 'en' ? 'guests' : 'personnes'}</div>` : ''}
-                      ${eventDate ? `<div>📆 ${eventDate}</div>` : ''}
-                      <div>📧 ${email}</div>
-                      ${phone ? `<div>📱 ${phone}</div>` : ''}
+                  <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
+                    <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:8px;">${L.quoteSummary}</div>
+                    <div style="font-size:14px;color:#1F1B16;line-height:1.7;">
+                      ${eventType ? `<div class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:19px;line-height:1.3;color:#1F1B16;margin-bottom:2px;">${eventType}</div>` : ''}
+                      ${guestCount ? `<div>${guestCount} ${lang === 'en' ? 'guests' : 'personnes'}</div>` : ''}
+                      ${eventDate ? `<div><a style="color:#1F1B16;text-decoration:none;">${eventDate}</a></div>` : ''}
+                      <div><a href="mailto:${email}" style="color:#1F1B16;text-decoration:none;">${email}</a></div>
+                      ${phone ? `<div><a href="tel:${phone}" style="color:#1F1B16;text-decoration:none;">${phone}</a></div>` : ''}
                     </div>
                   </td>
                 </tr>
@@ -147,58 +170,44 @@ serve(async (req) => {
 
               ${message ? `
               <!-- Message -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
                 <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Votre message</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap;">${message}</div>
+                  <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
+                    <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:8px;">Votre message</div>
+                    <div style="font-size:14px;color:#1F1B16;line-height:1.6;white-space:pre-wrap;">${message}</div>
                   </td>
                 </tr>
               </table>
               ` : ''}
 
               <!-- Contact -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e0e0e0;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #E6DFD3;">
                 <tr>
-                  <td style="padding:16px 0;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;margin-bottom:8px;">📍 Contact</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.5;">
-                      <strong>A Beyrouth</strong><br>
-                      ${L.quoteAddress.replace('<br>', ' ')}
+                  <td style="padding:24px 0 0 0;">
+                    <div style="font-size:13px;line-height:1.4;color:#6B6256;margin-bottom:6px;">Contact</div>
+                    <div style="font-size:14px;color:#1F1B16;line-height:1.6;">
+                      <strong class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-weight:400;font-size:18px;">A Beyrouth</strong><br>
+                      <a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="color:#1F1B16;text-decoration:none;">${L.quoteAddress.replace('<br>', ' ')}</a>
                     </div>
                   </td>
                 </tr>
               </table>
+
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- Pied de page, directement sur le crème de la page -->
           <tr>
-            <td bgcolor="#f5f5f5" style="background:#f5f5f5;padding:32px 24px;border-top:1px solid #e0e0e0;">
+            <td bgcolor="#F7F4EE" class="px" style="background:#F7F4EE;padding:36px 32px 40px 32px;text-align:center;">
 
               <!-- Instagram -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;">
-                <tr>
-                  <td align="center" style="font-size:12px;color:#aaa;letter-spacing:0.5px;text-transform:uppercase;padding-bottom:8px;">Retrouvez-nous sur</td>
-                </tr>
-                <tr>
-                  <td align="center">
-                    <a href="https://www.instagram.com/a_beyrouth/" target="_blank" style="display:inline-block;background:#fafafa;color:#1a1a1a;text-decoration:none;padding:10px 28px;border-radius:20px;font-weight:600;font-size:14px;border:1px solid #e0e0e0;letter-spacing:0.3px;">
-                      @a_beyrouth
-                    </a>
-                  </td>
-                </tr>
-              </table>
+              <div style="font-size:14px;color:#5E554A;line-height:1.5;margin-bottom:12px;">Retrouvez-nous sur <a href="https://www.instagram.com/a_beyrouth/" target="_blank" style="color:#304936;font-weight:600;text-decoration:underline;">@a_beyrouth</a></div>
 
-              <!-- Adresse -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="text-align:center;font-size:13px;color:#888;line-height:1.6;">
-                    <strong style="color:#1a1a1a;">A Beyrouth</strong> · 4 Esp. Gal de Gaulle, 92400 Courbevoie<br>
-                    <a href="https://beyrouth.express" style="color:#D4A853;text-decoration:none;">beyrouth.express</a>
-                  </td>
-                </tr>
-              </table>
+              <!-- Contact -->
+              <div style="font-size:12px;color:#6B6256;line-height:1.7;">
+                    <strong style="font-weight:600;color:#5E554A;">A Beyrouth</strong> · <a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="color:#6B6256;text-decoration:none;">4 Esp. Gal de Gaulle, 92400 Courbevoie</a><br>
+                    <a href="https://beyrouth.express" style="color:#6B6256;text-decoration:underline;">beyrouth.express</a>
+              </div>
 
             </td>
           </tr>
@@ -237,39 +246,61 @@ serve(async (req) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="only light">
   <meta name="supported-color-schemes" content="light">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <style>
-    :root { color-scheme: light; }
-    .email-header-bg { background-color: #000000 !important; }
+    :root { color-scheme: light only; supported-color-schemes: light; }
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #F7F4EE !important; }
+      .header-dark { background-color: #304936 !important; }
+      .card-dark { background-color: #304936 !important; }
+      .btn-dark { background-color: #304936 !important; color: #F7F1E7 !important; }
+      .content-white { background-color: #ffffff !important; color: #1F1B16 !important; }
+    }
+    [data-ogsb] .header-dark, [data-ogsb] .card-dark, [data-ogsb] .btn-dark { background-color: #304936 !important; }
+    a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+    u + #body a { color: inherit; text-decoration: none; font-size: inherit; font-family: inherit; font-weight: inherit; line-height: inherit; }
+    @media only screen and (max-width: 480px) {
+      .outer { padding: 0 !important; }
+      .px { padding-left: 20px !important; padding-right: 20px !important; }
+      .h1 { font-size: 28px !important; }
+      .num { font-size: 38px !important; }
+      .round { border-radius: 0 !important; }
+    }
   </style>
+  <!--[if mso]>
+  <style>
+    body, table, td, div, p, a, span { font-family: Arial, Helvetica, sans-serif !important; }
+    .serif { font-family: Georgia, 'Times New Roman', serif !important; }
+  </style>
+  <![endif]-->
   <title>Nouvelle demande de devis - ${name}</title>
 </head>
-<body bgcolor="#f5f5f5" style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f5f5f5;">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f5f5" style="background:#f5f5f5;">
+<body id="body" bgcolor="#F7F4EE" style="margin:0;padding:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;background:#F7F4EE;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F7F4EE" style="background:#F7F4EE;">
     <tr>
-      <td align="center" bgcolor="#f5f5f5" style="background:#f5f5f5;padding:0;">
+      <td align="center" class="outer" bgcolor="#F7F4EE" style="background:#F7F4EE;padding:24px 12px 0 12px;">
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
 
-          <!-- Header fond noir avec logo -->
+          <!-- En-tête vert foncé (forcé : !important + classe header-dark), logo PNG à fond vert intégré, aligné à gauche comme sur le site -->
           <tr>
-            <td bgcolor="#000000" style="background:#000000;padding:8px 24px;text-align:center;">
-              <img src="https://beyrouth.express/img/logo-email-final.png" alt="A Beyrouth" style="width:240px;height:auto;max-width:100%;display:block;margin:0 auto;">
+            <td bgcolor="#304936" class="header-dark px round" style="background-color:#304936 !important;padding:22px 32px;border-radius:12px 12px 0 0;text-align:left;">
+              <img src="https://beyrouth.express/img/logo-email-v2.png" alt="A Beyrouth" width="176" style="width:176px;height:auto;max-width:100%;display:block;border:0;">
             </td>
           </tr>
 
-          <!-- Contenu principal -->
+          <!-- Contenu (fond blanc, sans !important) -->
           <tr>
-            <td bgcolor="#ffffff" style="background:#ffffff;padding:24px 20px;">
-              <div style="font-size:20px;font-weight:600;color:#1a1a1a;margin-bottom:16px;">🆕 Nouvelle demande de devis</div>
-
+            <td bgcolor="#FFFFFF" class="px round" style="background:#FFFFFF;padding:36px 32px 36px 32px;border-radius:0 0 12px 12px;">
+<h1 class="serif h1" style="margin:0 0 24px 0;font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:32px;line-height:1.15;font-weight:400;color:#1F1B16;">Nouvelle demande de devis</h1>
               <!-- Contact -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
                 <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Contact</div>
-                    <div style="font-size:16px;color:#1a1a1a;font-weight:600;margin-bottom:8px;">${name}</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.8;">
-                      📧 <a href="mailto:${email}" style="color:#1a1a1a;text-decoration:none;">${email}</a><br>
-                      ${phone ? `📱 <a href="tel:${phone}" style="color:#1a1a1a;text-decoration:none;">${phone}</a>` : ''}
+                  <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
+                    <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:6px;">Contact</div>
+                    <div class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:22px;line-height:1.25;color:#1F1B16;font-weight:400;margin-bottom:6px;">${name}</div>
+                    <div style="font-size:14px;color:#1F1B16;line-height:1.7;">
+                      <a href="mailto:${email}" style="color:#304936;text-decoration:underline;">${email}</a><br>
+                      ${phone ? `<a href="tel:${phone}" style="color:#304936;text-decoration:underline;">${phone}</a>` : ''}
                     </div>
                   </td>
                 </tr>
@@ -278,12 +309,12 @@ serve(async (req) => {
               <!-- Événement -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
                 <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Événement</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.8;">
-                      ${eventType ? `<div>📅 <strong>${eventType}</strong></div>` : ''}
-                      ${guestCount ? `<div>👥 <strong>${guestCount} personnes</strong></div>` : ''}
-                      ${eventDate ? `<div>📆 ${eventDate}</div>` : ''}
+                  <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
+                    <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:6px;">Événement</div>
+                    <div style="font-size:14px;color:#1F1B16;line-height:1.7;">
+                      ${eventType ? `<div><strong style="font-weight:600;">${eventType}</strong></div>` : ''}
+                      ${guestCount ? `<div><strong style="font-weight:600;">${guestCount} personnes</strong></div>` : ''}
+                      ${eventDate ? `<div><a style="color:#1F1B16;text-decoration:none;">${eventDate}</a></div>` : ''}
                     </div>
                   </td>
                 </tr>
@@ -293,29 +324,26 @@ serve(async (req) => {
               <!-- Message -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
                 <tr>
-                  <td style="background:#fafafa;padding:16px 20px;">
-                    <div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Message</div>
-                    <div style="font-size:14px;color:#1a1a1a;line-height:1.6;white-space:pre-wrap;">${message}</div>
+                  <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
+                    <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:6px;">Message</div>
+                    <div style="font-size:14px;color:#1F1B16;line-height:1.6;white-space:pre-wrap;">${message}</div>
                   </td>
                 </tr>
               </table>
               ` : ''}
 
               <!-- Info -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="background:#E3F2FD;padding:12px 16px;">
-                    <div style="font-size:13px;color:#1565C0;font-weight:600;">✉️ Email de confirmation envoyé au client</div>
-                  </td>
-                </tr>
-              </table>
+              <div style="font-size:13px;color:#304936;font-weight:600;padding-top:8px;">Email de confirmation envoyé au client</div>
+
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- Pied de page, directement sur le crème de la page -->
           <tr>
-            <td bgcolor="#f5f5f5" style="background:#f5f5f5;padding:20px;border-top:1px solid #e0e0e0;text-align:center;">
-              <div style="font-size:12px;color:#888;">Demande enregistrée dans quote_requests</div>
+            <td bgcolor="#F7F4EE" class="px" style="background:#F7F4EE;padding:20px 32px 28px 32px;text-align:center;">
+
+              <div style="font-size:12px;color:#6B6256;">Demande enregistrée dans quote_requests</div>
+
             </td>
           </tr>
 
