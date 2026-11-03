@@ -629,19 +629,36 @@ function isOpenNow() {
   return nowMin >= slot[1] * 60 + slot[2] && nowMin < slot[3] * 60 + slot[4];
 }
 
+// 03/11/2026 : le libelle du prochain creneau disait le NOM du jour meme quand
+// c'etait aujourd'hui (« Mardi 11h30 » un mardi a 8h). Regle de Ludo :
+// aujourd'hui -> « Aujourd'hui », lendemain -> « Demain » (bascule a minuit),
+// plus loin -> nom du jour. jourFr = valeur STABLE en francais, c'est elle qui
+// part dans pickupTime / heure_retrait (relue par create-payment, la tablette,
+// les mails, confirmation.html, qui ne comprennent QUE le francais) ; jour =
+// libelle affiche, traduit.
+function decrireCreneau(date, now) {
+  const j0 = new Date(now); j0.setHours(0, 0, 0, 0);
+  const dj = new Date(date); dj.setHours(0, 0, 0, 0);
+  const ecart = Math.round((dj - j0) / 86400000);
+  const d = date.getDay();
+  const jourFr = ecart === 0 ? "Aujourd'hui" : ecart === 1 ? 'Demain' : JOURS[d];
+  const jour = ecart === 0 ? T('timepicker.today', "Aujourd'hui")
+             : ecart === 1 ? T('timepicker.tomorrow', 'Demain')
+             : nomJour(d);
+  return {jour, jourFr, ecart, date: new Date(date), h: date.getHours(), m: date.getMinutes()};
+}
+
 function getNextOpenSlot() {
   const now = new Date();
   const day = now.getDay();
-  const h = now.getHours(), m = now.getMinutes();
-  const nowMin = h * 60 + m;
-  const today = BUSINESS_HOURS.find(s => s[0] === day);
-  if (today && nowMin < today[1] * 60 + today[2]) {
-    return {jour: nomJour(day), h: today[1], m: today[2]};
-  }
-  for (let i = 1; i <= 7; i++) {
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  for (let i = 0; i <= 7; i++) {
     const d = (day + i) % 7;
     const slot = BUSINESS_HOURS.find(s => s[0] === d);
-    if (slot) return {jour: nomJour(d), h: slot[1], m: slot[2]};
+    if (!slot) continue;
+    if (i === 0 && nowMin >= slot[1] * 60 + slot[2]) continue; // deja ouvert ou ferme pour aujourd'hui
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, slot[1], slot[2], 0, 0);
+    return decrireCreneau(date, now);
   }
   return null;
 }

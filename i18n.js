@@ -41,7 +41,10 @@ const translations = {
       tempClosure: "Fermeture temporaire",
       until: "jusqu'à",
       // Separateur d heure : « 20h30 » en francais, « 20:30 » en anglais.
-      hourSep: "h"
+      hourSep: "h",
+      // Libelle du prochain creneau (affichage seulement, la valeur enregistree reste en francais)
+      today: "Aujourd'hui",
+      tomorrow: "Demain"
     },
 
     // Jours de la semaine, dans l ordre de getDay() : 0 = dimanche.
@@ -375,7 +378,9 @@ const translations = {
       tempClosure: "Temporarily closed",
       until: "until",
       // Hour separator: "20:30" in English, "20h30" in French.
-      hourSep: ":"
+      hourSep: ":",
+      today: "Today",
+      tomorrow: "Tomorrow"
     },
 
 

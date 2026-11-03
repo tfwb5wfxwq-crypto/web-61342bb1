@@ -968,19 +968,36 @@ function isOpenNow() {
   return nowMin >= slot[1] * 60 + slot[2] && nowMin < slot[3] * 60 + slot[4];
 }
 
+// 03/11/2026 : le libelle du prochain creneau disait le NOM du jour meme quand
+// c'etait aujourd'hui (« Mardi 11h30 » un mardi a 8h). Regle de Ludo :
+// aujourd'hui -> « Aujourd'hui », lendemain -> « Demain » (bascule a minuit),
+// plus loin -> nom du jour. jourFr = valeur STABLE en francais, c'est elle qui
+// part dans pickupTime / heure_retrait (relue par create-payment, la tablette,
+// les mails, confirmation.html, qui ne comprennent QUE le francais) ; jour =
+// libelle affiche, traduit.
+function decrireCreneau(date, now) {
+  const j0 = new Date(now); j0.setHours(0, 0, 0, 0);
+  const dj = new Date(date); dj.setHours(0, 0, 0, 0);
+  const ecart = Math.round((dj - j0) / 86400000);
+  const d = date.getDay();
+  const jourFr = ecart === 0 ? "Aujourd'hui" : ecart === 1 ? 'Demain' : JOURS[d];
+  const jour = ecart === 0 ? T('timepicker.today', "Aujourd'hui")
+             : ecart === 1 ? T('timepicker.tomorrow', 'Demain')
+             : nomJour(d);
+  return {jour, jourFr, ecart, date: new Date(date), h: date.getHours(), m: date.getMinutes()};
+}
+
 function getNextOpenSlot() {
   const now = new Date();
   const day = now.getDay();
-  const h = now.getHours(), m = now.getMinutes();
-  const nowMin = h * 60 + m;
-  const today = BUSINESS_HOURS.find(s => s[0] === day);
-  if (today && nowMin < today[1] * 60 + today[2]) {
-    return {jour: nomJour(day), h: today[1], m: today[2]};
-  }
-  for (let i = 1; i <= 7; i++) {
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  for (let i = 0; i <= 7; i++) {
     const d = (day + i) % 7;
     const slot = BUSINESS_HOURS.find(s => s[0] === d);
-    if (slot) return {jour: nomJour(d), h: slot[1], m: slot[2]};
+    if (!slot) continue;
+    if (i === 0 && nowMin >= slot[1] * 60 + slot[2]) continue; // deja ouvert ou ferme pour aujourd'hui
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, slot[1], slot[2], 0, 0);
+    return decrireCreneau(date, now);
   }
   return null;
 }
@@ -990,6 +1007,35 @@ function getNextOpenSlot() {
 const JOURS_CLES = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
 function nomJour(d) { return T('days.' + JOURS_CLES[d], JOURS[d]); }
 function hhmm(h, m) { return h + T('timepicker.hourSep', 'h') + (m ? String(m).padStart(2,'0') : '00'); }
+
+// Valeur ENREGISTREE du prochain creneau : toujours en francais avec « h »
+// (« Aujourd'hui 11h30 », « Demain 11h30 », « Lundi 11h30 »), seul format que
+// comprennent create-payment, la tablette, les mails et confirmation.html.
+function valeurCreneau(next) {
+  return `${next.jourFr} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}`;
+}
+// Affichage d'une valeur enregistree : identique en francais ; en anglais,
+// le mot du jour et le separateur d'heure sont traduits. La valeur, elle,
+// n'est jamais modifiee.
+function afficherRetrait(valeur) {
+  let v = String(valeur == null ? '' : valeur);
+  const m = v.match(/^(\S+)\s/);
+  if (m) {
+    let mot = null;
+    if (m[1] === "Aujourd'hui") mot = T('timepicker.today', "Aujourd'hui");
+    else if (m[1] === 'Demain') mot = T('timepicker.tomorrow', 'Demain');
+    else if (JOURS.indexOf(m[1]) !== -1) mot = nomJour(JOURS.indexOf(m[1]));
+    if (mot) v = mot + v.slice(m[1].length);
+  }
+  return v.replace(/(\d{1,2})h(\d{2})/g, (_, h, mm) => h + T('timepicker.hourSep', 'h') + mm);
+}
+// Creneau choisi AUTOMATIQUEMENT (boutique fermee) : on garde sa vraie date pour
+// le recalculer a minuit (« Demain » -> « Aujourd'hui ») et au moment de payer.
+let creneauAuto = null;
+function poserCreneauAuto(next) {
+  creneauAuto = {valeur: valeurCreneau(next), date: next.date};
+  return creneauAuto.valeur;
+}
 
 function updateOpenStatus() {
   const statusEl = document.getElementById('headerStatus');
@@ -1089,6 +1135,18 @@ async function init() {
 
   const open = updateOpenStatus();
   setInterval(updateOpenStatus, 60000);
+  // Creneau auto (boutique fermee) recalcule chaque minute : « Demain 11h30 »
+  // devient « Aujourd'hui 11h30 » a minuit, puis « au plus tot » a l'ouverture.
+  // Un creneau choisi a la main par le client n'est jamais touche.
+  setInterval(function () {
+    try {
+      const pt = document.getElementById('pickupTime');
+      if (!creneauAuto || !pt || pt.value !== creneauAuto.valeur || window.indefinitePause === true) return;
+      updateTimingBar();
+      const cpd = document.getElementById('cartPickupDisplay');
+      if (cpd) cpd.textContent = document.getElementById('timingPickLabel').textContent;
+    } catch (e) {}
+  }, 60000);
   if (sb) {
     await loadFromSupabase();
     cleanUnavailableFromCart(); // Nettoyer le panier au chargement (articles désactivés depuis la dernière visite)
@@ -1788,10 +1846,10 @@ function updateCartUI() {
       // Si fermé : prochaine ouverture
       const next = getNextOpenSlot();
       if (next) {
-        const nextSlot = `${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}`;
+        const nextSlot = poserCreneauAuto(next);
         selectedPickup = nextSlot;
-        document.getElementById('timingPickLabel').textContent = nextSlot;
-        document.getElementById('cartPickupDisplay').innerHTML = `${nextSlot}`;
+        document.getElementById('timingPickLabel').textContent = afficherRetrait(nextSlot);
+        document.getElementById('cartPickupDisplay').textContent = afficherRetrait(nextSlot);
         document.getElementById('pickupTime').value = nextSlot;
       } else {
         document.getElementById('timingPickLabel').textContent = T('timepicker.chooseSlot', 'Choisir un créneau');
@@ -2115,6 +2173,11 @@ async function submitOrder() {
     // Avec une pause active, le créneau "au plus tôt" peut être DEMAIN :
     // écrire "Aujourd'hui" ferait attendre la cuisine un client qui vient le lendemain.
     pickup = ecart >= 1 ? `Demain ${heure}` : `Aujourd'hui ${heure}`;
+  } else if (creneauAuto && pickupRaw === creneauAuto.valeur) {
+    // Creneau propose automatiquement : on recalcule le mot du jour a partir de
+    // sa VRAIE date, pour qu'une page ouverte avant minuit n'envoie pas
+    // « Demain 11h30 » le lendemain (la tablette lirait J+2).
+    pickup = valeurCreneau(decrireCreneau(creneauAuto.date, new Date()));
   } else {
     pickup = pickupRaw;
   }
@@ -3634,13 +3697,13 @@ function updateTimingBar() {
   } else {
     if (dot) dot.classList.add('closed');
     const next = getNextOpenSlot();
-    if (text) text.innerHTML = next ? `Fermé <small>· Ouvre ${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}</small>` : 'Fermé';
+    if (text) text.innerHTML = next ? `Fermé <small>· Ouvre ${next.ecart <= 1 ? next.jour.toLowerCase() : next.jour} ${hhmm(next.h, next.m)}</small>` : 'Fermé';
 
     // Si fermé, affiche le prochain créneau disponible
     if (next) {
-      const nextSlot = `${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}`;
+      const nextSlot = poserCreneauAuto(next);
       selectedPickup = nextSlot;
-      document.getElementById('timingPickLabel').textContent = nextSlot;
+      document.getElementById('timingPickLabel').textContent = afficherRetrait(nextSlot);
       document.getElementById('pickupTime').value = nextSlot;
     } else {
       selectedPickup = '';
@@ -3704,9 +3767,9 @@ function buildTimePicker() {
     const next = getNextOpenSlot();
     if (next) {
       asapBtn.disabled = false;
-      const nextSlot = `${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}`;
+      const nextSlot = poserCreneauAuto(next);
       asapBtn.onclick = () => selectTime(nextSlot);
-      asapBtn.innerHTML = `${T('timepicker.nextSlot', 'Créneau le plus proche')}<span class="timepicker-asap-sub">${nextSlot}</span>`;
+      asapBtn.innerHTML = `${T('timepicker.nextSlot', 'Créneau le plus proche')}<span class="timepicker-asap-sub">${afficherRetrait(nextSlot)}</span>`;
     } else {
       asapBtn.disabled = true;
       asapBtn.innerHTML = `${T('timepicker.nextSlot', 'Créneau le plus proche')}<span class="timepicker-asap-sub">Indisponible</span>`;
@@ -3730,7 +3793,7 @@ function buildTimePicker() {
   const daysEl = document.getElementById('tpDays');
   daysEl.innerHTML = tpDays.map((day, i) => `
     <div class="timepicker-day ${i === tpSelectedDay ? 'active' : ''}" onclick="selectPickerDay(${i})">
-      ${day.label}<small>${day.sub}</small>
+      ${afficherRetrait(day.label + ' ').trim()}<small>${day.sub}</small>
     </div>
   `).join('');
   renderTimeSlots();
@@ -3855,8 +3918,8 @@ function selectTime(value) {
     cartLabel = value;
   }
 
-  document.getElementById('timingPickLabel').textContent = topLabel;
-  document.getElementById('cartPickupDisplay').innerHTML = cartLabel;
+  document.getElementById('timingPickLabel').textContent = afficherRetrait(topLabel);
+  document.getElementById('cartPickupDisplay').textContent = afficherRetrait(cartLabel);
   haptic.trigger('success'); // Vibration confirmation sélection créneau
   closeTimePicker();
 }
@@ -3890,7 +3953,8 @@ function updateAsapAfterPause() {
   const currentLabel = document.getElementById('timingPickLabel').textContent;
   const isAsapDisplayed = selectedPickup === 'asap' ||
                           document.getElementById('pickupTime').value === 'asap' ||
-                          currentLabel.startsWith('Aujourd\'hui');
+                          currentLabel.startsWith('Aujourd\'hui') ||
+                          document.getElementById('pickupTime').value.startsWith('Aujourd\'hui');
 
   if (isAsapDisplayed) {
     const open = isOpenNow();
@@ -3924,10 +3988,10 @@ function updateAsapAfterPause() {
       // Si fermé, passer au prochain créneau disponible
       const next = getNextOpenSlot();
       if (next) {
-        const nextSlot = `${next.jour} ${next.h}h${next.m ? String(next.m).padStart(2,'0') : '00'}`;
+        const nextSlot = poserCreneauAuto(next);
         selectedPickup = nextSlot;
-        document.getElementById('timingPickLabel').textContent = nextSlot;
-        document.getElementById('cartPickupDisplay').innerHTML = `${nextSlot}`;
+        document.getElementById('timingPickLabel').textContent = afficherRetrait(nextSlot);
+        document.getElementById('cartPickupDisplay').textContent = afficherRetrait(nextSlot);
         document.getElementById('pickupTime').value = nextSlot;
       }
     }
