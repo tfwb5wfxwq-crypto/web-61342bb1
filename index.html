@@ -4837,6 +4837,115 @@ window.addEventListener('beforeunload', () => {
   document.querySelectorAll('.info-address[href="#"]').forEach(el => el.addEventListener('click', open));
 })();
 </script>
+<!-- Box Exclu web (demande de Paco 04/11/2026) : commande ET retrait seulement de 14h à 20h30, le jour même.
+     Article en base « Box Exclu Web » (cat. Exclu Web), choix sandwich + boisson + sauce comme une formule.
+     Paco la coupe depuis la tablette comme les autres plats (disponible = false → « Bientôt disponible »). -->
+<script>
+(function () {
+  var NOM = 'Box Exclu Web', DEBUT = 14 * 60, FIN = 20 * 60 + 30;
+  var EN = function () { var l = (typeof currentLang === 'string' && currentLang) || document.documentElement.lang || ''; return l.indexOf('en') === 0; };
+  FORMULE_CONFIG[NOM] = [
+    { name: 'Sandwich', category: 1, qty: 1 },
+    { name: 'Boisson', category: 7, qty: 1 },
+    { name: 'Sauce', items: ["Sauce à l'ail", 'Ketchup'], qty: 1 }
+  ];
+  if (typeof ITEM_IMAGES === 'object') { ITEM_IMAGES["Sauce à l'ail"] = 'img/sauce-ail.jpg'; ITEM_IMAGES['Ketchup'] = 'img/ketchup.jpg'; }
+  // Hors du vrai site seulement : ?heure=15h30 simule l'heure pour tester.
+  var test = location.hostname.indexOf('beyrouth.express') === -1 ? location.search.match(/[?&]heure=(\d{1,2})h(\d{2})?/) : null;
+  var minutesMaintenant = function () {
+    if (test) return (+test[1]) * 60 + (+(test[2] || 0));
+    var n = new Date(); return n.getHours() * 60 + n.getMinutes();
+  };
+  var ouverteMaintenant = function () { var m = minutesMaintenant(); return m >= DEBUT && m <= FIN; };
+  var estBox = function (x) { return !!x && x.nom === NOM; };
+
+  // La box passe en tête de sa catégorie (avant la Box Beyrouth), demande de Paco.
+  var enTete = function () {
+    if (!Array.isArray(menuItems)) return;
+    var i = menuItems.findIndex(estBox);
+    if (i > 0) menuItems.unshift(menuItems.splice(i, 1)[0]);
+  };
+
+  var rendreOrig = renderMenu;
+  renderMenu = function () {
+    enTete();
+    rendreOrig.apply(this, arguments);
+    var item = menuItems.find(estBox);
+    if (!item || !item.disponible || ouverteMaintenant()) return;
+    var carte = document.querySelector('.menu-card[data-id="' + item.id + '"]');
+    if (!carte) return;
+    carte.classList.add('menu-card-unavailable');
+    carte.removeAttribute('onclick');
+    var b = carte.querySelector('.menu-card-add'); if (b) b.disabled = true;
+    var v = carte.querySelector('.menu-card-visual');
+    if (v && !v.querySelector('.unavailable-badge')) v.insertAdjacentHTML('beforeend', '<div class="unavailable-badge">' + (EN() ? 'Available from 2pm' : 'Dispo à partir de 14h') + '</div>');
+  };
+
+  var ajouterOrig = addToCart;
+  addToCart = function (id) {
+    var item = menuItems.find(function (i) { return i.id === id; });
+    if (estBox(item) && !ouverteMaintenant()) {
+      showToast(EN() ? 'The Web Exclusive Box can be ordered from 2pm to 8:30pm.' : 'La Box Exclu web se commande de 14h à 20h30.', 'error');
+      return;
+    }
+    return ajouterOrig.apply(this, arguments);
+  };
+
+  // Heure de retrait réellement choisie : jour (aujourd'hui ou non) et minutes.
+  var retraitChoisi = function () {
+    var v = (document.getElementById('pickupTime') || {}).value || '';
+    var auj = function (d) { return new Date().toDateString() === d.toDateString(); };
+    if (v === 'asap') { getAsapTime(); var d = new Date(lastAsapDateTime || new Date()); return { auj: auj(d), min: d.getHours() * 60 + d.getMinutes() }; }
+    if (creneauAuto && v === creneauAuto.valeur) { var c = creneauAuto.date; return { auj: auj(c), min: c.getHours() * 60 + c.getMinutes() }; }
+    var m = v.match(/^(\S+)\s+(\d{1,2})h(\d{2})?/);
+    if (!m) return null;
+    return { auj: m[1] === "Aujourd'hui", min: (+m[2]) * 60 + (+(m[3] || 0)) };
+  };
+  var boxDansLePanier = function () { return cart.some(estBox); };
+
+  var envoyerOrig = submitOrder;
+  submitOrder = async function () {
+    if (boxDansLePanier()) {
+      var r = retraitChoisi();
+      if (!ouverteMaintenant() || !r || !r.auj || r.min < DEBUT || r.min > FIN) {
+        showToast(EN() ? 'The Web Exclusive Box is picked up today between 2pm and 8:30pm.\nChoose a time in that range, or remove the box from your cart.'
+                       : "La Box Exclu web se retire aujourd'hui entre 14h et 20h30.\nChoisissez un créneau dans cette plage, ou retirez la box du panier.", 'error');
+        return;
+      }
+    }
+    return envoyerOrig.apply(this, arguments);
+  };
+
+  // Après la box : proposer une sauce en plus (0,70 €), demande de Paco.
+  var upsellOrig = getSmartUpsell;
+  getSmartUpsell = function (id) {
+    var item = menuItems.find(function (i) { return i.id === id; });
+    if (estBox(item)) {
+      var sauce = menuItems.find(function (i) { return i.categorie_id === 17 && /ail/i.test(i.nom) && i.disponible; });
+      if (sauce) return {
+        emoji: '🧄',
+        text: (EN() ? 'An <strong>extra sauce</strong> for your fries? <strong>' : 'Une <strong>sauce en plus</strong> pour vos frites ? <strong>') + escapeHtml(nomPlat(sauce)) + '</strong> · ' + formatPrice(sauce.prix),
+        action: function () { addToCart(sauce.id); },
+        btn: '+ ' + formatPrice(sauce.prix)
+      };
+    }
+    return upsellOrig.apply(this, arguments);
+  };
+  var formuleOrig = addFormuleToCart;
+  addFormuleToCart = function () {
+    var etaitBox = estBox(currentFormule), id = currentFormule && currentFormule.id;
+    var r = formuleOrig.apply(this, arguments);
+    if (etaitBox) setTimeout(function () { document.querySelectorAll('.toast').forEach(function (t) { t.remove(); }); showUpsellBubble(id); }, 450);
+    return r;
+  };
+
+  // Heure qui passe 14h ou 20h30 page ouverte : on réaffiche le menu à la minute.
+  var etat = ouverteMaintenant();
+  setInterval(function () { var e = ouverteMaintenant(); if (e !== etat) { etat = e; try { renderMenu(); } catch (err) {} } }, 30000);
+
+  if (document.getElementById('menuContent') && Array.isArray(menuItems) && menuItems.length) { try { renderMenu(); } catch (e) {} }
+})();
+</script>
 </body>
 </html>
 
