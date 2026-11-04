@@ -917,7 +917,7 @@ window.i18n = {
   // est en francais pour TOUT LE MONDE, y compris ceux qui avaient deja
   // clique sur EN pendant les essais. Tout le travail de traduction reste en
   // place dessous, il suffira de repasser ce drapeau a true.
-  var BILINGUE_ACTIF = false;
+  var BILINGUE_ACTIF = true; // 04/11/2026 18h35 : ANGLAIS OUVERT A TOUS (go de Ludo). Retour arriere : remettre false.
   // 04/11/2026 : APERCU CACHE pour Ludo. ?apercu-en=1 passe CE navigateur en anglais
   // (memorise, suit le visiteur de page en page et au retour du paiement), ?apercu-en=0 l'enleve.
   // Aucun lien ne mene ici : les clients et Google continuent de voir le site en francais.
