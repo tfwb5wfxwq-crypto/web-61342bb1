@@ -234,7 +234,8 @@ serve(async (req) => {
     // ===== VALIDATION #3 : BOX EXCLU WEB (04/11/2026) =====
     // Commandée ET retirée seulement le jour même entre 14h et 20h30 (heure de Paris).
     // La page bloque déjà ; ce contrôle serveur ferme la porte à un panier forgé.
-    if (menuData.some((m: any) => m.nom === 'Box Exclu Web')) {
+    const boxHoraire = menuData.find((m: any) => m.id === 82) // id fixe : le nom peut changer
+    if (boxHoraire) {
       const hm = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
         .format(new Date()).split(':').map((x: string) => parseInt(x, 10))
       const maintenant = hm[0] * 60 + hm[1]
@@ -246,9 +247,9 @@ serve(async (req) => {
         ok = !!m && m[1] === "Aujourd'hui" && minutes >= DEBUT && minutes <= FIN
       }
       if (!ok) {
-        await notifyAdminBlocked('Box Exclu Web hors créneau 14h-20h30', { orderNum, name, phone, email, total })
+        await notifyAdminBlocked(`${boxHoraire.nom} hors créneau 14h-20h30`, { orderNum, name, phone, email, total })
         return new Response(
-          JSON.stringify({ error: "La Box Exclu web se commande et se retire aujourd'hui entre 14h et 20h30. Retirez-la du panier ou choisissez un créneau dans cette plage." }),
+          JSON.stringify({ error: `La ${boxHoraire.nom} se commande et se retire aujourd'hui entre 14h et 20h30. Retirez-la du panier ou choisissez un créneau dans cette plage.` }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }

@@ -4849,11 +4849,14 @@ window.addEventListener('beforeunload', () => {
   var NOUVEAU_JUSQUA = new Date('2026-12-04T00:00:00+01:00').getTime();
   document.head.insertAdjacentHTML('beforeend', '<style>.box-nouveau{position:absolute;left:10px;top:10px;z-index:3;padding:4px 8px;background:#B45C12;color:#FFF8EC;font:500 11px/1.2 \'DM Sans\',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;pointer-events:none}</style>');
   var EN = function () { var l = (typeof currentLang === 'string' && currentLang) || document.documentElement.lang || ''; return l.indexOf('en') === 0; };
-  FORMULE_CONFIG[NOM] = [
+  var ID_BOX = 82; // id fixe en base : le nom peut changer sans rien casser
+  var COMPOSANTS = [
     { name: 'Sandwich', category: 1, qty: 1 },
     { name: 'Boisson', category: 7, qty: 1 },
     { name: 'Sauce', items: ["Sauce à l'ail", 'Ketchup'], qty: 1 }
   ];
+  FORMULE_CONFIG[NOM] = COMPOSANTS;
+  var nomBox = function () { var it = Array.isArray(menuItems) && menuItems.find(function (i) { return i.id === ID_BOX; }); if (it) FORMULE_CONFIG[it.nom] = COMPOSANTS; return it ? it.nom : NOM; };
   if (typeof ITEM_IMAGES === 'object') { ITEM_IMAGES["Sauce à l'ail"] = 'img/sauce-ail.jpg'; ITEM_IMAGES['Ketchup'] = 'img/ketchup.jpg'; }
   // Hors du vrai site seulement : ?heure=15h30 simule l'heure pour tester.
   var test = location.hostname.indexOf('beyrouth.express') === -1 ? location.search.match(/[?&]heure=(\d{1,2})h(\d{2})?/) : null;
@@ -4862,7 +4865,7 @@ window.addEventListener('beforeunload', () => {
     var n = new Date(); return n.getHours() * 60 + n.getMinutes();
   };
   var ouverteMaintenant = function () { var m = minutesMaintenant(); return m >= DEBUT && m <= FIN; };
-  var estBox = function (x) { return !!x && x.nom === NOM; };
+  var estBox = function (x) { return !!x && x.id === ID_BOX; };
 
   // La box passe en tête de sa catégorie (avant la Box Beyrouth), demande de Paco.
   var enTete = function () {
@@ -4873,6 +4876,7 @@ window.addEventListener('beforeunload', () => {
 
   var rendreOrig = renderMenu;
   renderMenu = function () {
+    nomBox();
     enTete();
     rendreOrig.apply(this, arguments);
     var item = menuItems.find(estBox);
@@ -4894,7 +4898,7 @@ window.addEventListener('beforeunload', () => {
   addToCart = function (id) {
     var item = menuItems.find(function (i) { return i.id === id; });
     if (estBox(item) && !ouverteMaintenant()) {
-      showToast(EN() ? 'The Web Exclusive Box can be ordered from 2pm to 8:30pm.' : 'La Box Exclu web se commande de 14h à 20h30.', 'error');
+      showToast(EN() ? 'This box can be ordered from 2pm to 8:30pm.' : 'La ' + nomBox() + ' se commande de 14h à 20h30.', 'error');
       return;
     }
     return ajouterOrig.apply(this, arguments);
@@ -4917,8 +4921,8 @@ window.addEventListener('beforeunload', () => {
     if (boxDansLePanier()) {
       var r = retraitChoisi();
       if (!ouverteMaintenant() || !r || !r.auj || r.min < DEBUT || r.min > FIN) {
-        showToast(EN() ? 'The Web Exclusive Box is picked up today between 2pm and 8:30pm.\nChoose a time in that range, or remove the box from your cart.'
-                       : "La Box Exclu web se retire aujourd'hui entre 14h et 20h30.\nChoisissez un créneau dans cette plage, ou retirez la box du panier.", 'error');
+        showToast(EN() ? 'This box is picked up today between 2pm and 8:30pm.\nChoose a time in that range, or remove the box from your cart.'
+                       : 'La ' + nomBox() + " se retire aujourd'hui entre 14h et 20h30.\nChoisissez un créneau dans cette plage, ou retirez la box du panier.", 'error');
         return;
       }
     }
