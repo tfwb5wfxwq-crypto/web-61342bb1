@@ -1365,7 +1365,7 @@ window.i18n = {
       if (ARABE_OK) document.querySelectorAll('.lang-toggle').forEach(function (g) {
         if (g.querySelector('[data-lang-btn="ar"]')) return;
         var sep = document.createElement('span'); sep.setAttribute('aria-hidden', 'true'); sep.textContent = '·';
-        var b = document.createElement('button'); b.type = 'button'; b.setAttribute('data-lang-btn', 'ar'); b.setAttribute('lang', 'ar'); b.textContent = 'عربي';
+        var b = document.createElement('button'); b.type = 'button'; b.setAttribute('data-lang-btn', 'ar'); b.setAttribute('lang', 'ar'); b.textContent = 'AR'; b.setAttribute('aria-label', 'العربية');
         b.addEventListener('click', function () { if (typeof choisirLangue === 'function') choisirLangue('ar'); });
         g.appendChild(sep); g.appendChild(b);
       });
