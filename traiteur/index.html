@@ -638,10 +638,12 @@ window.T = function (cle, secours) {
 @media(min-width:760px){.brand .logo-neuf{height:48px!important}}
 .brand-stack{flex:0 0 auto!important}
 /* Bouton FR · EN (04/11) : discret, visible seulement quand le bilingue est actif (ou en aperçu) */
-.lang-toggle{display:inline-flex;align-items:center;gap:4px;font:500 13px/20px 'DM Sans',system-ui,sans-serif;color:var(--text-muted,#6B6256)}
+.lang-toggle{display:inline-flex;align-items:center;gap:2px;font:500 12px/20px 'DM Sans',system-ui,sans-serif;letter-spacing:.04em}
 .lang-toggle[hidden]{display:none!important}
-.lang-toggle button{min-height:32px;min-width:32px;padding:0 6px;border:0;background:none;color:inherit;font:inherit;cursor:pointer;border-radius:8px}
-.lang-toggle button[aria-current="true"]{color:var(--text,#1F1B16);font-weight:600;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
+.lang-toggle>span{color:rgba(31,27,22,.28)}
+.lang-toggle button{display:inline-flex;align-items:center;justify-content:center;min-height:32px;min-width:28px;padding:0 4px;border:0;background:none;color:#8A8075;font:inherit;cursor:pointer;border-radius:8px;transition:color .15s cubic-bezier(.22,1,.36,1)}
+.lang-toggle button:hover{color:#1F1B16}
+.lang-toggle button[aria-current="true"]{color:#1F1B16;font-weight:600}
 .lang-toggle button:focus-visible{outline:2px solid var(--sage-dark,#304936);outline-offset:2px}
 </style>
 
@@ -1189,10 +1191,10 @@ if (document.startViewTransition) {
     <div class="loc-body">
       <p class="loc-name">A Beyrouth</p>
       <p class="loc-addr">4 Esplanade du Général de Gaulle<br>92400 Courbevoie (La Défense)</p>
-      <p class="loc-note">Sortie 4 du métro La Défense</p>
+      <p class="loc-note" data-i18n="confirmation.metro">Sortie 4 du métro La Défense</p>
       <a class="loc-btn" href="https://www.google.com/maps/search/A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" rel="noopener">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Ouvrir dans Google Maps
+        <span data-i18n="confirmation.openMaps">Ouvrir dans Google Maps</span>
       </a>
     </div>
   </div>
