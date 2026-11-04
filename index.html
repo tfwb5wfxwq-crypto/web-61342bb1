@@ -4878,7 +4878,9 @@ window.addEventListener('beforeunload', () => {
   };
   // Commande jusqu'à 20h20 : le retrait le plus tôt possible est à +10 min (PREP_DELAY_MIN), donc 20h30 au plus tard.
   var FIN_CMD = FIN - ((typeof PREP_DELAY_MIN === 'number') ? PREP_DELAY_MIN : 10);
-  var ouverteMaintenant = function () { var m = minutesMaintenant(); return m >= DEBUT && m <= FIN_CMD; };
+  // Ouverture 10 min avant (Ludo 04/11) : commandable dès 13h50 pour un 1er retrait à 14h00
+  var DEBUT_CMD = DEBUT - ((typeof PREP_DELAY_MIN === 'number') ? PREP_DELAY_MIN : 10);
+  var ouverteMaintenant = function () { var m = minutesMaintenant(); return m >= DEBUT_CMD && m <= FIN_CMD; };
   var estBox = function (x) { return !!x && x.id === ID_BOX; };
 
   // La box passe en tête de sa catégorie (avant la Box Beyrouth), demande de Paco.
@@ -4901,9 +4903,8 @@ window.addEventListener('beforeunload', () => {
     var vis = carte.querySelector('.menu-card-visual');
     if (Date.now() < NOUVEAU_JUSQUA && vis && !vis.querySelector('.box-nouveau')) vis.insertAdjacentHTML('beforeend', '<span class="box-nouveau">' + (EN() ? 'New' : 'Nouveau') + '</span>');
     // Paco (04/11) : « écris en gros en description » → mention bien visible sur la carte
-    var desc = carte.querySelector('.menu-card-desc');
-    if (desc && !desc.querySelector('.box-horaire')) desc.insertAdjacentHTML('beforeend', '<span class="box-horaire">' + (PRECOMMANDE ? (EN() ? 'Pick-up 2pm to 8:30pm' : 'Retrait de 14h à 20h30') : (EN() ? 'Only from 2pm to 8:30pm' : 'Uniquement de 14h à 20h30')) + '</span>');
-    if (PRECOMMANDE) return;
+    // 04/11 15h36 (Ludo) : pas de mention en plus, le badge grisé suffit quand elle n'est pas dispo
+    if (PRECOMMANDE) { var desc = carte.querySelector('.menu-card-desc'); if (desc && !desc.querySelector('.box-horaire')) desc.insertAdjacentHTML('beforeend', '<span class="box-horaire">' + (EN() ? 'Pick-up 2pm to 8:30pm' : 'Retrait de 14h à 20h30') + '</span>'); return; }
     if (!item.disponible || ouverteMaintenant()) return;
     carte.classList.add('menu-card-unavailable');
     carte.removeAttribute('onclick');
@@ -4985,7 +4986,7 @@ window.addEventListener('beforeunload', () => {
   var armer = function () {
     clearTimeout(minuterie);
     var n = new Date(), m = n.getHours() * 60 + n.getMinutes();
-    var cible = m < DEBUT ? DEBUT : (m <= FIN_CMD ? FIN_CMD + 1 : DEBUT + 24 * 60);
+    var cible = m < DEBUT_CMD ? DEBUT_CMD : (m <= FIN_CMD ? FIN_CMD + 1 : DEBUT_CMD + 24 * 60);
     var ms = (cible - m) * 60000 - n.getSeconds() * 1000 - n.getMilliseconds() + 300;
     minuterie = setTimeout(verifier, Math.min(ms, 6 * 3600000));
   };

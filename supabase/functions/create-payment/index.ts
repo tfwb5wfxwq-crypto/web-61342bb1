@@ -243,7 +243,8 @@ serve(async (req) => {
         .format(new Date()).split(':').map((x: string) => parseInt(x, 10))
       const maintenant = hm[0] * 60 + hm[1]
       const DEBUT = 14 * 60, FIN = 20 * 60 + 30
-      let ok = PRECOMMANDE || (maintenant >= DEBUT && maintenant <= FIN)
+      // Commandable dès 13h50 (10 min de préparation avant le 1er retrait à 14h00), Ludo 04/11
+      let ok = PRECOMMANDE || (maintenant >= DEBUT - 10 && maintenant <= FIN)
       if (ok && (!pickup || pickup === 'asap')) {
         // « Dès que possible » = prête dans ~10 min : doit tomber dans la plage
         ok = maintenant + 10 >= DEBUT && maintenant + 10 <= FIN
