@@ -787,18 +787,18 @@ window.T = function (cle, secours) {
         <div class="form-group">
           <label class="form-label" for="personnes">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span data-i18n="form.guests">Nombre de personnes</span> *
+            <span data-i18n="form.guests">Nombre de personnes</span>
           </label>
-          <input type="number" id="personnes" name="personnes" class="form-input" min="10" required>
+          <input type="number" id="personnes" name="personnes" class="form-input" min="10">
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="type">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span data-i18n="form.eventType">Type d'événement</span> *
+          <span data-i18n="form.eventType">Type d'événement</span>
         </label>
-        <select id="type" name="type" class="form-select" required>
+        <select id="type" name="type" class="form-select">
           <option value="" data-i18n="form.choose">Choisir</option>
           <option value="professionnel" data-i18n="catering.professional">Événement professionnel</option>
           <option value="prive" data-i18n="catering.private">Célébration privée</option>
@@ -1152,7 +1152,7 @@ traiteurForm.addEventListener('submit', async (e) => {
         name: `${data.prenom} ${data.nom}`,
         email: data.email,
         phone: data.telephone,
-        eventType: data.type,
+        eventType: data.type || null, // facultatif (04/11)
         guestCount: parseInt(data.personnes),
         eventDate: data.date || null, // facultative (04/11) : vide = pas de date, sinon la base refuserait la ligne
         // Langue du visiteur au moment de la demande : l email de confirmation
