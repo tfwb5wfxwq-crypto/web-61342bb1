@@ -627,6 +627,9 @@ html[dir="rtl"] body{font-family:'IBM Plex Sans Arabic','DM Sans',system-ui,sans
 html[dir="rtl"] h1,html[dir="rtl"] h2,html[dir="rtl"] h3,html[dir="rtl"] .menu-cat-title,html[dir="rtl"] .menu-card-name,html[dir="rtl"] .announcement-title,html[dir="rtl"] .timepicker-title,html[dir="rtl"] .footer-heading{font-family:'Noto Kufi Arabic','IBM Plex Sans Arabic',serif!important;letter-spacing:0!important}
 html[dir="rtl"] .lang-toggle{margin-left:0;margin-right:auto}
 html[dir="rtl"] .box-nouveau,html[dir="rtl"] .badge-populaire{left:auto;right:10px}
+html[dir="rtl"] .menu-card-add{right:auto;left:10px}
+html[dir="rtl"] .unavailable-badge{right:auto;left:12px}
+html[dir="rtl"] .menu-card-bottom{padding-right:0;padding-left:48px}
 html[dir="rtl"] .info-address svg,html[dir="rtl"] .btn svg,html[dir="rtl"] .slot-chevron{transform:scaleX(-1)}
 html[dir="rtl"] input,html[dir="rtl"] textarea{text-align:right}
 html[dir="rtl"] input[type="tel"],html[dir="rtl"] input[type="email"]{direction:ltr;text-align:right}
@@ -4978,12 +4981,12 @@ window.addEventListener('beforeunload', () => {
   // Texte du badge : « Dispo à partir de 14h » (plus tard aujourd'hui), « Dispo demain dès 14h », « Dispo lundi dès 14h »
   var texteBadge = function () {
     var j = new Date().getDay();
-    if (jourOuvert(j) && minutesMaintenant() < DEBUT_CMD) return AR() ? 'متوفر ابتداءً من الساعة 14:00' : EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
+    if (jourOuvert(j) && minutesMaintenant() < DEBUT_CMD) return AR() ? 'من 14:00' : EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
     for (var d = 1; d <= 7; d++) { var jj = (j + d) % 7; if (jourOuvert(jj)) {
-      if (d === 1) return AR() ? 'متوفر غدًا ابتداءً من الساعة 14:00' : EN() ? 'Back tomorrow from 2pm' : 'Dispo demain dès 14h';
+      if (d === 1) return AR() ? 'غدًا من 14:00' : EN() ? 'Back tomorrow from 2pm' : 'Dispo demain dès 14h';
       var noms = EN() ? ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] : ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
-      return AR() ? 'متوفر يوم ' + ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][jj] + ' ابتداءً من الساعة 14:00' : EN() ? 'Back ' + noms[jj] + ' from 2pm' : 'Dispo ' + noms[jj] + ' dès 14h'; } }
-    return AR() ? 'متوفر ابتداءً من الساعة 14:00' : EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
+      return AR() ? ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][jj] + ' من 14:00' : EN() ? 'Back ' + noms[jj] + ' from 2pm' : 'Dispo ' + noms[jj] + ' dès 14h'; } }
+    return AR() ? 'من 14:00' : EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
   };
   var estBox = function (x) { return !!x && x.id === ID_BOX; };
 
