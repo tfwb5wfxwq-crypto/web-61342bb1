@@ -242,9 +242,10 @@ serve(async (req) => {
       const DEBUT = 14 * 60, FIN = 20 * 60 + 30
       let ok = maintenant >= DEBUT && maintenant <= FIN
       if (ok && pickup && pickup !== 'asap') {
-        const m = String(pickup).match(/^(\S+)\s+(\d{1,2})h(\d{2})?/)
+        // Créneau d'aujourd'hui = « 18h30 » tout court ; autre jour = « Demain 18h30 ».
+        const m = String(pickup).match(/^(?:(\S+)\s+)?(\d{1,2})h(\d{2})?/)
         const minutes = m ? parseInt(m[2], 10) * 60 + parseInt(m[3] || '0', 10) : -1
-        ok = !!m && m[1] === "Aujourd'hui" && minutes >= DEBUT && minutes <= FIN
+        ok = !!m && (!m[1] || m[1] === "Aujourd'hui") && minutes >= DEBUT && minutes <= FIN
       }
       if (!ok) {
         await notifyAdminBlocked(`${boxHoraire.nom} hors créneau 14h-20h30`, { orderNum, name, phone, email, total })

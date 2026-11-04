@@ -2225,7 +2225,7 @@ function openFormuleModal(formuleItem) {
   container.innerHTML = config.map((comp, idx) => {
     let options = comp.category
       ? menuItems.filter(it => it.categorie_id === comp.category && it.disponible)
-      : comp.items.map(name => ({ nom: name, image_url: ITEM_IMAGES[name] || null, emoji: '🍽️' }));
+      : comp.items.filter(n => { const it = menuItems.find(i => i.nom === n); return !it || it.disponible; }).map(name => ({ nom: name, image_url: ITEM_IMAGES[name] || null, emoji: '🍽️' }));
 
     // Formule 3 : exclure certains desserts (garder Baklawas 3 pièces)
     if (formuleItem.nom === 'Formule 3' && comp.category === 6) {
@@ -2278,7 +2278,7 @@ function selectFormuleOption(compIdx, optIdx, maxQty) {
   const comp = config[compIdx];
   let options = comp.category
     ? menuItems.filter(it => it.categorie_id === comp.category && it.disponible)
-    : comp.items.map(name => ({ nom: name }));
+    : comp.items.filter(n => { const it = menuItems.find(i => i.nom === n); return !it || it.disponible; }).map(name => ({ nom: name }));
 
   // Formule 3 : exclure certains desserts (garder Baklawas 3 pièces)
   if (currentFormule.nom === 'Formule 3' && comp.category === 6) {
@@ -4864,7 +4864,9 @@ window.addEventListener('beforeunload', () => {
     if (test) return (+test[1]) * 60 + (+(test[2] || 0));
     var n = new Date(); return n.getHours() * 60 + n.getMinutes();
   };
-  var ouverteMaintenant = function () { var m = minutesMaintenant(); return m >= DEBUT && m <= FIN; };
+  // Commande jusqu'à 20h20 : le retrait le plus tôt possible est à +10 min (PREP_DELAY_MIN), donc 20h30 au plus tard.
+  var FIN_CMD = FIN - ((typeof PREP_DELAY_MIN === 'number') ? PREP_DELAY_MIN : 10);
+  var ouverteMaintenant = function () { var m = minutesMaintenant(); return m >= DEBUT && m <= FIN_CMD; };
   var estBox = function (x) { return !!x && x.id === ID_BOX; };
 
   // La box passe en tête de sa catégorie (avant la Box Beyrouth), demande de Paco.
@@ -4891,14 +4893,14 @@ window.addEventListener('beforeunload', () => {
     carte.removeAttribute('onclick');
     var b = carte.querySelector('.menu-card-add'); if (b) b.disabled = true;
     var v = carte.querySelector('.menu-card-visual');
-    if (v && !v.querySelector('.unavailable-badge')) v.insertAdjacentHTML('beforeend', '<div class="unavailable-badge">' + (EN() ? 'Available from 2pm' : 'Dispo à partir de 14h') + '</div>');
+    if (v && !v.querySelector('.unavailable-badge')) v.insertAdjacentHTML('beforeend', '<div class="unavailable-badge">' + (minutesMaintenant() > FIN_CMD ? (EN() ? 'Back tomorrow from 2pm' : 'Dispo demain dès 14h') : (EN() ? 'Available from 2pm' : 'Dispo à partir de 14h')) + '</div>');
   };
 
   var ajouterOrig = addToCart;
   addToCart = function (id) {
     var item = menuItems.find(function (i) { return i.id === id; });
     if (estBox(item) && !ouverteMaintenant()) {
-      showToast(EN() ? 'This box can be ordered from 2pm to 8:30pm.' : 'La ' + nomBox() + ' se commande de 14h à 20h30.', 'error');
+      showToast(EN() ? 'This box can be ordered from 2pm to 8:20pm.' : 'La ' + nomBox() + ' se commande de 14h à 20h20.', 'error');
       return;
     }
     return ajouterOrig.apply(this, arguments);
@@ -4910,9 +4912,10 @@ window.addEventListener('beforeunload', () => {
     var auj = function (d) { return new Date().toDateString() === d.toDateString(); };
     if (v === 'asap') { getAsapTime(); var d = new Date(lastAsapDateTime || new Date()); return { auj: auj(d), min: d.getHours() * 60 + d.getMinutes() }; }
     if (creneauAuto && v === creneauAuto.valeur) { var c = creneauAuto.date; return { auj: auj(c), min: c.getHours() * 60 + c.getMinutes() }; }
-    var m = v.match(/^(\S+)\s+(\d{1,2})h(\d{2})?/);
+    // Créneau d'aujourd'hui = « 18h30 » tout court ; autre jour = « Demain 18h30 ».
+    var m = v.match(/^(?:(\S+)\s+)?(\d{1,2})h(\d{2})?$/);
     if (!m) return null;
-    return { auj: m[1] === "Aujourd'hui", min: (+m[2]) * 60 + (+(m[3] || 0)) };
+    return { auj: !m[1] || m[1] === "Aujourd'hui", min: (+m[2]) * 60 + (+(m[3] || 0)) };
   };
   var boxDansLePanier = function () { return cart.some(estBox); };
 
@@ -4960,7 +4963,7 @@ window.addEventListener('beforeunload', () => {
   var armer = function () {
     clearTimeout(minuterie);
     var n = new Date(), m = n.getHours() * 60 + n.getMinutes();
-    var cible = m < DEBUT ? DEBUT : (m <= FIN ? FIN + 1 : DEBUT + 24 * 60);
+    var cible = m < DEBUT ? DEBUT : (m <= FIN_CMD ? FIN_CMD + 1 : DEBUT + 24 * 60);
     var ms = (cible - m) * 60000 - n.getSeconds() * 1000 - n.getMilliseconds() + 300;
     minuterie = setTimeout(verifier, Math.min(ms, 6 * 3600000));
   };
