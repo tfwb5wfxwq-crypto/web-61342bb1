@@ -626,7 +626,7 @@ linear-gradient(var(--border-light),var(--border-light)) 100% 0/calc((100% - 48p
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20261104a"></script>
+<script src="i18n.js?v=20261104b"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -1104,6 +1104,13 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
 .badge-populaire::before{content:"";width:6px;height:6px;border-radius:50%;background:#B45C12;flex:0 0 6px}
 .menu-card-unavailable .badge-populaire{display:none}
 .formule-option img[src*="/m26/carre/"]{aspect-ratio:1/1!important;width:44px!important;height:44px!important;object-fit:cover!important}
+/* Bouton FR · EN (04/11) : discret, visible seulement quand le bilingue est actif (ou en aperçu) */
+.lang-toggle{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font:500 13px/20px 'DM Sans',system-ui,sans-serif;color:var(--text-muted,#6B6256)}
+.lang-toggle[hidden]{display:none!important}
+.lang-toggle button{min-height:32px;min-width:32px;padding:0 6px;border:0;background:none;color:inherit;font:inherit;cursor:pointer;border-radius:8px}
+.lang-toggle button[aria-current="true"]{color:var(--text,#1F1B16);font-weight:600;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px}
+.lang-toggle button:focus-visible{outline:2px solid var(--sage-dark,#304936);outline-offset:2px}
+.menu-card[data-id="82"] .badge-populaire{top:36px}
 </style>
 
 <!-- HEADER -->
@@ -1141,6 +1148,7 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
         <span class="address-full" data-i18n="confirmation.metroShort">La Défense · Sortie 4 Métro</span>
         <span class="address-short">La Défense</span>
       </a>
+      <div class="lang-toggle" role="group" aria-label="Langue / Language" hidden><button type="button" data-lang-btn="fr" onclick="choisirLangue('fr')" lang="fr">FR</button><span aria-hidden="true">·</span><button type="button" data-lang-btn="en" onclick="choisirLangue('en')" lang="en">EN</button></div>
     </div>
   </div>
 </div>
@@ -1362,7 +1370,7 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
 <div class="cart-panel" id="cartPanel">
   <div class="cart-header">
     <h3 data-i18n="cart.yourOrder">Votre commande</h3>
-    <button class="cart-close" type="button" onclick="toggleCart()" aria-label="Fermer le panier">&times;</button>
+    <button class="cart-close" type="button" onclick="toggleCart()" aria-label="Fermer le panier" data-i18n-aria="aria.closeCart">&times;</button>
   </div>
   <div class="cart-body">
     <div class="cart-items" id="cartItems">
@@ -1388,18 +1396,18 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
             <div style="font-size:.74rem;color:var(--text-muted);margin-top:3px;" data-i18n="timepicker.noQueue">Pas de queue : direct à la caisse</div>
           </div>
         </div>
-        <button onclick="openTimePicker()" style="background:var(--sage);color:white;padding:8px 12px;border:1px solid var(--sage);border-radius:8px;font-size:.8rem;font-weight:500;">Modifier</button>
+        <button onclick="openTimePicker()" style="background:var(--sage);color:white;padding:8px 12px;border:1px solid var(--sage);border-radius:8px;font-size:.8rem;font-weight:500;" data-i18n="cart.modify">Modifier</button>
       </div>
 
       <form class="cart-form" id="cartCustomerForm" novalidate onsubmit="event.preventDefault(); submitOrder();">
         <input type="hidden" id="pickupTime" value="">
         <div class="cart-field">
-          <input type="text" id="clientName" placeholder="Prénom" data-i18n="cart.namePh" data-i18n-placeholder aria-label="Prénom" required minlength="2" maxlength="50" aria-describedby="clientNameError">
+          <input type="text" id="clientName" placeholder="Prénom" data-i18n="cart.namePh" data-i18n-placeholder aria-label="Prénom" data-i18n-aria="aria.firstName" required minlength="2" maxlength="50" aria-describedby="clientNameError">
           <p class="cart-field-error" id="clientNameError" aria-live="polite"></p>
         </div>
         <div class="form-row">
           <div class="cart-field">
-            <input type="tel" id="clientPhone" placeholder="Téléphone (ex: 0612345678)" data-i18n="cart.phonePh" data-i18n-placeholder aria-label="Téléphone" required aria-describedby="clientPhoneError">
+            <input type="tel" id="clientPhone" placeholder="Téléphone (ex: 0612345678)" data-i18n="cart.phonePh" data-i18n-placeholder aria-label="Téléphone" data-i18n-aria="aria.phone" required aria-describedby="clientPhoneError">
             <p class="cart-field-error" id="clientPhoneError" aria-live="polite"></p>
           </div>
           <div class="cart-field">
@@ -1407,7 +1415,7 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
             <p class="cart-field-error" id="clientEmailError" aria-live="polite"></p>
           </div>
         </div>
-        <textarea id="clientNote" placeholder="Note : allergies, sans oignon, etc." aria-label="Note pour le restaurant" maxlength="500"></textarea>
+        <textarea id="clientNote" placeholder="Note : allergies, sans oignon, etc." data-i18n="cart.notePh" data-i18n-placeholder aria-label="Note pour le restaurant" data-i18n-aria="aria.note" maxlength="500"></textarea>
         <label class="cart-optin">
           <input type="checkbox" id="optinPromos" checked>
           <span data-i18n="cart.optin">Me tenir informé des offres et promotions</span>
@@ -1427,7 +1435,7 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
 <div class="upsell-bubble" id="upsellBubble" aria-hidden="true">
   <div class="upsell-bubble-text" id="upsellText"></div>
   <button class="upsell-bubble-btn" id="upsellBtn" onclick="applyUpsell()"><span data-i18n="cart.add">Ajouter</span></button>
-  <button type="button" class="upsell-bubble-close" onclick="dismissUpsell()" aria-label="Fermer">&times;</button>
+  <button type="button" class="upsell-bubble-close" onclick="dismissUpsell()" aria-label="Fermer" data-i18n-aria="aria.close">&times;</button>
 </div>
 
 <!-- FOOTER -->
@@ -1462,7 +1470,7 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
         </svg>
         <span>Instagram</span>
       </a>
-      <a href="https://maps.app.goo.gl/mKChLAAquBDL2C5c6" target="_blank" rel="noopener" aria-label="Laisser un avis Google">
+      <a href="https://maps.app.goo.gl/mKChLAAquBDL2C5c6" target="_blank" rel="noopener" aria-label="Laisser un avis Google" data-i18n-aria="aria.googleReview">
         <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
           <path d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" fill="currentColor"/>
           <path d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" fill="currentColor"/>
@@ -2106,7 +2114,7 @@ function renderMenu() {
       html += `
         <div class="menu-card ${!item.disponible ? 'menu-card-unavailable' : ''}" data-id="${item.id}" onclick="${item.disponible ? `addToCart(${item.id})` : ''}">
           <div class="menu-card-visual">
-            ${item.populaire === true && item.disponible && item.id !== 82 ? `<span class="badge-populaire">${(typeof currentLang === 'string' && currentLang.indexOf('en') === 0) ? 'Popular' : 'Populaire'}</span>` : ''}
+            ${item.populaire === true && item.disponible ? `<span class="badge-populaire">${(typeof currentLang === 'string' && currentLang.indexOf('en') === 0) ? 'Popular' : 'Populaire'}</span>` : ''}
             ${item.image_url
               ? `<img src="${item.image_url}?v=${IMAGE_VERSION}"${moyenne(item.image_url) ? ` srcset="${moyenne(item.image_url)}?v=${IMAGE_VERSION} 600w, ${item.image_url}?v=${IMAGE_VERSION} 900w" sizes="(max-width: 759px) 50vw, 320px"` : ''} alt="${escapeHtml(item.nom)}" loading="lazy" decoding="async">`
               : `<span class="emoji-placeholder" aria-hidden="true"></span>`
@@ -2624,8 +2632,8 @@ function updateCartUI() {
     div.innerHTML = `
       ${visual}
       <div class="cart-item-info">
-        <div class="cart-item-name">${escapeHtml(nomPlat(c))}</div>
-        <div class="cart-item-price">${formatPrice(c.prix)} chacun</div>
+        <div class="cart-item-name">${escapeHtml(nomPlat(menuItems.find(i => i.id === c.id) || c))}</div>
+        <div class="cart-item-price">${formatPrice(c.prix)} ${T('cart.each', 'chacun')}</div>
         ${componentsHtml}
       </div>
       <div class="cart-item-qty">
@@ -3237,17 +3245,17 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
       </button>
 
       <div style="background:#FDFBF7;border:1px solid #E6DFD3;border-radius:14px;padding:24px;box-shadow:0 1px 2px rgba(31,27,22,.05);margin-bottom:20px;">
-        <h2 style="margin:0 0 8px;font-family:'DM Serif Display',Georgia,serif;font-size:1.65rem;font-weight:400;">Paiement sécurisé</h2>
-        <p style="margin:0;color:var(--text-soft);font-size:0.9rem;">Commande ${orderNum}</p>
+        <h2 style="margin:0 0 8px;font-family:'DM Serif Display',Georgia,serif;font-size:1.65rem;font-weight:400;">${T('pm.title', 'Paiement sécurisé')}</h2>
+        <p style="margin:0;color:var(--text-soft);font-size:0.9rem;">${T('pm.order', 'Commande')} ${orderNum}</p>
         <p style="margin:8px 0 24px;font-family:'DM Serif Display',Georgia,serif;font-size:1.8rem;font-weight:400;color:var(--dark);font-variant-numeric:tabular-nums;">${total.toFixed(2).replace('.', ',')} €</p>
 
         <div id="expressPay">
-          <p class="express-title">Paiement express</p>
+          <p class="express-title">${T('pm.express', 'Paiement express')}</p>
           <div class="express-row">
-            <div class="apple-pay-button" id="applePayButton" role="button" tabindex="0" aria-label="Payer avec Apple Pay" onclick="payHosted('apple_pay')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();payHosted('apple_pay')}"></div>
+            <div class="apple-pay-button" id="applePayButton" role="button" tabindex="0" aria-label="${T('pm.applePay', 'Payer avec Apple Pay')}" onclick="payHosted('apple_pay')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();payHosted('apple_pay')}"></div>
             <div id="gpayButton"></div>
           </div>
-          <div class="express-or">ou payer par carte ou titre-restaurant</div>
+          <div class="express-or">${T('pm.or', 'ou payer par carte ou titre-restaurant')}</div>
         </div>
 
         <div id="paymentMethods" style="margin-bottom:20px;">
@@ -3259,13 +3267,13 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
               <img src="img/visa-logo.svg" alt="Visa" style="height:24px;width:auto;">
               <img src="img/mastercard-logo.svg" alt="Mastercard" style="height:26px;width:auto;">
             </div>
-            <span style="font-weight:600;font-size:1rem;">Carte bancaire</span>
+            <span style="font-weight:600;font-size:1rem;">${T('pm.card', 'Carte bancaire')}</span>
           </div>
 
           <!-- Toggle pour cartes restaurant (plié par défaut) -->
           <div style="border-top:1px dotted #B8AA98;padding-top:16px;">
             <button onclick="toggleRestoCards(event)" id="toggleRestoBtn" style="width:100%;background:#F7F4EE;border:1px solid #E6DFD3;border-radius:9px;padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:0.95rem;font-weight:500;color:var(--text-soft);transition:border-color 0.2s,background 0.2s;">
-              <span>Ou payer avec une carte restaurant</span>
+              <span>${T('pm.restoToggle', 'Ou payer avec une carte restaurant')}</span>
               <svg id="toggleRestoIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.2s;">
                 <path d="M6 9l6 6 6-6"/>
               </svg>
@@ -3274,8 +3282,7 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
             <div id="restoCardsContainer" style="display:none;margin-top:12px;">
               <!-- Message week-end (si applicable) -->
               <div id="restoWeekendWarning" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:0.9rem;color:#991b1b;line-height:1.5;">
-                <strong>Les cartes restaurant sont uniquement acceptées du lundi au vendredi.</strong><br>
-                Veuillez utiliser une carte bancaire.
+                ${T('pm.weekendHtml', '<strong>Les cartes restaurant sont uniquement acceptées du lundi au vendredi.</strong><br>Veuillez utiliser une carte bancaire.')}
               </div>
 
               <!-- Plafond titre-restaurant depasse : on AVERTIT, on ne bloque pas -->
@@ -3323,13 +3330,13 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
           </div>
 
           <button id="payBtn" style="width:100%;padding:16px;background:var(--sage);color:#fff;border:none;border-radius:9px;font-size:1rem;font-weight:500;cursor:pointer;transition:background 0.2s;position:relative;" onmouseover="this.style.background='#304936'" onmouseout="this.style.background='var(--sage)'">
-            Payer maintenant
+            ${T('pm.payNow', 'Payer maintenant')}
           </button>
         </div>
 
         <p style="margin-top:20px;font-size:0.75rem;color:var(--text-muted);text-align:center;display:flex;align-items:center;justify-content:center;gap:4px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-          Paiement 100% sécurisé - Données cryptées end-to-end
+          ${T('pm.secure', 'Paiement 100% sécurisé - Données cryptées end-to-end')}
         </p>
       </div>
     </div>
@@ -3668,6 +3675,7 @@ function initPayGreen(method) {
         objectSecret: currentPaymentData.objectSecret
       },
       publicKey: PAYGREEN_PUBLIC_KEY,
+      lang: estAnglais() ? 'en' : 'fr', // sinon PayGreen prend la langue du téléphone (un client FR avec un tel en anglais voyait le module en anglais)
       mode: 'payment',
       paymentMethod: method,
       style: {
@@ -3685,7 +3693,7 @@ function initPayGreen(method) {
     });
 
     // Fonction helper pour réactiver le bouton
-    const resetPayButton = (message = 'Payer maintenant') => {
+    const resetPayButton = (message = T('pm.payNow', 'Payer maintenant')) => {
       const btn = document.getElementById('payBtn');
       if (btn) {
         btn.innerHTML = message;

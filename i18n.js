@@ -17,6 +17,10 @@ const translations = {
     },
 
     // Header & Navigation
+    aria: {
+      close: "Fermer", closeCart: "Fermer le panier", firstName: "Prénom", phone: "Téléphone",
+      note: "Note pour le restaurant", googleReview: "Laisser un avis Google"
+    },
     nav: {
       orderNow: "Commander",
       menu: "Menu",
@@ -56,6 +60,8 @@ const translations = {
 
     // Cart & Checkout
     cart: {
+      each: "chacun",
+      notePh: "Note : allergies, sans oignon, etc.",
       viewCart: "Voir le panier",
       namePh: "Prénom",
       phonePh: "Téléphone (ex: 0612345678)",
@@ -302,6 +308,18 @@ const translations = {
     },
 
     // Tunnel de paiement (etape 6, bloc 3). Textes copies a l identique.
+    pm: {
+      title: "Paiement sécurisé",
+      order: "Commande",
+      express: "Paiement express",
+      or: "ou payer par carte ou titre-restaurant",
+      card: "Carte bancaire",
+      restoToggle: "Ou payer avec une carte restaurant",
+      weekendHtml: "<strong>Les cartes restaurant sont uniquement acceptées du lundi au vendredi.</strong><br>\n                Veuillez utiliser une carte bancaire.",
+      payNow: "Payer maintenant",
+      secure: "Paiement 100% sécurisé - Données cryptées end-to-end",
+      applePay: "Payer avec Apple Pay",
+    },
     payment: {
       secureLoading: "Chargement sécurisé…",
       sdkFailed: "Erreur de chargement du système de paiement, rechargez la page",
@@ -385,6 +403,10 @@ const translations = {
     },
 
     // Header & Navigation
+    aria: {
+      close: "Close", closeCart: "Close cart", firstName: "First name", phone: "Phone",
+      note: "Note for the restaurant", googleReview: "Leave a Google review"
+    },
     nav: {
       orderNow: "Order Now",
       menu: "Menu",
@@ -424,6 +446,8 @@ const translations = {
 
     // Cart & Checkout
     cart: {
+      each: "each",
+      notePh: "Note: allergies, no onion, etc.",
       viewCart: "View cart",
       namePh: "First name",
       phonePh: "Phone (e.g. 0612345678)",
@@ -654,6 +678,18 @@ const translations = {
     },
 
     // Payment flow (step 6, block 3)
+    pm: {
+      title: "Secure payment",
+      order: "Order",
+      express: "Express checkout",
+      or: "or pay by card or meal voucher",
+      card: "Credit card",
+      restoToggle: "Or pay with a meal voucher card",
+      weekendHtml: "<strong>Meal voucher cards are only accepted Monday to Friday.</strong><br>Please use a credit card.",
+      payNow: "Pay now",
+      secure: "100% secure payment, end-to-end encrypted data",
+      applePay: "Pay with Apple Pay",
+    },
     payment: {
       secureLoading: "Secure loading…",
       sdkFailed: "The payment system failed to load. Please reload the page.",
@@ -820,6 +856,8 @@ function t(key) {
  * Applique les traductions aux éléments data-i18n
  */
 function applyTranslations() {
+  // Libellés lus par les lecteurs d'écran (04/11)
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria'))); });
   // Traduire les éléments avec data-i18n
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -893,6 +931,22 @@ window.i18n = {
   if (!BILINGUE_ACTIF && !APERCU) return;
   try {
     initLanguage();
+    // Détection du navigateur (seulement le jour où BILINGUE_ACTIF passe à true) :
+    // un visiteur au téléphone en anglais voit l'anglais, SAUF les robots (Google, Bing…)
+    // qui voient toujours le français, pour garder le référencement français.
+    // Un choix fait au bouton FR · EN est mémorisé et passe toujours avant.
+    try {
+      var dejaChoisi = localStorage.getItem('beyrouth_lang');
+      var robot = /bot|crawl|spider|slurp|google|bing|yandex|duckduck|baidu|facebookexternalhit|lighthouse|headless|preview/i.test(navigator.userAgent || '');
+      if (BILINGUE_ACTIF && !dejaChoisi && !robot && /^en\b/i.test(navigator.language || '')) currentLang = 'en';
+    } catch (e2) {}
+    var montrerBoutons = function () {
+      document.querySelectorAll('.lang-toggle').forEach(function (g) { g.hidden = false; });
+      document.querySelectorAll('[data-lang-btn]').forEach(function (b) {
+        if (b.getAttribute('data-lang-btn') === currentLang) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+      });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', montrerBoutons); else montrerBoutons();
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function () { applyTranslations(); });
     } else {

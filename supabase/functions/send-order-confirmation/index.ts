@@ -92,10 +92,23 @@ serve(async (req) => {
     const lang: Lang = (order.language === 'en') ? 'en' : 'fr'
     const tr = t(lang)
 
+    // Anglais (04/11/2026) : les noms stockés dans la commande restent en français (ce sont des clés,
+    // et la tablette de Paco les lit tels quels). On ne traduit qu'ICI, à l'affichage du mail client.
+    const COMPO_EN: Record<string, string> = { 'Feuilletés': 'Pastries', 'Boisson': 'Drink', 'Fromage': 'Cheese', 'Boeuf': 'Beef', 'Épinard': 'Spinach', 'Falafel': 'Falafel', "Sauce à l'ail": 'Garlic sauce', 'Ketchup': 'Ketchup' }
+    const enParId = new Map<number, string>(), enParNom = new Map<string, string>()
+    if (lang === 'en') {
+      try {
+        const { data: plats } = await supabase.from('menu_items').select('id, nom, nom_en')
+        for (const p of plats || []) { if (p.nom_en) { enParId.set(Number(p.id), p.nom_en); if (!enParNom.has(p.nom)) enParNom.set(p.nom, p.nom_en) } }
+      } catch (_e) { /* au pire, noms en français : le mail part quand même */ }
+    }
+    const nomAffiche = (item: any, nomFr: string) => (lang === 'en' && (enParId.get(Number(item.id)) || enParNom.get(nomFr))) || nomFr
+    const compoAffiche = (c: string) => (lang === 'en' && (enParNom.get(c) || COMPO_EN[c])) || c
+
     // Construire le récapitulatif des items (avec fallback qty/quantite, name/nom, price/prix)
     const itemsHtml = order.items.map((item: any) => {
       const qty = item.qty || item.quantite || 1
-      const name = item.name || item.nom || 'Article'
+      const name = nomAffiche(item, item.name || item.nom || 'Article')
       const price = item.price || item.prix || 0
 
       let html = `
@@ -108,7 +121,7 @@ serve(async (req) => {
 
       // Détail d'une formule (ex. Box Express : sandwich · boisson · sauce)
       if (item.isFormule && Array.isArray(item.components) && item.components.length > 0) {
-        const detail = item.components.map((c: any) => String(c).replace(/[<>&"]/g, '')).join(' · ')
+        const detail = item.components.map((c: any) => compoAffiche(String(c)).replace(/[<>&"]/g, '')).join(' · ')
         html += `
       <tr>
         <td style="padding:2px 0 0 0;width:36px;"></td>
