@@ -244,7 +244,10 @@ serve(async (req) => {
       const maintenant = hm[0] * 60 + hm[1]
       const DEBUT = 14 * 60, FIN = 20 * 60 + 30
       // Commandable dès 13h50 (10 min de préparation avant le 1er retrait à 14h00), Ludo 04/11
-      let ok = PRECOMMANDE || (maintenant >= DEBUT - 10 && maintenant <= FIN)
+      // Restaurant fermé le week-end (samedi, dimanche) : pas de box ces jours-là
+      const jourParis = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', weekday: 'short' }).format(new Date())
+      const weekEnd = jourParis === 'Sat' || jourParis === 'Sun'
+      let ok = PRECOMMANDE || (!weekEnd && maintenant >= DEBUT - 10 && maintenant <= FIN)
       if (ok && (!pickup || pickup === 'asap')) {
         // « Dès que possible » = prête dans ~10 min : doit tomber dans la plage
         ok = maintenant + 10 >= DEBUT && maintenant + 10 <= FIN

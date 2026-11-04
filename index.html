@@ -4880,7 +4880,19 @@ window.addEventListener('beforeunload', () => {
   var FIN_CMD = FIN - ((typeof PREP_DELAY_MIN === 'number') ? PREP_DELAY_MIN : 10);
   // Ouverture 10 min avant (Ludo 04/11) : commandable dès 13h50 pour un 1er retrait à 14h00
   var DEBUT_CMD = DEBUT - ((typeof PREP_DELAY_MIN === 'number') ? PREP_DELAY_MIN : 10);
-  var ouverteMaintenant = function () { var m = minutesMaintenant(); return m >= DEBUT_CMD && m <= FIN_CMD; };
+  // Jours d'ouverture = BUSINESS_HOURS (lun→ven) : le week-end la box reste grisée.
+  var jourOuvert = function (j) { return typeof BUSINESS_HOURS === 'undefined' || BUSINESS_HOURS.some(function (s) { return s[0] === j; }); };
+  var ouverteMaintenant = function () { var m = minutesMaintenant(); return jourOuvert(new Date().getDay()) && m >= DEBUT_CMD && m <= FIN_CMD; };
+  // Texte du badge : « Dispo à partir de 14h » (plus tard aujourd'hui), « Dispo demain dès 14h », « Dispo lundi dès 14h »
+  var texteBadge = function () {
+    var j = new Date().getDay();
+    if (jourOuvert(j) && minutesMaintenant() < DEBUT_CMD) return EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
+    for (var d = 1; d <= 7; d++) { var jj = (j + d) % 7; if (jourOuvert(jj)) {
+      if (d === 1) return EN() ? 'Back tomorrow from 2pm' : 'Dispo demain dès 14h';
+      var noms = EN() ? ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] : ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+      return EN() ? 'Back ' + noms[jj] + ' from 2pm' : 'Dispo ' + noms[jj] + ' dès 14h'; } }
+    return EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
+  };
   var estBox = function (x) { return !!x && x.id === ID_BOX; };
 
   // La box passe en tête de sa catégorie (avant la Box Beyrouth), demande de Paco.
@@ -4910,7 +4922,7 @@ window.addEventListener('beforeunload', () => {
     carte.removeAttribute('onclick');
     var b = carte.querySelector('.menu-card-add'); if (b) b.disabled = true;
     var v = carte.querySelector('.menu-card-visual');
-    if (v && !v.querySelector('.unavailable-badge')) v.insertAdjacentHTML('beforeend', '<div class="unavailable-badge">' + (minutesMaintenant() > FIN_CMD ? (EN() ? 'Back tomorrow from 2pm' : 'Dispo demain dès 14h') : (EN() ? 'Available from 2pm' : 'Dispo à partir de 14h')) + '</div>');
+    if (v && !v.querySelector('.unavailable-badge')) v.insertAdjacentHTML('beforeend', '<div class="unavailable-badge">' + texteBadge() + '</div>');
   };
 
   var ajouterOrig = addToCart;
