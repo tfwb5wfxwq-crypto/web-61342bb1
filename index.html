@@ -263,7 +263,7 @@ a{color:inherit;text-decoration:none}
 .qty-badge{position:absolute;top:4px;right:4px;background:var(--orange);color:#fff;font-size:.7rem;font-weight:600;padding:2px 6px;border-radius:12px;line-height:1}
 .formule-option img{width:44px;height:44px;object-fit:cover;border-radius:var(--r-xs);flex-shrink:0}
 .formule-option img.sandwich-img{object-position:center 30%}
-.formule-option img.boisson-img{object-fit:contain;background:var(--border-light)}
+.formule-option img.boisson-img{object-fit:cover;aspect-ratio:4/3;width:44px;height:auto;background:#F1E8DA}
 
 .formule-option-info{flex:1;min-width:0}
 .formule-option-name{font-size:.85rem;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -772,8 +772,7 @@ window.T = function (cle, secours) {
 .announcement-shell{margin-top:-44px!important;position:relative;z-index:0}.header-curve{position:relative;z-index:1}@media(max-width:700px){.announcement-shell{margin-top:-32px!important}}@media(max-width:380px){.announcement-shell{margin-top:-22px!important}}
 @media(max-width:700px){.announcement-close{top:26px!important;right:12px!important}}
 .menu-grid>.menu-card:only-child .menu-card-visual{aspect-ratio:auto!important;align-self:stretch;height:auto;min-height:100%!important}.menu-grid>.menu-card:only-child .menu-card-visual img{position:absolute;inset:0;width:100%;height:100%}
-/* Boissons : canettes zoomées uniformément (rognées dans leur cadre) */
-#cat-7+.menu-grid .menu-card-visual img[src*="pepsi"],#cat-7+.menu-grid .menu-card-visual img[src*="fanta"],#cat-7+.menu-grid .menu-card-visual img[src*="oasis"],#cat-7+.menu-grid .menu-card-visual img[src*="lipton"],#cat-7+.menu-grid .menu-card-visual img[src*="7up"],#cat-7+.menu-grid .menu-card-visual img[src*="coca"],#cat-7+.menu-grid .menu-card-visual img[src*="perrier"],#cat-7+.menu-grid .menu-card-visual img[src*="orangina"],#cat-7+.menu-grid .menu-card-visual img[src*="ice-tea"]{transform:scale(1.4);transform-origin:50% 50%}
+/* Boissons : les photos 2026 sont cadrées, plus de zoom ×1.4 (retiré 04/11) */.menu-card-visual img[src*="m26/pepsi-v2."],.menu-card-visual img[src*="m26/fanta-v2."],.menu-card-visual img[src*="m26/oasis."],.menu-card-visual img[src*="m26/lipton-v2."],.menu-card-visual img[src*="m26/7up-v2."],.menu-card-visual img[src*="m26/coca-zero-v2."],.menu-card-visual img[src*="m26/perrier-v2."]{transform:scale(1.15);transform-origin:50% 56%}
 .bottom-bar-count.cart-count-bump{animation:cartCountBump .32s var(--ease)}
 @keyframes cartCountBump{50%{transform:scale(1.12)}100%{transform:scale(1)}}
 @media(max-width:700px){
@@ -1097,6 +1096,9 @@ html body .header-pickup .info-time{padding:0!important}
 }
 /* Pastille de retrait : texte centré verticalement, même air en haut et en bas (04/11 16h25) */
 html body .header-pickup .info-time{grid-template-rows:auto auto!important;height:auto!important;min-height:0!important;align-content:center!important}
+/* Plats en barquette : un poil plus zoomés pour mieux voir, sans couper (04/11 16h30) */
+.menu-card-visual{overflow:hidden}
+.menu-card-visual img[src*="m26/kafta-mechoui."],.menu-card-visual img[src*="m26/chich-taouk."],.menu-card-visual img[src*="m26/shawarma-poulet."],.menu-card-visual img[src*="m26/grillade-mixte."],.menu-card-visual img[src*="m26/beyrouth-poulet."],.menu-card-visual img[src*="m26/beyrouth-boeuf."],.menu-card-visual img[src*="m26/plateau-vegetarien."],.menu-card-visual img[src*="m26/plateau-falafel."],.menu-card-visual img[src*="m26/liban."],.menu-card-visual img[src*="m26/byblos."],.menu-card-visual img[src*="m26/plat-jour."]{transform:scale(1.08);transform-origin:50% 52%}
 </style>
 
 <!-- HEADER -->
@@ -1492,6 +1494,7 @@ const SUPABASE_URL = 'https://xbuftfwcyontgqbbrrjt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhidWZ0ZndjeW9udGdxYmJycmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Njg1NzksImV4cCI6MjA4NjI0NDU3OX0.ROkSccADlpLsWMgqyiX_xNaFdJNR8P4R-LJCnZV2Gzg';
 const PAYGREEN_PUBLIC_KEY = 'pk_28b9dcb7b9604b3d9efb03c2e2a2bd45';
 const PAYGREEN_SHOP_ID = 'sh_55f9f298d8ce478db7b87117ec86ce11';
+const vignette = u => (u && u.indexOf('/m26/') !== -1 && u.indexOf('/mini/') === -1) ? u.replace('/m26/', '/m26/mini/') : u; // petites images (~10 Ko) pour les vignettes
 const IMAGE_VERSION = 'm26'; // version fixe : les photos se gardent en cache (nouveau nom de dossier = nouvelle version)
 let sb = null;
 let paygreen = null;
@@ -1622,10 +1625,10 @@ const DEMO_ITEMS = [
   {id:28, categorie_id:1, nom:'Foie de Volaille', description:'Mariné au citron', prix:6.90, emoji:'🍗', image_url:'img/m26/sandwich-foie-volaille.jpg', disponible:true},
   {id:29, categorie_id:1, nom:'Kafta', description:'Brochette de boeuf hachée persillée', prix:6.90, emoji:'🍢', image_url:'img/m26/sandwich-kafta.jpg', disponible:true},
   {id:30, categorie_id:1, nom:'Soujouk', description:'Saucisses de boeuf épicées', prix:6.90, emoji:'🌭', image_url:'img/m26/sandwich-soujouk.jpg', disponible:true},
-  {id:42, categorie_id:2, nom:'Formule 1', description:'Sandwich + 2 feuilletés + boisson', prix:10.90, emoji:'1', image_url:'img/formule-1.jpg', disponible:true},
-  {id:43, categorie_id:2, nom:'Formule 2', description:'Sandwich + 1 entrée froide + boisson', prix:11.90, emoji:'2', image_url:'img/formule-2.jpg', disponible:true},
-  {id:44, categorie_id:2, nom:'Formule 3', description:'Sandwich + 1 dessert + boisson', prix:11.90, emoji:'3', image_url:'img/formule-3.jpg', disponible:true},
-  {id:45, categorie_id:2, nom:'Formule 4', description:'2 sandwiches au choix + boisson', prix:14.90, emoji:'4️⃣', image_url:'img/formule-4.jpg', disponible:true},
+  {id:42, categorie_id:2, nom:'Formule 1', description:'Sandwich + 2 feuilletés + boisson', prix:10.90, emoji:'1', image_url:'img/m26/formule-1.jpg', disponible:true},
+  {id:43, categorie_id:2, nom:'Formule 2', description:'Sandwich + 1 entrée froide + boisson', prix:11.90, emoji:'2', image_url:'img/m26/formule-2.jpg', disponible:true},
+  {id:44, categorie_id:2, nom:'Formule 3', description:'Sandwich + 1 dessert + boisson', prix:11.90, emoji:'3', image_url:'img/m26/formule-3.jpg', disponible:true},
+  {id:45, categorie_id:2, nom:'Formule 4', description:'2 sandwiches au choix + boisson', prix:14.90, emoji:'4️⃣', image_url:'img/m26/formule-4.jpg', disponible:true},
   {id:31, categorie_id:3, nom:'Kafta Méchoui', description:'2 brochettes boeuf, riz, crudités', prix:13.00, emoji:'🍢', image_url:'img/m26/kafta-mechoui.jpg', disponible:true},
   {id:32, categorie_id:3, nom:'Chich Taouk', description:'2 brochettes poulet, riz, crudités', prix:13.00, emoji:'🍗', image_url:'img/m26/chich-taouk.jpg', disponible:true},
   {id:33, categorie_id:3, nom:'Shawarma Poulet', description:'Émincé mariné grillé à la broche, riz, crudités', prix:15.00, emoji:'🌯', image_url:'img/m26/shawarma-poulet.jpg', disponible:true},
@@ -2291,7 +2294,7 @@ function openFormuleModal(formuleItem) {
             else if (comp.category === 6) imgClass = 'dessert-img';
             return `
             <div class="formule-option" onclick="selectFormuleOption(${idx}, ${optIdx}, ${comp.qty})">
-              ${opt.image_url ? `<img src="${opt.image_url}" alt="${opt.nom}" class="${imgClass}">` : `<span style="font-size:1.2rem">${opt.emoji || '🍽️'}</span>`}
+              ${opt.image_url ? `<img src="${vignette(opt.image_url)}" alt="${opt.nom}" class="${imgClass}">` : `<span style="font-size:1.2rem">${opt.emoji || '🍽️'}</span>`}
               <div class="formule-option-info">
                 <div class="formule-option-name">${escapeHtml(nomPlat(opt))}</div>
               </div>
@@ -2595,7 +2598,7 @@ function updateCartUI() {
     const div = document.createElement('div');
     div.className = 'cart-item';
     const visual = c.image_url
-      ? `<img src="${c.image_url}" alt="${c.nom}" style="width:40px;height:40px;object-fit:cover;border-radius:10px;">`
+      ? `<img src="${vignette(c.image_url)}" alt="${c.nom}" style="width:40px;height:40px;object-fit:cover;border-radius:10px;">`
       : `<div class="cart-item-emoji">${c.emoji}</div>`;
 
     // Si c'est une formule, afficher les composants
@@ -2669,7 +2672,7 @@ function renderSuggestions() {
   suggestEl.style.display = '';
   listEl.innerHTML = suggestions.map(s => {
     const visual = s.image_url
-      ? `<img src="${s.image_url}" alt="${s.nom}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;" class="suggest-emoji">`
+      ? `<img src="${vignette(s.image_url)}" alt="${s.nom}" style="width:32px;height:32px;object-fit:cover;border-radius:6px;" class="suggest-emoji">`
       : `<span class="suggest-emoji">${s.emoji || '🍽️'}</span>`;
     return `
       <div class="cart-suggest-item" onclick="addToCart(${s.id});updateCartUI();renderMenu()">
@@ -4175,7 +4178,7 @@ async function showConfirmation(orderNum) {
   const itemsHtml = (orderData.items || []).map(item => {
     const t = (item.prix * item.qty).toFixed(2).replace('.', ',');
     const imgHtml = item.image_url
-      ? `<img src="${item.image_url}" style="width:50px;height:50px;border-radius:10px;object-fit:cover;margin-right:12px;">`
+      ? `<img src="${vignette(item.image_url)}" style="width:50px;height:50px;border-radius:10px;object-fit:cover;margin-right:12px;">`
       : `<div style="width:50px;height:50px;border-radius:10px;background:#EFE9DF;margin-right:12px;"></div>`;
     return `<div style="display:flex;align-items:center;margin-bottom:12px;"><div style="flex-shrink:0;">${imgHtml}</div><div style="flex:1;display:flex;justify-content:space-between;align-items:center;font-size:.9rem;"><span>${item.qty}x ${item.nom}</span><span style="font-weight:600;">${t} €</span></div></div>`;
   }).join('');
