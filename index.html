@@ -1103,6 +1103,7 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
 .badge-populaire{position:absolute;left:10px;top:10px;z-index:3;display:inline-flex;align-items:center;gap:5px;padding:4px 8px;background:rgba(253,251,247,.95);color:#304936;font:600 11px/1.2 'DM Sans',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;box-shadow:0 1px 2px rgba(31,27,22,.12);pointer-events:none}
 .badge-populaire::before{content:"";width:6px;height:6px;border-radius:50%;background:#B45C12;flex:0 0 6px}
 .menu-card-unavailable .badge-populaire{display:none}
+.formule-option img[src*="/m26/carre/"]{aspect-ratio:1/1!important;width:44px!important;height:44px!important;object-fit:cover!important}
 </style>
 
 <!-- HEADER -->
@@ -1499,7 +1500,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const PAYGREEN_PUBLIC_KEY = 'pk_28b9dcb7b9604b3d9efb03c2e2a2bd45';
 const PAYGREEN_SHOP_ID = 'sh_55f9f298d8ce478db7b87117ec86ce11';
 const moyenne = u => (u && /\/m26\/[^/]+\.jpg$/.test(u)) ? u.replace('/m26/', '/m26/600/') : null; // 600 px pour les cartes (téléphones et ordi standard)
-const vignette = u => (u && u.indexOf('/m26/') !== -1 && u.indexOf('/mini/') === -1) ? u.replace('/m26/', '/m26/mini/') : u; // petites images (~10 Ko) pour les vignettes
+const CARRES = /\/m26\/(7up-v2|ayran|coca-zero-v2|eau|fanta-v2|lipton-v2|oasis|pepsi-v2|perrier-v2|sauce-ail|ketchup|sauce-piquante|tahini)\.jpg/;
+const vignette = u => (u && u.indexOf('/m26/') !== -1 && u.indexOf('/mini/') === -1 && u.indexOf('/carre/') === -1) ? (CARRES.test(u) ? u.replace('/m26/', '/m26/carre/') : u.replace('/m26/', '/m26/mini/')) : u; // boissons et sauces : vignette carrée un peu zoomée // petites images (~10 Ko) pour les vignettes
 const IMAGE_VERSION = 'm26'; // version fixe : les photos se gardent en cache (nouveau nom de dossier = nouvelle version)
 let sb = null;
 let paygreen = null;
