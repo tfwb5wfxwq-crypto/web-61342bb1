@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { sendEmailViaBrevo } from '../_shared/brevo-email.ts'
-import { t, type Lang } from '../_shared/email-i18n.ts'
+import { t, type Lang, langueCommande, versRtl, MENU_AR, COMPO_AR } from '../_shared/email-i18n.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -89,7 +89,7 @@ serve(async (req) => {
       )
     }
 
-    const lang: Lang = (order.language === 'en') ? 'en' : 'fr'
+    const lang: Lang = langueCommande(order.language)
     const tr = t(lang)
 
     // Anglais (04/11/2026) : les noms stockés dans la commande restent en français (ce sont des clés,
@@ -102,8 +102,16 @@ serve(async (req) => {
         for (const p of plats || []) { if (p.nom_en) { enParId.set(Number(p.id), p.nom_en); if (!enParNom.has(p.nom)) enParNom.set(p.nom, p.nom_en) } }
       } catch (_e) { /* au pire, noms en français : le mail part quand même */ }
     }
-    const nomAffiche = (item: any, nomFr: string) => (lang === 'en' && (enParId.get(Number(item.id)) || enParNom.get(nomFr))) || nomFr
-    const compoAffiche = (c: string) => (lang === 'en' && (enParNom.get(c) || COMPO_EN[c])) || c
+    // Arabe : noms par id (MENU_AR), et par nom français pour les sandwichs choisis dans une formule
+    const arParNom = new Map<string, string>()
+    if (lang === 'ar') {
+      try {
+        const { data: plats } = await supabase.from('menu_items').select('id, nom')
+        for (const p of plats || []) { const a = MENU_AR[Number(p.id)]; if (a && !arParNom.has(p.nom)) arParNom.set(p.nom, a) }
+      } catch (_e) { /* au pire, noms en français : le mail part quand même */ }
+    }
+    const nomAffiche = (item: any, nomFr: string) => (lang === 'en' && (enParId.get(Number(item.id)) || enParNom.get(nomFr))) || (lang === 'ar' && (MENU_AR[Number(item.id)] || arParNom.get(nomFr))) || nomFr
+    const compoAffiche = (c: string) => (lang === 'en' && (enParNom.get(c) || COMPO_EN[c])) || (lang === 'ar' && (arParNom.get(c) || COMPO_AR[c])) || c
 
     // Construire le récapitulatif des items (avec fallback qty/quantite, name/nom, price/prix)
     const itemsHtml = order.items.map((item: any) => {
@@ -157,7 +165,7 @@ serve(async (req) => {
       const isToday = /^Aujourd'hui\s+/i.test(rawPickup)
       const heureOnly = rawPickup.replace(/^Aujourd'hui\s+/i, '')
       pickupText = heureOnly
-      subjectPickup = isToday ? (lang === 'fr' ? `aujourd'hui à ${heureOnly}` : `today at ${heureOnly}`) : rawPickup.toLowerCase()
+      subjectPickup = isToday ? (lang === 'fr' ? `aujourd'hui à ${heureOnly}` : lang === 'ar' ? `اليوم الساعة ${heureOnly}` : `today at ${heureOnly}`) : rawPickup.toLowerCase()
     }
 
     // Calculer TVA (10% restauration)
@@ -340,7 +348,7 @@ serve(async (req) => {
     const emailResult = await sendEmailViaBrevo({
       to: order.client_email,
       subject: tr.subjectConfirmed(order.numero, subjectPickup),
-      html: emailHtml,
+      html: lang === 'ar' ? versRtl(emailHtml, tr.orderConfirmed) : emailHtml,
       replyTo: 'contact@beyrouth.express',
       orderId: orderId  // Pour sync auto du statut
     })

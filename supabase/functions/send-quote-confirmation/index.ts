@@ -1,7 +1,7 @@
 // Edge Function: Envoyer email confirmation demande de devis
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { t, type Lang } from '../_shared/email-i18n.ts'
+import { t, type Lang, langueCommande, versRtl } from '../_shared/email-i18n.ts'
 import { sendEmailViaBrevo } from '../_shared/brevo-email.ts'
 
 const corsHeaders = {
@@ -20,7 +20,7 @@ serve(async (req) => {
     // Langue du visiteur au moment de la demande. Repli sur le francais des que
     // la valeur n est pas exactement 'en' : une valeur absente, inconnue ou
     // malformee donne un email francais, jamais un email casse.
-    const lang: Lang = (language === 'en') ? 'en' : 'fr'
+    const lang: Lang = langueCommande(language)
     const L = t(lang)
 
     if (!email || !name) {
@@ -78,7 +78,7 @@ serve(async (req) => {
 
     if (duplicates && duplicates.length > 0) {
       return new Response(
-        JSON.stringify({ error: (language === 'en') ? 'You have already sent a request recently.' : 'Vous avez déjà envoyé une demande récemment.' }),
+        JSON.stringify({ error: (language === 'en') ? 'You have already sent a request recently.' : (language === 'ar') ? 'لقد أرسلت طلبًا مؤخرًا.' : 'Vous avez déjà envoyé une demande récemment.' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -138,7 +138,7 @@ serve(async (req) => {
           <tr>
             <td bgcolor="#FFFFFF" class="px round" style="background:#FFFFFF;padding:36px 32px 36px 32px;border-radius:0 0 12px 12px;">
 <h1 class="serif h1" style="margin:0 0 6px 0;font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:32px;line-height:1.15;font-weight:400;color:#1F1B16;">${L.quoteTitle}</h1>
-              <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#5E554A;">Merci ${name.split(' ')[0]}, nous revenons vers vous sous 48h.</p>
+              <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#5E554A;">${L.quoteThanks(name.split(' ')[0])}</p>
 
               <!-- Info principale -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
@@ -159,7 +159,7 @@ serve(async (req) => {
                     <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:8px;">${L.quoteSummary}</div>
                     <div style="font-size:14px;color:#1F1B16;line-height:1.7;">
                       ${eventType ? `<div class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:19px;line-height:1.3;color:#1F1B16;margin-bottom:2px;">${eventType}</div>` : ''}
-                      ${guestCount ? `<div>${guestCount} ${lang === 'en' ? 'guests' : 'personnes'}</div>` : ''}
+                      ${guestCount ? `<div>${guestCount} ${lang === 'en' ? 'guests' : lang === 'ar' ? 'أشخاص' : 'personnes'}</div>` : ''}
                       ${eventDate ? `<div><a style="color:#1F1B16;text-decoration:none;">${eventDate}</a></div>` : ''}
                       <div><a href="mailto:${email}" style="color:#1F1B16;text-decoration:none;">${email}</a></div>
                       ${phone ? `<div><a href="tel:${phone}" style="color:#1F1B16;text-decoration:none;">${phone}</a></div>` : ''}
@@ -173,7 +173,7 @@ serve(async (req) => {
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
                 <tr>
                   <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
-                    <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:8px;">Votre message</div>
+                    <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:8px;">${L.quoteYourMessage}</div>
                     <div style="font-size:14px;color:#1F1B16;line-height:1.6;white-space:pre-wrap;">${message}</div>
                   </td>
                 </tr>
@@ -184,7 +184,7 @@ serve(async (req) => {
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #E6DFD3;">
                 <tr>
                   <td style="padding:24px 0 0 0;">
-                    <div style="font-size:13px;line-height:1.4;color:#6B6256;margin-bottom:6px;">Contact</div>
+                    <div style="font-size:13px;line-height:1.4;color:#6B6256;margin-bottom:6px;">${L.contact}</div>
                     <div style="font-size:14px;color:#1F1B16;line-height:1.6;">
                       <strong class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-weight:400;font-size:18px;">A Beyrouth</strong><br>
                       <a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="color:#1F1B16;text-decoration:none;">${L.quoteAddress.replace('<br>', ' ')}</a>
@@ -201,7 +201,7 @@ serve(async (req) => {
             <td bgcolor="#F7F4EE" class="px" style="background:#F7F4EE;padding:36px 32px 40px 32px;text-align:center;">
 
               <!-- Instagram -->
-              <div style="font-size:14px;color:#5E554A;line-height:1.5;margin-bottom:12px;">Retrouvez-nous sur <a href="https://www.instagram.com/a_beyrouth/" target="_blank" style="color:#304936;font-weight:600;text-decoration:underline;">@a_beyrouth</a></div>
+              <div style="font-size:14px;color:#5E554A;line-height:1.5;margin-bottom:12px;">${L.followUs} <a href="https://www.instagram.com/a_beyrouth/" target="_blank" style="color:#304936;font-weight:600;text-decoration:underline;">@a_beyrouth</a></div>
 
               <!-- Contact -->
               <div style="font-size:12px;color:#6B6256;line-height:1.7;">
@@ -225,7 +225,7 @@ serve(async (req) => {
     const emailResult = await sendEmailViaBrevo({
       to: email,
       subject: L.subjectQuote,
-      html: emailHtml,
+      html: lang === 'ar' ? versRtl(emailHtml, L.quoteTitle) : emailHtml,
       senderEmail: 'traiteur@beyrouth.express',
       replyTo: 'traiteur@beyrouth.express'
     })

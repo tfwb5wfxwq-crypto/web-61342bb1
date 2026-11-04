@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { sendEmailViaBrevo } from '../_shared/brevo-email.ts'
-import { t, type Lang } from '../_shared/email-i18n.ts'
+import { t, type Lang, langueCommande, versRtl } from '../_shared/email-i18n.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -91,7 +91,7 @@ serve(async (req) => {
       console.log(`🔄 Renvoi forcé de l'email pour commande ${order.numero}`)
     }
 
-    const lang: Lang = (order.language === 'en') ? 'en' : 'fr'
+    const lang: Lang = langueCommande(order.language)
     const tr = t(lang)
 
     // Liens externes (utiliser le token sécurisé)
@@ -219,7 +219,7 @@ serve(async (req) => {
     const emailResult = await sendEmailViaBrevo({
       to: emailOverride || order.client_email,
       subject: tr.subjectCompleted(order.numero),
-      html: emailHtml,
+      html: lang === 'ar' ? versRtl(emailHtml, tr.thankYou) : emailHtml,
       replyTo: 'contact@beyrouth.express',
       orderId: orderId  // Pour sync auto du statut
     })

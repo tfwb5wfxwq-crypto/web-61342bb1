@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { sendEmailViaBrevo } from '../_shared/brevo-email.ts'
-import { t, type Lang } from '../_shared/email-i18n.ts'
+import { t, type Lang, langueCommande, versRtl } from '../_shared/email-i18n.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -79,7 +79,7 @@ serve(async (req) => {
       )
     }
 
-    const lang: Lang = (order.language === 'en') ? 'en' : 'fr'
+    const lang: Lang = langueCommande(order.language)
     const tr = t(lang)
 
     // Formater l'heure de retrait
@@ -91,7 +91,7 @@ serve(async (req) => {
       const isToday = /^Aujourd'hui\s+/i.test(rawPickup)
       const heureOnly = rawPickup.replace(/^Aujourd'hui\s+/i, '')
       pickupText = heureOnly
-      subjectPickup = isToday ? (lang === 'fr' ? `aujourd'hui à ${heureOnly}` : `today at ${heureOnly}`) : rawPickup.toLowerCase()
+      subjectPickup = isToday ? (lang === 'fr' ? `aujourd'hui à ${heureOnly}` : lang === 'ar' ? `اليوم الساعة ${heureOnly}` : `today at ${heureOnly}`) : rawPickup.toLowerCase()
     }
 
     // Template email (Gmail-compatible - tables, solid colors, no flex/gradient)
@@ -226,7 +226,7 @@ serve(async (req) => {
     const emailResult = await sendEmailViaBrevo({
       to: order.client_email,
       subject: tr.subjectReminder(order.numero, subjectPickup),
-      html: emailHtml,
+      html: lang === 'ar' ? versRtl(emailHtml, tr.orderWaiting) : emailHtml,
       replyTo: 'contact@beyrouth.express',
       orderId: orderId
     })

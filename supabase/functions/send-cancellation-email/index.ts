@@ -2,7 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { sendEmailViaBrevo } from '../_shared/brevo-email.ts'
-import { t, type Lang } from '../_shared/email-i18n.ts'
+import { t, type Lang, langueCommande, versRtl } from '../_shared/email-i18n.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -79,7 +79,7 @@ serve(async (req) => {
       )
     }
 
-    const lang: Lang = (order.language === 'en') ? 'en' : 'fr'
+    const lang: Lang = langueCommande(order.language)
     const tr = t(lang)
 
     // Template email (Gmail-compatible - tables, solid colors, no flex/gradient)
@@ -177,7 +177,7 @@ serve(async (req) => {
                     <div style="font-size:14px;color:#1F1B16;line-height:1.6;margin-bottom:16px;">
                       <strong class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-weight:400;font-size:18px;">A Beyrouth</strong> · <a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="color:#1F1B16;text-decoration:none;">4 Esp. Gal de Gaulle</a><br>
                       <a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="color:#1F1B16;text-decoration:none;">92400 Courbevoie (La Défense)</a><br>
-                      <span style="font-size:13px;color:#6B6256;"><a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="color:#6B6256;text-decoration:none;">Sortie 4 du métro La Défense</a></span>
+                      <span style="font-size:13px;color:#6B6256;"><a href="https://maps.google.com/?q=A+Beyrouth+4+Esplanade+du+General+de+Gaulle+92400+Courbevoie" target="_blank" style="color:#6B6256;text-decoration:none;">${tr.metroExit}</a></span>
                     </div>
                     <table cellpadding="0" cellspacing="0" border="0">
                       <tr>
@@ -238,7 +238,7 @@ serve(async (req) => {
     const emailResult = await sendEmailViaBrevo({
       to: order.client_email,
       subject: tr.subjectCancelled(order.numero),
-      html: emailHtml,
+      html: lang === 'ar' ? versRtl(emailHtml, tr.orderCancelled) : emailHtml,
       replyTo: 'contact@beyrouth.express',
       orderId: orderId
     })
