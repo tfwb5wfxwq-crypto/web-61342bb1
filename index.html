@@ -509,7 +509,7 @@ a{color:inherit;text-decoration:none}
 .toast.warning::before{background:#C49558}
 @media(min-width:640px){#toastContainer{top:20px;bottom:auto}}
 @media(min-width:760px){
-  .cart-suggest-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;padding-right:0}
+  .cart-suggest-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;padding-right:0}
   .cart-suggest-item{min-width:0;width:100%}
 }
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -608,7 +608,8 @@ linear-gradient(var(--border-light),var(--border-light)) 100% 0/calc((100% - 48p
 @media(min-width:760px){
   .cart-suggest-item{padding:8px;gap:8px;overflow:hidden}
   .cart-suggest-item>div{min-width:0;flex:1}
-  .suggest-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .suggest-name{overflow:hidden;white-space:normal;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .suggest-add{width:34px!important;height:34px!important;min-width:34px!important;flex-basis:34px!important;background-size:16px!important}
   .suggest-emoji{flex:0 0 32px}
   .suggest-add{flex-shrink:0}
 }
@@ -2616,8 +2617,10 @@ function renderSuggestions() {
     return;
   }
   const titleEl = suggestEl.querySelector('.cart-suggest-title');
-  if (!cartCatIds.has(7)) titleEl.textContent = T('cart.drinkWithThat', 'Une boisson avec ça ?');
-  else if (!cartCatIds.has(6)) titleEl.textContent = 'Un dessert pour finir ?';
+  // Titre selon ce qui est VRAIMENT proposé (avant : « Un dessert » même avec des falafels dedans).
+  const catsProposees = new Set(suggestions.map(s => s.categorie_id));
+  if (catsProposees.size === 1 && catsProposees.has(7)) titleEl.textContent = T('cart.drinkWithThat', 'Une boisson avec ça ?');
+  else if (catsProposees.size === 1 && catsProposees.has(6)) titleEl.textContent = (typeof currentLang === 'string' && currentLang.indexOf('en') === 0) ? 'Something sweet to finish?' : 'Un dessert pour finir ?';
   else titleEl.textContent = T('confirmation.youMayLike', 'Vous aimerez aussi');
   suggestEl.style.display = '';
   listEl.innerHTML = suggestions.map(s => {
@@ -4924,7 +4927,7 @@ window.addEventListener('beforeunload', () => {
       var sauce = menuItems.find(function (i) { return i.categorie_id === 17 && /ail/i.test(i.nom) && i.disponible; });
       if (sauce) return {
         emoji: '🧄',
-        text: (EN() ? 'An <strong>extra sauce</strong> for your fries? <strong>' : 'Une <strong>sauce en plus</strong> pour vos frites ? <strong>') + escapeHtml(nomPlat(sauce)) + '</strong> · ' + formatPrice(sauce.prix),
+        text: (EN() ? 'Fancy a <strong>2nd sauce</strong>? <strong>' : 'Envie d\'une <strong>2e sauce</strong> ? <strong>') + escapeHtml(nomPlat(sauce)) + '</strong> · ' + formatPrice(sauce.prix),
         action: function () { addToCart(sauce.id); },
         btn: '+ ' + formatPrice(sauce.prix)
       };
@@ -4940,8 +4943,13 @@ window.addEventListener('beforeunload', () => {
   };
 
   // Heure qui passe 14h ou 20h30 page ouverte : on réaffiche le menu à la minute.
+  // Vérif toutes les 5 s + dès que la page revient au premier plan (l'iPhone gèle les minuteries en arrière-plan).
   var etat = ouverteMaintenant();
-  setInterval(function () { var e = ouverteMaintenant(); if (e !== etat) { etat = e; try { renderMenu(); } catch (err) {} } }, 30000);
+  var verifier = function () { var e = ouverteMaintenant(); if (e !== etat) { etat = e; try { renderMenu(); } catch (err) {} } };
+  setInterval(verifier, 5000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) verifier(); });
+  window.addEventListener('pageshow', verifier);
+  window.addEventListener('focus', verifier);
 
   if (document.getElementById('menuContent') && Array.isArray(menuItems) && menuItems.length) { try { renderMenu(); } catch (e) {} }
 })();
