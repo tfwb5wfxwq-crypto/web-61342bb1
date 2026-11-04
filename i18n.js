@@ -309,6 +309,19 @@ const translations = {
 
     // Tunnel de paiement (etape 6, bloc 3). Textes copies a l identique.
     pm: {
+      expressUnavailable: "Paiement express indisponible, utilisez la carte ci-dessous",
+      txMissing: "Erreur: ID de transaction introuvable",
+      checkCard: "Vérifiez vos informations de carte",
+      invalidNumber: "Numéro de carte invalide",
+      sessionExpired: "Session expirée, rechargez la page",
+      invalidCard: "Carte invalide : ",
+      initError: "Erreur d'initialisation",
+      edenredConnecting: "Connexion à Edenred…",
+      linkExpiredTitle: "Lien de paiement expiré",
+      linkExpiredHtml: "Ce lien de paiement a déjà été utilisé ou a expiré.<br><br>Si votre paiement a été accepté, vous recevrez une confirmation par email.<br>Sinon, merci de créer une nouvelle commande.",
+      backHome: "Retour à l'accueil",
+      backToCart: "Retour au panier",
+      redirect: "Vous allez être redirigé vers la plateforme de connexion sécurisée",
       title: "Paiement sécurisé",
       order: "Commande",
       express: "Paiement express",
@@ -679,6 +692,19 @@ const translations = {
 
     // Payment flow (step 6, block 3)
     pm: {
+      expressUnavailable: "Express checkout unavailable, please use the card below",
+      txMissing: "Error: transaction not found. Contact us if you have paid.",
+      checkCard: "Check your card details",
+      invalidNumber: "Invalid card number",
+      sessionExpired: "Session expired, please reload the page",
+      invalidCard: "Invalid card: ",
+      initError: "Payment could not start",
+      edenredConnecting: "Connecting to Edenred…",
+      linkExpiredTitle: "Payment link expired",
+      linkExpiredHtml: "This payment link has already been used or has expired.<br><br>If your payment was accepted, you will receive a confirmation email.<br>Otherwise, please place a new order.",
+      backHome: "Back to home",
+      backToCart: "Back to cart",
+      redirect: "You will be redirected to the secure login platform",
       title: "Secure payment",
       order: "Order",
       express: "Express checkout",

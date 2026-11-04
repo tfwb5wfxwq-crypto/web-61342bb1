@@ -626,7 +626,7 @@ linear-gradient(var(--border-light),var(--border-light)) 100% 0/calc((100% - 48p
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20261104c"></script>
+<script src="i18n.js?v=20261104d"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -3163,7 +3163,7 @@ let currentPaymentData = null;
 
 // ===== PAIEMENT EXPRESS : Apple Pay / Google Pay via la page hébergée PayGreen =====
 function payHosted(method) {
-  if (!currentPaymentData || !currentPaymentData.paymentUrl) { showToast('Paiement express indisponible, utilisez la carte ci-dessous', 'error'); return; }
+  if (!currentPaymentData || !currentPaymentData.paymentUrl) { showToast(T('pm.expressUnavailable', 'Paiement express indisponible, utilisez la carte ci-dessous'), 'error'); return; }
   try { sessionStorage.setItem('be_express_method', method); } catch (e) {}
   try { ga4('add_payment_info', { currency: 'EUR', value: currentPaymentData.total, payment_type: method }); } catch (e) {}
   window.location.href = currentPaymentData.paymentUrl;
@@ -3188,7 +3188,7 @@ function setupExpressPay() {
         const baseCard = { type: 'CARD', parameters: { allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'], allowedCardNetworks: ['MASTERCARD', 'VISA'] } };
         client.isReadyToPay({ apiVersion: 2, apiVersionMinor: 0, allowedPaymentMethods: [baseCard] }).then(res => {
           if (res && res.result) {
-            const btn = client.createButton({ buttonColor: 'black', buttonType: 'pay', buttonSizeMode: 'fill', buttonLocale: 'fr', onClick: () => payHosted('google_pay') });
+            const btn = client.createButton({ buttonColor: 'black', buttonType: 'pay', buttonSizeMode: 'fill', buttonLocale: estAnglais() ? 'en' : 'fr', onClick: () => payHosted('google_pay') });
             gpayHost.appendChild(btn);
             block.style.display = 'block';
           } else { gpayHost.style.display = 'none'; }
@@ -3248,7 +3248,7 @@ function openPaymentModal(paymentOrderId, objectSecret, orderNum, total, email, 
     <div style="max-width:500px;width:100%;margin:0 auto;padding:0 20px;max-height:95vh;overflow-y:auto;">
       <button onclick="cancelPayment()" style="background:none;border:none;color:var(--text-soft);font-size:0.9rem;padding:12px 0;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:16px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Retour au panier
+        ${T('pm.backToCart', 'Retour au panier')}
       </button>
 
       <div style="background:#FDFBF7;border:1px solid #E6DFD3;border-radius:14px;padding:24px;box-shadow:0 1px 2px rgba(31,27,22,.05);margin-bottom:20px;">
@@ -3751,14 +3751,14 @@ function initPayGreen(method) {
       resetPayButton();
 
       const errorType = event.detail?.error || event.error;
-      let message = 'Vérifiez vos informations de carte';
+      let message = T('pm.checkCard', 'Vérifiez vos informations de carte');
 
       if (errorType === 'tokenize_invalid_card') {
-        message = 'Numéro de carte invalide';
+        message = T('pm.invalidNumber', 'Numéro de carte invalide');
       } else if (errorType === 'tokenize_unauthorized') {
-        message = 'Session expirée, rechargez la page';
+        message = T('pm.sessionExpired', 'Session expirée, rechargez la page');
       } else if (errorType) {
-        message = 'Carte invalide : ' + errorType;
+        message = T('pm.invalidCard', 'Carte invalide : ') + errorType;
       }
 
       showToast(message, 'error');
@@ -3818,7 +3818,7 @@ function initPayGreen(method) {
 
   } catch (e) {
     console.error('Erreur init PayGreen:', e);
-    showToast('Erreur d\'initialisation', 'error');
+    showToast(T('pm.initError', 'Erreur d\'initialisation'), 'error');
   }
 }
 
@@ -3839,8 +3839,8 @@ async function initEdenred() {
   paymentForm.innerHTML = `
     <div style="text-align:center;padding:40px 20px;">
       <div style="display:inline-block;width:48px;height:48px;border:4px solid #E6DFD3;border-top-color:#3E5A44;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div>
-      <p style="font-size:1.1rem;font-weight:600;color:var(--dark);margin:0 0 8px;">Connexion à Edenred…</p>
-      <p style="font-size:0.9rem;color:var(--text-soft);margin:0;">Vous allez être redirigé vers la plateforme de connexion sécurisée</p>
+      <p style="font-size:1.1rem;font-weight:600;color:var(--dark);margin:0 0 8px;">${T('pm.edenredConnecting', 'Connexion à Edenred…')}</p>
+      <p style="font-size:0.9rem;color:var(--text-soft);margin:0;">${T('pm.redirect', 'Vous allez être redirigé vers la plateforme de connexion sécurisée')}</p>
     </div>
   `;
 
@@ -3925,13 +3925,11 @@ async function handleEdenredOAuthCallback() {
     document.body.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg-soft);font-family:system-ui,-apple-system,sans-serif;">
         <div style="text-align:center;padding:40px;max-width:600px;background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.1);">
-          <p style="font-size:1.3rem;font-weight:600;color:var(--dark);margin:0 0 16px;">Lien de paiement expiré</p>
+          <p style="font-size:1.3rem;font-weight:600;color:var(--dark);margin:0 0 16px;">${T('pm.linkExpiredTitle', 'Lien de paiement expiré')}</p>
           <p style="font-size:1rem;color:var(--text-soft);margin:0 0 32px;line-height:1.6;">
-            Ce lien de paiement a déjà été utilisé ou a expiré.<br><br>
-            Si votre paiement a été accepté, vous recevrez une confirmation par email.<br>
-            Sinon, merci de créer une nouvelle commande.
+            ${T('pm.linkExpiredHtml', 'Ce lien de paiement a déjà été utilisé ou a expiré.<br><br>Si votre paiement a été accepté, vous recevrez une confirmation par email.<br>Sinon, merci de créer une nouvelle commande.')}
           </p>
-          <a href="/" style="display:inline-block;background:#1F1B16;color:white;padding:14px 32px;border-radius:9px;text-decoration:none;font-weight:500;font-size:1rem;">Retour à l'accueil</a>
+          <a href="/" style="display:inline-block;background:#1F1B16;color:white;padding:14px 32px;border-radius:9px;text-decoration:none;font-weight:500;font-size:1rem;">${T('pm.backHome', 'Retour à l\'accueil')}</a>
         </div>
       </div>
     `;
@@ -4071,7 +4069,7 @@ async function handleEdenredReturn() {
   const transactionId = orderData?.edenred_payment_id;
 
   if (!transactionId) {
-    showToast('Erreur: ID de transaction introuvable', 'error');
+    showToast(T('pm.txMissing', 'Erreur: ID de transaction introuvable'), 'error');
     return;
   }
 
