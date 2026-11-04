@@ -1099,6 +1099,10 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
 /* Plats en barquette : un poil plus zoomés pour mieux voir, sans couper (04/11 16h30) */
 .menu-card-visual{overflow:hidden}
 .menu-card-visual img[src*="m26/kafta-mechoui."],.menu-card-visual img[src*="m26/chich-taouk."],.menu-card-visual img[src*="m26/shawarma-poulet."],.menu-card-visual img[src*="m26/grillade-mixte."],.menu-card-visual img[src*="m26/beyrouth-poulet."],.menu-card-visual img[src*="m26/beyrouth-boeuf."],.menu-card-visual img[src*="m26/plateau-vegetarien."],.menu-card-visual img[src*="m26/plateau-falafel."],.menu-card-visual img[src*="m26/liban."],.menu-card-visual img[src*="m26/byblos."],.menu-card-visual img[src*="m26/plat-jour."]{transform:scale(1.13);transform-origin:50% 52%}
+/* Badge « Populaire » (04/11) : calculé chaque nuit en base (menu_items.populaire), 3 max, caché si rupture */
+.badge-populaire{position:absolute;left:10px;top:10px;z-index:3;display:inline-flex;align-items:center;gap:5px;padding:4px 8px;background:rgba(253,251,247,.95);color:#304936;font:600 11px/1.2 'DM Sans',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;box-shadow:0 1px 2px rgba(31,27,22,.12);pointer-events:none}
+.badge-populaire::before{content:"";width:6px;height:6px;border-radius:50%;background:#B45C12;flex:0 0 6px}
+.menu-card-unavailable .badge-populaire{display:none}
 </style>
 
 <!-- HEADER -->
@@ -2100,6 +2104,7 @@ function renderMenu() {
       html += `
         <div class="menu-card ${!item.disponible ? 'menu-card-unavailable' : ''}" data-id="${item.id}" onclick="${item.disponible ? `addToCart(${item.id})` : ''}">
           <div class="menu-card-visual">
+            ${item.populaire === true && item.disponible && item.id !== 82 ? `<span class="badge-populaire">${(typeof currentLang === 'string' && currentLang.indexOf('en') === 0) ? 'Popular' : 'Populaire'}</span>` : ''}
             ${item.image_url
               ? `<img src="${item.image_url}?v=${IMAGE_VERSION}"${moyenne(item.image_url) ? ` srcset="${moyenne(item.image_url)}?v=${IMAGE_VERSION} 600w, ${item.image_url}?v=${IMAGE_VERSION} 900w" sizes="(max-width: 759px) 50vw, 320px"` : ''} alt="${escapeHtml(item.nom)}" loading="lazy" decoding="async">`
               : `<span class="emoji-placeholder" aria-hidden="true"></span>`
