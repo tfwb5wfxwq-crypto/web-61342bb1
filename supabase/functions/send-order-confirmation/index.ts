@@ -106,6 +106,17 @@ serve(async (req) => {
       </tr>
       `
 
+      // Détail d'une formule (ex. Box Express : sandwich · boisson · sauce)
+      if (item.isFormule && Array.isArray(item.components) && item.components.length > 0) {
+        const detail = item.components.map((c: any) => String(c).replace(/[<>&"]/g, '')).join(' · ')
+        html += `
+      <tr>
+        <td style="padding:2px 0 0 0;width:36px;"></td>
+        <td colspan="2" style="padding:2px 0 0 0;font-size:13px;line-height:1.45;color:#5E554A;">${detail}</td>
+      </tr>
+          `
+      }
+
       // Ajouter les suppléments si présents
       if (item.supplements && item.supplements.length > 0) {
         item.supplements.forEach((supp: any) => {

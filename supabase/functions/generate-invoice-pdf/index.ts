@@ -140,6 +140,15 @@ function generateInvoiceHTML(order: any): string {
       </tr>
     `
 
+    // Détail d'une formule (ex. Box Express : sandwich · boisson · sauce)
+    if (item.isFormule && Array.isArray(item.components) && item.components.length > 0) {
+      html += `
+          <tr>
+            <td colspan="4" style="padding:4px 12px 12px 32px; border-bottom:1px solid #eee; font-size:13px; color:#888;">${item.components.map((c: any) => escapeHtml(String(c))).join(' · ')}</td>
+          </tr>
+        `
+    }
+
     // Suppléments
     if (item.supplements && item.supplements.length > 0) {
       item.supplements.forEach((supp: any) => {
@@ -262,7 +271,7 @@ function generateInvoiceHTML(order: any): string {
         <p>
           <strong>A Beyrouth</strong><br>
           PAPA (SARL)<br>
-          4 Esplanade du Général de Gaulle, 
+          4 Esplanade du Général de Gaulle<br>
           92400 Courbevoie<br>
           <span style="font-size:12px;color:#999;">SIRET : 830 675 047 RCS Nanterre<br>TVA : FR93 830 675 047</span>
         </p>
