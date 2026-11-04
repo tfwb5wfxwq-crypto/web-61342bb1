@@ -1052,6 +1052,34 @@ html body .header-pickup .info-time{padding:7px 14px 8px 12px!important;min-heig
 /* M8 : croix de la bulle de suggestion en vrai bouton, zone de toucher de 40 px. */
 .upsell-bubble-close{border:0;padding:0;font-family:inherit;line-height:1}
 .upsell-bubble-close::before{content:'';position:absolute;inset:-7px}
+
+/* En-tête 2026 (unslop, validé par Ludo le 04/11) : nouveau logo, grille de 4 px, 2 tailles dans la pastille (12 / 15),
+   une graisse par ligne, hiérarchie par la couleur, un seul trait d'icône, pastille centrée sur l'axe du logo */
+.header{padding-top:12px!important;padding-bottom:4px!important}
+.header-inner{align-items:center!important}
+.brand .logo-neuf{height:32px!important;width:auto!important;max-width:none!important;flex:0 0 auto;display:block;aspect-ratio:552/151}
+@media(max-width:380px){.brand .logo-neuf{height:26px!important}}
+
+@media(min-width:760px){.brand .logo-neuf{height:48px!important}}
+.brand,.brand-stack{flex-shrink:0;min-width:0}
+.header-pickup{padding:8px 16px!important}
+.info-time{display:grid!important;grid-template-columns:1fr auto;column-gap:12px;row-gap:2px;align-items:center}
+.info-time .header-status{grid-column:1;grid-row:1;display:flex!important;align-items:center;gap:6px;margin:0!important}
+.info-time .header-status *{font-size:12px!important;line-height:16px!important;font-weight:500!important;color:rgba(247,241,231,.72)!important;letter-spacing:0!important;opacity:1!important}
+.info-time .header-status .dot{flex:0 0 6px;width:6px!important;height:6px!important}
+.info-time .status-mode::after{content:" ·"}
+.info-time #timingPickLabel{grid-column:1;grid-row:2;font-size:15px!important;line-height:20px!important;font-weight:600!important;letter-spacing:0!important;color:#F7F1E7!important}
+.info-time #timingPickLabel::before{font-weight:600!important;opacity:1!important;color:rgba(247,241,231,.72)}
+.info-time .slot-chevron{grid-column:2;grid-row:1/3;width:16px!important;height:16px!important;stroke-width:1.5!important}
+.info-bar{padding-top:0!important;padding-bottom:8px!important;margin-top:-4px!important}
+.info-address{font-size:13px!important;line-height:20px;gap:6px!important}
+.info-address svg{width:14px!important;height:14px!important;stroke-width:1.5!important}
+.brand-stack{flex:0 0 auto!important}
+html body .header-pickup .info-time{padding:0!important}
+/* Téléphone : tout doit tenir sur une ligne sans chevauchement (mesuré du 320 au 430 px) */
+@media(max-width:759px){.header-pickup{padding:8px 12px!important}.info-time{column-gap:8px!important}.header-inner{gap:8px!important;justify-content:space-between}}
+@media(max-width:380px){.info-time .header-status *{font-size:11px!important}.info-time #timingPickLabel{font-size:14px!important}}
+@media(max-width:359px){.info-time .status-mode{display:none!important}.info-time #timingPickLabel::before{content:none!important}}
 </style>
 
 <!-- HEADER -->
@@ -1061,8 +1089,7 @@ html body .header-pickup .info-time{padding:7px 14px 8px 12px!important;min-heig
     <h1 class="brand">
       <span class="sr-only">Beyrouth Express · Click &amp; Collect libanais à La Défense (A Beyrouth)</span>
       <div style="display:flex;align-items:center;gap:12px;">
-        <img src="img/logo-olives.svg" alt="Olives" class="logo-olives" style="height:42px;width:auto;">
-        <img src="img/logo-text-dark.svg" alt="Beyrouth Express" class="logo-text" style="height:38px;width:auto;">
+        <img src="img/logo-beyrouth-express-2026.svg" alt="Beyrouth Express" class="logo-neuf" width="552" height="151">
       </div>
     </h1>
     </div>
