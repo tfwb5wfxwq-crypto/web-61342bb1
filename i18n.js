@@ -308,6 +308,14 @@ const translations = {
     },
 
     // Tunnel de paiement (etape 6, bloc 3). Textes copies a l identique.
+    up: {
+      f1: "<strong>Formule 1 à {prix}</strong> · sandwich + 2 feuilletés + boisson",
+      f1Btn: "Passer en formule",
+      sweet: "Finissez en douceur ! <strong>{nom}</strong> · {prix}",
+      drink: "Une <strong>boisson fraîche</strong> avec votre plat ? À partir de <strong>2,00 €</strong>",
+      drinkBtn: "Voir les boissons",
+      ayran: "Accompagnez avec un <strong>Ayran</strong> · yaourt salé rafraîchissant {prix}",
+    },
     pm: {
       expressUnavailable: "Paiement express indisponible, utilisez la carte ci-dessous",
       txMissing: "Erreur: ID de transaction introuvable",
@@ -691,6 +699,14 @@ const translations = {
     },
 
     // Payment flow (step 6, block 3)
+    up: {
+      f1: "<strong>Meal deal 1 for {prix}</strong> · sandwich + 2 pastries + drink",
+      f1Btn: "Switch to meal deal",
+      sweet: "Finish on a sweet note! <strong>{nom}</strong> · {prix}",
+      drink: "A <strong>cold drink</strong> with your dish? From <strong>2,00 €</strong>",
+      drinkBtn: "See drinks",
+      ayran: "Pair it with an <strong>Ayran</strong> · refreshing salted yoghurt {prix}",
+    },
     pm: {
       expressUnavailable: "Express checkout unavailable, please use the card below",
       txMissing: "Error: transaction not found. Contact us if you have paid.",

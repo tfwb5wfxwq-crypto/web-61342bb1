@@ -626,7 +626,7 @@ linear-gradient(var(--border-light),var(--border-light)) 100% 0/calc((100% - 48p
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20261104d"></script>
+<script src="i18n.js?v=20261104e"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -2734,9 +2734,9 @@ function getSmartUpsell(addedItem) {
     if (formule1) {
       return {
         emoji: '💡',
-        text: `<strong>Formule 1 à ${formatPrice(formule1.prix)}</strong> · sandwich + 2 feuilletés + boisson`,
+        text: T('up.f1', '<strong>Formule 1 à {prix}</strong> · sandwich + 2 feuilletés + boisson').split('{prix}').join(formatPrice(formule1.prix)),
         action: () => { cart = cart.filter(c => c.id !== addedItem); addToCart(formule1.id); },
-        btn: 'Passer en formule'
+        btn: T('up.f1Btn', 'Passer en formule')
       };
     }
   }
@@ -2746,7 +2746,7 @@ function getSmartUpsell(addedItem) {
       const d = desserts[Math.floor(Math.random() * desserts.length)];
       return {
         emoji: '🍮',
-        text: `Finissez en douceur ! <strong>${escapeHtml(nomPlat(d))}</strong> · ${formatPrice(d.prix)}`,
+        text: T('up.sweet', 'Finissez en douceur ! <strong>{nom}</strong> · {prix}').split('{nom}').join(escapeHtml(nomPlat(d))).split('{prix}').join(formatPrice(d.prix)),
         action: () => addToCart(d.id),
         btn: `+ ${formatPrice(d.prix)}`
       };
@@ -2755,9 +2755,9 @@ function getSmartUpsell(addedItem) {
   if ([3, 4].includes(item.categorie_id) && !cartCatIds.has(7)) {
     return {
       emoji: '🥤',
-      text: 'Une <strong>boisson fraîche</strong> avec votre plat ? À partir de <strong>2,00 €</strong>',
+      text: T('up.drink', 'Une <strong>boisson fraîche</strong> avec votre plat ? À partir de <strong>2,00 €</strong>'),
       action: () => scrollToCat(7),
-      btn: 'Voir les boissons'
+      btn: T('up.drinkBtn', 'Voir les boissons')
     };
   }
   if (item.categorie_id === 6 && !cartCatIds.has(7)) {
@@ -2765,7 +2765,7 @@ function getSmartUpsell(addedItem) {
     if (ayran) {
       return {
         emoji: '🥛',
-        text: `Accompagnez avec un <strong>Ayran</strong> · yaourt salé rafraîchissant ${formatPrice(ayran.prix)}`,
+        text: T('up.ayran', 'Accompagnez avec un <strong>Ayran</strong> · yaourt salé rafraîchissant {prix}').split('{prix}').join(formatPrice(ayran.prix)),
         action: () => addToCart(ayran.id),
         btn: `+ ${formatPrice(ayran.prix)}`
       };
