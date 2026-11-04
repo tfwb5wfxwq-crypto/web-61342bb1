@@ -97,12 +97,18 @@
 <script>
 // Anglais : seulement si le visiteur a choisi l'anglais (même mémoire que le reste du site)
 (function(){try{
-  var en=localStorage.getItem('beyrouth_lang')==='en'&&localStorage.getItem('beyrouth_apercu_en')==='1';
-  if(!en)return;
-  document.documentElement.lang='en';document.title='Page not found · Beyrouth Express';
-  var t={'.code':'Error 404','h1':'This page does not exist','main p':'The link may be old or mistyped. The menu is still here: sandwiches, platters and Box Express to take away in La Défense.','.link':'Catering and events','figcaption b':'Chicken Shawarma'};
+  // Même mémoire que le reste du site. Arabe : seulement si ouvert (ARABE_ACTIF, à garder comme dans i18n.js) ou en aperçu.
+  var ARABE_ACTIF=false;
+  var L=localStorage.getItem('beyrouth_lang');
+  var ar=L==='ar'&&(ARABE_ACTIF||localStorage.getItem('beyrouth_apercu_ar')==='1');
+  if(L!=='en'&&!ar)return;
+  var t=ar?{'.code':'خطأ 404','h1':'هذه الصفحة غير موجودة','main p':'ربما الرابط قديم أو منسوخ بشكل خاطئ. أما القائمة فهي هنا: ساندويشات وصوانٍ وBox Express للاستلام في La Défense.','.link':'خدمة الضيافة والمناسبات','figcaption b':'شاورما دجاج'}
+         :{'.code':'Error 404','h1':'This page does not exist','main p':'The link may be old or mistyped. The menu is still here: sandwiches, platters and Box Express to take away in La Défense.','.link':'Catering and events','figcaption b':'Chicken Shawarma'};
+  document.documentElement.lang=ar?'ar':'en';if(ar)document.documentElement.dir='rtl';
+  document.title=ar?'الصفحة غير موجودة · Beyrouth Express':'Page not found · Beyrouth Express';
   for(var k in t){var e=document.querySelector(k);if(e)e.textContent=t[k];}
-  var b=document.querySelector('.btn');if(b&&b.firstChild)b.firstChild.textContent='See the menu ';
+  var b=document.querySelector('.btn');if(b&&b.firstChild)b.firstChild.textContent=ar?'عرض القائمة ':'See the menu ';
+  if(ar){var sv=document.querySelector('.btn svg');if(sv)sv.style.transform='scaleX(-1)';}
 }catch(e){}})();
 </script>
 </body>

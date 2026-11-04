@@ -622,11 +622,20 @@ linear-gradient(var(--border-light),var(--border-light)) 100% 0/calc((100% - 48p
 .menu-cat-title::after{flex:1!important;height:8px!important;border:0!important;background:repeating-linear-gradient(135deg,transparent 0 8px,rgba(62,90,68,.14) 8px 10px,transparent 10px 16px)!important;transform:none!important}
 .footer{position:relative;overflow:hidden}
 .footer::before{content:'';position:absolute;right:-20px;top:30px;width:260px;height:140px;background:url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20240%20130%27%20fill%3D%27none%27%20stroke%3D%27%233E5A44%27%20stroke-opacity%3D%270.18%27%20stroke-width%3D%272.2%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M18%20112c54-14%2086-48%20106-96M65%2091c-17-3-30-12-38-27%2018-1%2034%206%2045%2020M86%2070c-14-7-23-19-27-34%2018%204%2031%2014%2038%2029M105%2045c-9-9-14-21-13-34%2014%207%2023%2017%2026%2030M124%2093c25-20%2054-31%2091-33M154%2076c3-15%2012-27%2027-36%201%2017-5%2031-18%2042M181%2066c8-13%2020-21%2036-24-5%2016-15%2027-29%2033%27/%3E%3C/svg%3E") no-repeat center/contain;pointer-events:none}
+/* ===== ARABE (version off, 04/11) : lecture de droite à gauche ===== */
+html[dir="rtl"] body{font-family:'IBM Plex Sans Arabic','DM Sans',system-ui,sans-serif}
+html[dir="rtl"] h1,html[dir="rtl"] h2,html[dir="rtl"] h3,html[dir="rtl"] .menu-cat-title,html[dir="rtl"] .menu-card-name,html[dir="rtl"] .announcement-title,html[dir="rtl"] .timepicker-title,html[dir="rtl"] .footer-heading{font-family:'Noto Kufi Arabic','IBM Plex Sans Arabic',serif!important;letter-spacing:0!important}
+html[dir="rtl"] .lang-toggle{margin-left:0;margin-right:auto}
+html[dir="rtl"] .box-nouveau,html[dir="rtl"] .badge-populaire{left:auto;right:10px}
+html[dir="rtl"] .info-address svg,html[dir="rtl"] .btn svg,html[dir="rtl"] .slot-chevron{transform:scaleX(-1)}
+html[dir="rtl"] input,html[dir="rtl"] textarea{text-align:right}
+html[dir="rtl"] input[type="tel"],html[dir="rtl"] input[type="email"]{direction:ltr;text-align:right}
 </style>
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20261104e"></script>
+<script src="i18n.js?v=20261104f"></script>
+<script src="menu-ar.js?v=1"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -992,7 +1001,7 @@ window.T = function (cle, secours) {
 .header-pickup .info-time>#timingPickLabel{grid-column:1;grid-row:2;min-width:0;color:#F7F1E7;font-size:15px;font-weight:600;line-height:20px;white-space:nowrap}
 .header-pickup .info-time>.slot-chevron{grid-column:2;grid-row:1 / 3;align-self:center;width:14px;height:14px;color:#F7F1E7}
 @media(max-width:700px){.header-pickup .info-time{grid-template-rows:12px 16px!important;height:40px!important;padding:5px 14px 5px 12px!important;border-radius:14px 24px 12px 26px / 12px 20px 14px 22px!important;column-gap:6px!important}.header-pickup .info-time>.header-status{font-size:9.5px!important;line-height:12px!important;color:rgba(247,241,231,.62)!important;gap:4px!important}.header-pickup .info-time>.header-status .dot{width:5px!important;height:5px!important;flex-basis:5px!important}.header-pickup .info-time>#timingPickLabel{font-size:13px!important;line-height:16px!important}.header-pickup .info-time>.slot-chevron{width:12px!important;height:12px!important}}
-/* Encart vert unique : statut + retrait + adresse */.header-pickup{display:flex;flex-direction:column;align-items:stretch;background:var(--sage-dark);border-radius:16px 28px 14px 30px / 14px 22px 16px 24px;padding:7px 14px 8px 12px}html body .header-pickup .info-time{background:transparent!important;padding:0!important;height:auto!important;border-radius:0!important;box-shadow:none!important;max-width:none!important;width:100%!important}#timingPickLabel::before{content:'Retrait · ';font-weight:400;opacity:.75}html[lang='en'] #timingPickLabel::before{content:'Pickup · '}html[lang='en'] #menuContent:empty::before{content:"Loading the menu…"}.header-pickup .header-status.closed:not(.paused) .header-sub{display:none!important}
+/* Encart vert unique : statut + retrait + adresse */.header-pickup{display:flex;flex-direction:column;align-items:stretch;background:var(--sage-dark);border-radius:16px 28px 14px 30px / 14px 22px 16px 24px;padding:7px 14px 8px 12px}html body .header-pickup .info-time{background:transparent!important;padding:0!important;height:auto!important;border-radius:0!important;box-shadow:none!important;max-width:none!important;width:100%!important}#timingPickLabel::before{content:'Retrait · ';font-weight:400;opacity:.75}html[lang='en'] #timingPickLabel::before{content:'Pickup · '}html[lang='en'] #menuContent:empty::before{content:"Loading the menu…"}html[lang='ar'] #timingPickLabel::before{content:'الاستلام · '}html[lang='ar'] #menuContent:empty::before{content:"جارٍ تحميل القائمة…"}.header-pickup .header-status.closed:not(.paused) .header-sub{display:none!important}
 .header-pickup .header-status.closed .dot{background:transparent!important;box-shadow:inset 0 0 0 1.5px #E7A99F;width:7px!important;height:7px!important;flex-basis:7px!important}.header-pickup .header-status.closed #statusText{color:#F0C2BA!important}.info-address{text-decoration:underline;text-decoration-color:rgba(62,90,68,.28);text-underline-offset:3px;text-decoration-thickness:1px}
 .header-pickup .header-status:not(.closed):not(.paused) #statusText{display:none!important}.header-pickup .header-status .status-mode{font-weight:600;color:#F7F1E7}.header-pickup .header-status .status-mode::after{content:' ·';font-weight:400;opacity:.7}
 
@@ -2120,7 +2129,7 @@ function renderMenu() {
       html += `
         <div class="menu-card ${!item.disponible ? 'menu-card-unavailable' : ''}" data-id="${item.id}" onclick="${item.disponible ? `addToCart(${item.id})` : ''}">
           <div class="menu-card-visual">
-            ${item.populaire === true && item.disponible ? `<span class="badge-populaire">${(typeof currentLang === 'string' && currentLang.indexOf('en') === 0) ? 'Popular' : 'Populaire'}</span>` : ''}
+            ${item.populaire === true && item.disponible ? `<span class="badge-populaire">${(typeof currentLang === 'string' && currentLang === 'ar') ? 'الأكثر طلبًا' : (typeof currentLang === 'string' && currentLang.indexOf('en') === 0) ? 'Popular' : 'Populaire'}</span>` : ''}
             ${item.image_url
               ? `<img src="${item.image_url}?v=${IMAGE_VERSION}"${moyenne(item.image_url) ? ` srcset="${moyenne(item.image_url)}?v=${IMAGE_VERSION} 600w, ${item.image_url}?v=${IMAGE_VERSION} 900w" sizes="(max-width: 759px) 50vw, 320px"` : ''} alt="${escapeHtml(item.nom)}" loading="lazy" decoding="async">`
               : `<span class="emoji-placeholder" aria-hidden="true"></span>`
@@ -2492,25 +2501,31 @@ function changeQtyAt(idx, delta) {
 // Ces deux fonctions ne servent QU A L AFFICHAGE. Si la traduction est absente,
 // vide, ou si le dictionnaire n a pas charge, on affiche le francais : un plat
 // ajoute par Paco sans traduction reste donc parfaitement lisible.
+function estArabe() {
+  try { return !!(window.i18n && window.i18n.get && window.i18n.get() === 'ar'); } catch (e) { return false; }
+}
 function estAnglais() {
   try { return !!(window.i18n && window.i18n.get && window.i18n.get() === 'en'); }
   catch (e) { return false; }
 }
 function nomCategorie(cat) {
   if (!cat) return '';
+  if (estArabe() && window.CATS_AR && CATS_AR[cat.id]) return CATS_AR[cat.id];
   return (estAnglais() && cat.nom_en) ? cat.nom_en : cat.nom;
 }
 // Noms des composantes de formule / Box (ce sont des CLÉS stockées dans la commande) : traduits à l'affichage seulement
 const COMPO_EN = {'Feuilletés': 'Pastries', 'Boisson': 'Drink', 'Sandwich': 'Sandwich', 'Sauce': 'Sauce', 'Entrée froide': 'Cold starter', 'Dessert': 'Dessert',
   'Fromage': 'Cheese', 'Boeuf': 'Beef', 'Épinard': 'Spinach', 'Falafel': 'Falafel', "Sauce à l'ail": 'Garlic sauce', 'Ketchup': 'Ketchup'};
-function nomCompo(n) { return (estAnglais() && COMPO_EN[n]) ? COMPO_EN[n] : n; }
+function nomCompo(n) { if (estArabe() && window.COMPO_AR && COMPO_AR[n]) return COMPO_AR[n]; return (estAnglais() && COMPO_EN[n]) ? COMPO_EN[n] : n; }
 function nomPlat(item) {
   if (!item) return '';
+  if (estArabe()) { if (window.MENU_AR && item.id != null && MENU_AR[item.id]) return MENU_AR[item.id].nom; if (window.COMPO_AR && COMPO_AR[item.nom]) return COMPO_AR[item.nom]; }
   if (estAnglais() && !item.nom_en && COMPO_EN[item.nom]) return COMPO_EN[item.nom];
   return (estAnglais() && item.nom_en) ? item.nom_en : item.nom;
 }
 function descPlat(item) {
   if (!item) return '';
+  if (estArabe() && window.MENU_AR && item.id != null && MENU_AR[item.id] && MENU_AR[item.id].description) return MENU_AR[item.id].description;
   return ((estAnglais() && item.description_en) ? item.description_en : item.description) || '';
 }
 
@@ -3189,7 +3204,7 @@ function setupExpressPay() {
         const baseCard = { type: 'CARD', parameters: { allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'], allowedCardNetworks: ['MASTERCARD', 'VISA'] } };
         client.isReadyToPay({ apiVersion: 2, apiVersionMinor: 0, allowedPaymentMethods: [baseCard] }).then(res => {
           if (res && res.result) {
-            const btn = client.createButton({ buttonColor: 'black', buttonType: 'pay', buttonSizeMode: 'fill', buttonLocale: estAnglais() ? 'en' : 'fr', onClick: () => payHosted('google_pay') });
+            const btn = client.createButton({ buttonColor: 'black', buttonType: 'pay', buttonSizeMode: 'fill', buttonLocale: estArabe() ? 'ar' : estAnglais() ? 'en' : 'fr', onClick: () => payHosted('google_pay') });
             gpayHost.appendChild(btn);
             block.style.display = 'block';
           } else { gpayHost.style.display = 'none'; }
@@ -3683,7 +3698,7 @@ function initPayGreen(method) {
         objectSecret: currentPaymentData.objectSecret
       },
       publicKey: PAYGREEN_PUBLIC_KEY,
-      lang: estAnglais() ? 'en' : 'fr', // sinon PayGreen prend la langue du téléphone (un client FR avec un tel en anglais voyait le module en anglais)
+      lang: (window.i18n && window.i18n.get() === 'fr') ? 'fr' : 'en', // PayGreen n'existe pas en arabe : anglais // sinon PayGreen prend la langue du téléphone (un client FR avec un tel en anglais voyait le module en anglais)
       mode: 'payment',
       paymentMethod: method,
       style: {
@@ -4928,6 +4943,7 @@ window.addEventListener('beforeunload', () => {
   var PRECOMMANDE = false; // 04/11 15h23 : Ludo et Paco reviennent à « seulement à partir de 14h »
   document.head.insertAdjacentHTML('beforeend', '<style>.box-horaire{display:block;margin-top:6px;font-size:14px;font-weight:700;color:var(--sage-dark)}.box-nouveau{position:absolute;left:10px;top:10px;z-index:3;padding:4px 8px;background:#B45C12;color:#FFF8EC;font:500 11px/1.2 \'DM Sans\',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;pointer-events:none}</style>');
   var EN = function () { var l = (typeof currentLang === 'string' && currentLang) || document.documentElement.lang || ''; return l.indexOf('en') === 0; };
+  var AR = function () { var l = (typeof currentLang === 'string' && currentLang) || document.documentElement.lang || ''; return l === 'ar'; };
   var ID_BOX = 82; // id fixe en base : le nom peut changer sans rien casser
   var COMPOSANTS = [
     { name: 'Sandwich', category: 1, qty: 1 },
@@ -4962,12 +4978,12 @@ window.addEventListener('beforeunload', () => {
   // Texte du badge : « Dispo à partir de 14h » (plus tard aujourd'hui), « Dispo demain dès 14h », « Dispo lundi dès 14h »
   var texteBadge = function () {
     var j = new Date().getDay();
-    if (jourOuvert(j) && minutesMaintenant() < DEBUT_CMD) return EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
+    if (jourOuvert(j) && minutesMaintenant() < DEBUT_CMD) return AR() ? 'متوفر ابتداءً من الساعة 14:00' : EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
     for (var d = 1; d <= 7; d++) { var jj = (j + d) % 7; if (jourOuvert(jj)) {
-      if (d === 1) return EN() ? 'Back tomorrow from 2pm' : 'Dispo demain dès 14h';
+      if (d === 1) return AR() ? 'متوفر غدًا ابتداءً من الساعة 14:00' : EN() ? 'Back tomorrow from 2pm' : 'Dispo demain dès 14h';
       var noms = EN() ? ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] : ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
-      return EN() ? 'Back ' + noms[jj] + ' from 2pm' : 'Dispo ' + noms[jj] + ' dès 14h'; } }
-    return EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
+      return AR() ? 'متوفر يوم ' + ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][jj] + ' ابتداءً من الساعة 14:00' : EN() ? 'Back ' + noms[jj] + ' from 2pm' : 'Dispo ' + noms[jj] + ' dès 14h'; } }
+    return AR() ? 'متوفر ابتداءً من الساعة 14:00' : EN() ? 'Available from 2pm' : 'Dispo à partir de 14h';
   };
   var estBox = function (x) { return !!x && x.id === ID_BOX; };
 
@@ -4989,7 +5005,7 @@ window.addEventListener('beforeunload', () => {
     if (!carte) return;
     // Badge « Nouveau » (choix de Ludo, 04/11) : s'enlève tout seul le 4 décembre 2026.
     var vis = carte.querySelector('.menu-card-visual');
-    if (Date.now() < NOUVEAU_JUSQUA && vis && !vis.querySelector('.box-nouveau')) vis.insertAdjacentHTML('beforeend', '<span class="box-nouveau">' + (EN() ? 'New' : 'Nouveau') + '</span>');
+    if (Date.now() < NOUVEAU_JUSQUA && vis && !vis.querySelector('.box-nouveau')) vis.insertAdjacentHTML('beforeend', '<span class="box-nouveau">' + (document.documentElement.lang === 'ar' ? 'جديد' : EN() ? 'New' : 'Nouveau') + '</span>');
     // Paco (04/11) : « écris en gros en description » → mention bien visible sur la carte
     // 04/11 15h36 (Ludo) : pas de mention en plus, le badge grisé suffit quand elle n'est pas dispo
     if (PRECOMMANDE) { var desc = carte.querySelector('.menu-card-desc'); if (desc && !desc.querySelector('.box-horaire')) desc.insertAdjacentHTML('beforeend', '<span class="box-horaire">' + (EN() ? 'Pick-up 2pm to 8:30pm' : 'Retrait de 14h à 20h30') + '</span>'); return; }
