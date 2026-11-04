@@ -284,6 +284,33 @@ serve(async (req) => {
 
     console.log('✅ Validation montant OK:', { serverTotal, clientTotal })
 
+    // ===== VALIDATION #4 (04/11/2026) : la commande ENREGISTRÉE = celle qu'on fait payer =====
+    // Le site écrit lui-même la commande dans `orders` (c'est elle que Paco voit sur la tablette,
+    // dans les mails et sur Telegram). Sans ce contrôle, une commande trafiquée pouvait afficher
+    // un gros panier chez Paco en ne payant qu'un petit montant. On compare articles (id × quantité),
+    // total et statut. Un vrai client n'est jamais concerné : son panier et sa commande sont identiques.
+    const { data: ordreEnBase } = await supabase
+      .from('orders')
+      .select('total, items, statut')
+      .eq('numero', orderNum)
+      .maybeSingle()
+    const empreinte = (liste: any) => (Array.isArray(liste) ? liste : [])
+      .map((i: any) => `${Number(i?.id)}x${Number(i?.qty || i?.quantite || 1)}`)
+      .sort()
+      .join(',')
+    const ordreOk = !!ordreEnBase
+      && ordreEnBase.statut === 'pending'
+      && Math.abs(Number(ordreEnBase.total) - serverTotal) <= 0.02
+      && empreinte(ordreEnBase.items) === empreinte(items)
+    if (!ordreOk) {
+      console.error('COMMANDE ENREGISTRÉE ≠ PANIER PAYÉ:', { orderNum, statut: ordreEnBase?.statut, totalBase: ordreEnBase?.total, serverTotal, base: empreinte(ordreEnBase?.items), panier: empreinte(items) })
+      await notifyAdminBlocked('Commande enregistrée différente du panier payé (paiement refusé, possible tentative de fraude)', { orderNum, name, phone, email, total })
+      return new Response(
+        JSON.stringify({ error: 'Votre commande a changé entre-temps. Veuillez actualiser la page et réessayer.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Étape 1 : Obtenir un JWT token depuis l'Auth API
     const authResponse = await fetch(`https://api.paygreen.fr/auth/authentication/${PAYGREEN_SHOP_ID}/secret-key`, {
       method: 'POST',
