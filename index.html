@@ -4856,6 +4856,15 @@ window.addEventListener('beforeunload', () => {
     { name: 'Sauce', items: ["Sauce à l'ail", 'Ketchup'], qty: 1 }
   ];
   FORMULE_CONFIG[NOM] = COMPOSANTS;
+  // Ketchup (id 83) : jamais vendu seul (actif=false, donc absent du menu chargé). On lit juste sa dispo pour la box.
+  var KETCHUP_ID = 83, lectureKetchup = 0;
+  var majKetchup = function () {
+    if (!sb || Date.now() - lectureKetchup < 20000) return; lectureKetchup = Date.now();
+    sb.from('menu_items').select('disponible').eq('id', KETCHUP_ID).maybeSingle().then(function (r) {
+      var ok = !(r && r.data && r.data.disponible === false);
+      COMPOSANTS[2].items = ok ? ["Sauce à l'ail", 'Ketchup'] : ["Sauce à l'ail"];
+    }, function () {});
+  };
   var nomBox = function () { var it = Array.isArray(menuItems) && menuItems.find(function (i) { return i.id === ID_BOX; }); if (it) FORMULE_CONFIG[it.nom] = COMPOSANTS; return it ? it.nom : NOM; };
   if (typeof ITEM_IMAGES === 'object') { ITEM_IMAGES["Sauce à l'ail"] = 'img/sauce-ail.jpg'; ITEM_IMAGES['Ketchup'] = 'img/ketchup.jpg'; }
   // Hors du vrai site seulement : ?heure=15h30 simule l'heure pour tester.
@@ -4878,7 +4887,7 @@ window.addEventListener('beforeunload', () => {
 
   var rendreOrig = renderMenu;
   renderMenu = function () {
-    nomBox();
+    nomBox(); majKetchup();
     enTete();
     rendreOrig.apply(this, arguments);
     var item = menuItems.find(estBox);

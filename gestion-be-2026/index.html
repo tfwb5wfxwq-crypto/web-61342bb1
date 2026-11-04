@@ -3702,7 +3702,8 @@ async function confirmCancelOrder(orderId) {
 async function loadMenuItems() {
   const [catRes, itemRes] = await Promise.all([
     sb.from('menu_categories').select('*').order('ordre'),
-    sb.from('menu_items').select('*').eq('actif', true).order('id'),
+    // + Ketchup (id 83) : vendu seulement dans la Box Express (actif=false sur le site), mais Paco doit pouvoir le couper
+    sb.from('menu_items').select('*').or('actif.eq.true,id.eq.83').order('id'),
   ]);
   menuCategories = catRes.data || [];
   menuItemsList = itemRes.data || [];
