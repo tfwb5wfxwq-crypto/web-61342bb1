@@ -981,7 +981,9 @@ function choisirLangue(code) {
   try {
     if (window.i18n && window.i18n.set) window.i18n.set(code);   // memorise + applique les data-i18n
   } catch (e) {}
-  rafraichirApresLangue();
+  // 04/11 (Ludo) : on recharge la page pour que TOUT passe dans la nouvelle langue d'un coup
+  // (menu, titres, bulle traiteur...). Le panier est gardé (mémorisé dans le navigateur).
+  try { location.reload(); } catch (e) { rafraichirApresLangue(); }
 }
 
 // i18n emet languageChanged : on s y branche aussi, au cas ou la langue serait
