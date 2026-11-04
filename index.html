@@ -1494,6 +1494,7 @@ const SUPABASE_URL = 'https://xbuftfwcyontgqbbrrjt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhidWZ0ZndjeW9udGdxYmJycmp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Njg1NzksImV4cCI6MjA4NjI0NDU3OX0.ROkSccADlpLsWMgqyiX_xNaFdJNR8P4R-LJCnZV2Gzg';
 const PAYGREEN_PUBLIC_KEY = 'pk_28b9dcb7b9604b3d9efb03c2e2a2bd45';
 const PAYGREEN_SHOP_ID = 'sh_55f9f298d8ce478db7b87117ec86ce11';
+const moyenne = u => (u && /\/m26\/[^/]+\.jpg$/.test(u)) ? u.replace('/m26/', '/m26/600/') : null; // 600 px pour les cartes (téléphones et ordi standard)
 const vignette = u => (u && u.indexOf('/m26/') !== -1 && u.indexOf('/mini/') === -1) ? u.replace('/m26/', '/m26/mini/') : u; // petites images (~10 Ko) pour les vignettes
 const IMAGE_VERSION = 'm26'; // version fixe : les photos se gardent en cache (nouveau nom de dossier = nouvelle version)
 let sb = null;
@@ -2100,7 +2101,7 @@ function renderMenu() {
         <div class="menu-card ${!item.disponible ? 'menu-card-unavailable' : ''}" data-id="${item.id}" onclick="${item.disponible ? `addToCart(${item.id})` : ''}">
           <div class="menu-card-visual">
             ${item.image_url
-              ? `<img src="${item.image_url}?v=${IMAGE_VERSION}" alt="${escapeHtml(item.nom)}" loading="lazy" decoding="async">`
+              ? `<img src="${item.image_url}?v=${IMAGE_VERSION}"${moyenne(item.image_url) ? ` srcset="${moyenne(item.image_url)}?v=${IMAGE_VERSION} 600w, ${item.image_url}?v=${IMAGE_VERSION} 900w" sizes="(max-width: 759px) 50vw, 320px"` : ''} alt="${escapeHtml(item.nom)}" loading="lazy" decoding="async">`
               : `<span class="emoji-placeholder" aria-hidden="true"></span>`
             }
             ${!item.disponible ? `<div class="unavailable-badge">${T('menu.soonAvailable', 'Bientôt disponible')}</div>` : ''}
