@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Calque_1" data-name="Calque 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 368.51 300.88">
+<svg id="be-falafels" data-name="Calque 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 368.51 300.88">
   <defs>
     <style>
       .cls-1 {
@@ -7,7 +7,7 @@
       }
 
       .cls-2 {
-        fill: #de8320;
+        fill: #EC7A1C;
       }
 
       .cls-2, .cls-3, .cls-4 {
@@ -17,20 +17,20 @@
       }
 
       .cls-3 {
-        fill: url(#Dégradé_sans_nom_74);
+        fill: url(#be-g74);
       }
 
       .cls-4 {
-        fill: url(#Dégradé_sans_nom_98);
+        fill: url(#be-g98);
       }
     </style>
-    <linearGradient id="Dégradé_sans_nom_74" data-name="Dégradé sans nom 74" x1="138.06" y1="158.26" x2="220.23" y2="15.95" gradientUnits="userSpaceOnUse">
-      <stop offset=".47" stop-color="#c0581a"/>
-      <stop offset="1" stop-color="#a44516"/>
+    <linearGradient id="be-g74" data-name="Dégradé sans nom 74" x1="138.06" y1="158.26" x2="220.23" y2="15.95" gradientUnits="userSpaceOnUse">
+      <stop offset=".47" stop-color="#D4601A"/>
+      <stop offset="1" stop-color="#B84C14"/>
     </linearGradient>
-    <linearGradient id="Dégradé_sans_nom_98" data-name="Dégradé sans nom 98" x1="200.99" y1="269.91" x2="334.22" y2="136.68" gradientUnits="userSpaceOnUse">
-      <stop offset=".37" stop-color="#c0581a"/>
-      <stop offset="1" stop-color="#a44516"/>
+    <linearGradient id="be-g98" data-name="Dégradé sans nom 98" x1="200.99" y1="269.91" x2="334.22" y2="136.68" gradientUnits="userSpaceOnUse">
+      <stop offset=".37" stop-color="#D4601A"/>
+      <stop offset="1" stop-color="#B84C14"/>
     </linearGradient>
   </defs>
   <g>
