@@ -1173,7 +1173,7 @@ if (document.startViewTransition) {
 <div class="loc-modal" id="locModal">
   <div class="loc-sheet" onclick="event.stopPropagation()">
     <div class="loc-video-wrap">
-      <video class="loc-video" autoplay loop muted playsinline preload="auto">
+      <video class="loc-video" loop muted playsinline preload="none">
         <source src="../beyrouth-location.mp4" type="video/mp4">
       </video>
       <div class="loc-video-overlay"></div>
@@ -1194,8 +1194,8 @@ if (document.startViewTransition) {
 (function(){
   const modal = document.getElementById('locModal');
   const closeBtn = document.getElementById('locClose');
-  function open(e){ if(e) e.preventDefault(); modal.classList.add('open'); document.body.style.overflow='hidden'; }
-  function close(){ modal.classList.remove('open'); document.body.style.overflow=''; }
+  function open(e){ if(e) e.preventDefault(); modal.classList.add('open'); document.body.style.overflow='hidden'; const v=modal.querySelector('video'); if(v){ v.preload='auto'; v.play().catch(()=>{}); } } // vidéo chargée seulement à l'ouverture (3,2 Mo)
+  function close(){ modal.classList.remove('open'); document.body.style.overflow=''; const v=modal.querySelector('video'); if(v) v.pause(); }
   closeBtn.addEventListener('click', close);
   modal.addEventListener('click', close);
   document.addEventListener('keydown', e => { if(e.key==='Escape') close(); });

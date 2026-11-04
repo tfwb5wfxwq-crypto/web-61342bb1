@@ -1487,7 +1487,7 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <!-- PAYGREEN JS -->
 <link href="https://pgjs.paygreen.fr/latest/paygreen.min.css" rel="stylesheet">
-<script src="https://pgjs.paygreen.fr/latest/paygreen.min.js"></script>
+<script async src="https://pgjs.paygreen.fr/latest/paygreen.min.js"></script><!-- async : se télécharge dès l arrivée (paiement instantané) sans bloquer l affichage -->
 <script>
 // ===== CONFIG =====
 const SUPABASE_URL = 'https://xbuftfwcyontgqbbrrjt.supabase.co';
@@ -4858,7 +4858,7 @@ window.addEventListener('beforeunload', () => {
 <div class="loc-modal" id="locModal">
   <div class="loc-sheet" onclick="event.stopPropagation()">
     <div class="loc-video-wrap">
-      <video class="loc-video" autoplay loop muted playsinline preload="auto">
+      <video class="loc-video" loop muted playsinline preload="none">
         <source src="/beyrouth-location.mp4" type="video/mp4">
       </video>
       <div class="loc-video-overlay"></div>
@@ -4879,8 +4879,8 @@ window.addEventListener('beforeunload', () => {
 (function(){
   const modal = document.getElementById('locModal');
   const closeBtn = document.getElementById('locClose');
-  function open(e){ if(e) e.preventDefault(); modal.classList.add('open'); document.body.style.overflow='hidden'; }
-  function close(){ modal.classList.remove('open'); document.body.style.overflow=''; }
+  function open(e){ if(e) e.preventDefault(); modal.classList.add('open'); document.body.style.overflow='hidden'; const v=modal.querySelector('video'); if(v){ v.preload='auto'; v.play().catch(()=>{}); } } // vidéo chargée seulement à l'ouverture (3,2 Mo)
+  function close(){ modal.classList.remove('open'); document.body.style.overflow=''; const v=modal.querySelector('video'); if(v) v.pause(); }
   window.openLocModal = open;
   closeBtn.addEventListener('click', close);
   modal.addEventListener('click', close);
