@@ -4846,6 +4846,8 @@ window.addEventListener('beforeunload', () => {
 <script>
 (function () {
   var NOM = 'Box Exclu Web', DEBUT = 14 * 60, FIN = 20 * 60 + 30;
+  var NOUVEAU_JUSQUA = new Date('2026-12-04T00:00:00+01:00').getTime();
+  document.head.insertAdjacentHTML('beforeend', '<style>.box-nouveau{position:absolute;left:10px;top:10px;z-index:3;padding:4px 8px;background:#B45C12;color:#FFF8EC;font:500 11px/1.2 \'DM Sans\',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;pointer-events:none}</style>');
   var EN = function () { var l = (typeof currentLang === 'string' && currentLang) || document.documentElement.lang || ''; return l.indexOf('en') === 0; };
   FORMULE_CONFIG[NOM] = [
     { name: 'Sandwich', category: 1, qty: 1 },
@@ -4874,9 +4876,13 @@ window.addEventListener('beforeunload', () => {
     enTete();
     rendreOrig.apply(this, arguments);
     var item = menuItems.find(estBox);
-    if (!item || !item.disponible || ouverteMaintenant()) return;
+    if (!item) return;
     var carte = document.querySelector('.menu-card[data-id="' + item.id + '"]');
     if (!carte) return;
+    // Badge « Nouveau » (choix de Ludo, 04/11) : s'enlève tout seul le 4 décembre 2026.
+    var vis = carte.querySelector('.menu-card-visual');
+    if (Date.now() < NOUVEAU_JUSQUA && vis && !vis.querySelector('.box-nouveau')) vis.insertAdjacentHTML('beforeend', '<span class="box-nouveau">' + (EN() ? 'New' : 'Nouveau') + '</span>');
+    if (!item.disponible || ouverteMaintenant()) return;
     carte.classList.add('menu-card-unavailable');
     carte.removeAttribute('onclick');
     var b = carte.querySelector('.menu-card-add'); if (b) b.disabled = true;
@@ -4943,10 +4949,19 @@ window.addEventListener('beforeunload', () => {
   };
 
   // Heure qui passe 14h ou 20h30 page ouverte : on réaffiche le menu à la minute.
-  // Vérif toutes les 5 s + dès que la page revient au premier plan (l'iPhone gèle les minuteries en arrière-plan).
+  // + vérif dès que la page revient au premier plan (l iPhone gèle les minuteries en arrière-plan).
   var etat = ouverteMaintenant();
-  var verifier = function () { var e = ouverteMaintenant(); if (e !== etat) { etat = e; try { renderMenu(); } catch (err) {} } };
-  setInterval(verifier, 5000);
+  // Une seule minuterie réglée pile sur la prochaine bascule (14h00 ou 20h30), rien entre les deux.
+  var minuterie = null;
+  var armer = function () {
+    clearTimeout(minuterie);
+    var n = new Date(), m = n.getHours() * 60 + n.getMinutes();
+    var cible = m < DEBUT ? DEBUT : (m <= FIN ? FIN + 1 : DEBUT + 24 * 60);
+    var ms = (cible - m) * 60000 - n.getSeconds() * 1000 - n.getMilliseconds() + 300;
+    minuterie = setTimeout(verifier, Math.min(ms, 6 * 3600000));
+  };
+  var verifier = function () { var e = ouverteMaintenant(); if (e !== etat) { etat = e; try { renderMenu(); } catch (err) {} } armer(); };
+  armer();
   document.addEventListener('visibilitychange', function () { if (!document.hidden) verifier(); });
   window.addEventListener('pageshow', verifier);
   window.addEventListener('focus', verifier);
