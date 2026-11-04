@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F7F4EE">
 
-<!-- Google Analytics 4 — utile ici pour reperer un lien de pub casse : une annonce
-     qui envoie sur une 404 brule du budget en silence. -->
+<!-- Google Analytics 4 : utile ici pour reperer un lien de pub casse (une annonce
+     qui envoie sur une 404 brule du budget en silence). -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-X4CLSYXFN5"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -14,66 +16,83 @@
   gtag('config', 'G-X4CLSYXFN5');
 </script>
 
-<title>Page introuvable - A Beyrouth</title>
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<title>Page introuvable · Beyrouth Express</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2026">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2026">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2026">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Sans', -apple-system, 'Helvetica Neue', Arial, sans-serif;
-    background: #F7F4EE;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    text-align: center;
+  :root{
+    --bg:#F7F4EE; --surface:#FDFBF7; --border:#E6DFD3; --hair:rgba(31,27,22,.09);
+    --text:#1F1B16; --text-soft:#5E554A; --text-muted:#6B6256;
+    --sage:#3E5A44; --sage-dark:#304936; --wood:#F1E8DA;
   }
-  img.logo {
-    width: 80px;
-    height: auto;
-    margin-bottom: 32px;
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%}
+  body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+
+  header{padding:16px 24px;display:flex;align-items:center}
+  header a{display:inline-flex}
+  header img{height:40px;width:auto;aspect-ratio:552/151;display:block}
+
+  main{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:56px;align-items:center;width:min(1120px,100%);margin:0 auto;padding:32px 32px 64px}
+  .code{font-size:13px;line-height:20px;color:var(--text-muted);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:8px;margin-bottom:16px}
+  .code::before{content:"";width:24px;border-top:1px dotted #B8AA98}
+  h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:48px;line-height:52px;letter-spacing:-.5px;color:var(--text);margin-bottom:16px;max-width:12ch}
+  p{font-size:17px;line-height:26px;color:var(--text-soft);max-width:42ch;margin-bottom:32px}
+  .actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 24px;border-radius:14px;background:var(--sage-dark);color:#F7F1E7;font-size:16px;font-weight:600;text-decoration:none;transition:background-color .16s cubic-bezier(.22,1,.36,1)}
+  .btn:hover{background:var(--sage)}
+  .btn svg{width:18px;height:18px;stroke-width:1.75}
+  .link{font-size:15px;font-weight:500;color:var(--text);text-decoration:underline;text-decoration-color:rgba(31,27,22,.25);text-underline-offset:4px;transition:text-decoration-color .16s}
+  .link:hover{text-decoration-color:var(--text)}
+  .btn:focus-visible,.link:focus-visible,header a:focus-visible{outline:2px solid var(--sage-dark);outline-offset:3px;border-radius:14px}
+
+  figure{position:relative;border-radius:20px;overflow:hidden;background:var(--wood);aspect-ratio:4/3;border:1px solid var(--hair)}
+  figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:sepia(.035) saturate(.94) contrast(.98) brightness(1.01)}
+  figcaption{position:absolute;left:16px;bottom:16px;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:12px;background:rgba(253,251,247,.94);font-size:13px;line-height:18px;color:var(--text)}
+  figcaption b{font-weight:600}
+  figcaption span{color:var(--text-muted);font-variant-numeric:tabular-nums}
+
+  footer{padding:0 24px 24px;font-size:13px;color:var(--text-muted);text-align:center}
+
+  @media(max-width:860px){
+    header{padding:12px 16px}
+    header img{height:32px}
+    main{grid-template-columns:1fr;gap:32px;padding:16px 16px 40px;align-items:start}
+    figure{order:-1;border-radius:16px}
+    h1{font-size:36px;line-height:40px;max-width:none}
+    p{font-size:16px;line-height:24px;margin-bottom:24px}
   }
-  main { width: min(520px, 100%); padding: 48px 32px; background: #FDFBF7; border: 1px solid #E6DFD3; border-radius: 14px; }
-  h1 {
-    font-family: 'DM Serif Display', Georgia, serif;
-    font-size: 2.5rem;
-    font-weight: 400;
-    color: #1F1B16;
-    margin-bottom: 16px;
-  }
-  p {
-    font-size: 0.95rem;
-    color: #5E554A;
-    margin-bottom: 32px;
-    line-height: 1.5;
-  }
-  .rule { width: 64px; border-top: 1px dotted #B8AA98; margin: 0 auto 24px; }
-  a.btn {
-    display: inline-block;
-    background: #3E5A44;
-    color: #fff;
-    text-decoration: none;
-    padding: 13px 28px;
-    border-radius: 9px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    border: 1px solid #3E5A44;
-    transition: background .16s;
-  }
-  a.btn:hover { background: #304936; }
-  a.btn:focus-visible { outline: 2px solid #3E5A44; outline-offset: 3px; }
+  @media(max-width:360px){h1{font-size:32px;line-height:36px}.actions{gap:16px}}
 </style>
 </head>
 <body>
+  <header>
+    <a href="/" aria-label="Beyrouth Express, retour au menu"><img src="/img/logo-beyrouth-express-2026.svg" alt="Beyrouth Express" width="552" height="151"></a>
+  </header>
+
   <main>
-    <img class="logo" src="/img/logo-olives.svg" alt="A Beyrouth" onerror="this.style.display='none'">
-    <div class="rule"></div>
-    <h1>Page introuvable</h1>
-    <p>Cette page n'existe pas ou a été déplacée.<br>Retournez au menu pour passer commande.</p>
-    <a class="btn" href="/">Voir le menu</a>
+    <div>
+      <div class="code">Erreur 404</div>
+      <h1>Cette page n’existe pas</h1>
+      <p>Le lien est peut‑être ancien ou mal copié. Le menu, lui, est bien là : sandwichs, plateaux et Box Express à emporter à La Défense.</p>
+      <div class="actions">
+        <a class="btn" href="/">Voir le menu
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="link" href="/traiteur/">Traiteur et événements</a>
+      </div>
+    </div>
+
+    <figure>
+      <img src="/img/m26/sandwich-shawarma.jpg" alt="Sandwich shawarma poulet roulé dans le pain libanais" width="900" height="675" fetchpriority="high">
+      <figcaption><b>Shawarma Poulet</b><span>6,90 €</span></figcaption>
+    </figure>
   </main>
+
+  <footer>Beyrouth Express · 4 Esplanade du Général de Gaulle, Courbevoie</footer>
 </body>
 </html>
