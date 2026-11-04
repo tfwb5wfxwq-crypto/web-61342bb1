@@ -56,6 +56,9 @@ const translations = {
 
     // Cart & Checkout
     cart: {
+      viewCart: "Voir le panier",
+      namePh: "Prénom",
+      phonePh: "Téléphone (ex: 0612345678)",
       placeOrder: "Passer la commande",
       modify: "Modifier",
       addToCart: "Ajouter au panier",
@@ -421,6 +424,9 @@ const translations = {
 
     // Cart & Checkout
     cart: {
+      viewCart: "View cart",
+      namePh: "First name",
+      phonePh: "Phone (e.g. 0612345678)",
       placeOrder: "Place order",
       modify: "Edit",
       addToCart: "Add to cart",
@@ -874,7 +880,17 @@ window.i18n = {
   // clique sur EN pendant les essais. Tout le travail de traduction reste en
   // place dessous, il suffira de repasser ce drapeau a true.
   var BILINGUE_ACTIF = false;
-  if (!BILINGUE_ACTIF) return;
+  // 04/11/2026 : APERCU CACHE pour Ludo. ?apercu-en=1 passe CE navigateur en anglais
+  // (memorise, suit le visiteur de page en page et au retour du paiement), ?apercu-en=0 l'enleve.
+  // Aucun lien ne mene ici : les clients et Google continuent de voir le site en francais.
+  var APERCU = false;
+  try {
+    var q = location.search || '';
+    if (/[?&]apercu-en=0/.test(q)) { localStorage.removeItem('beyrouth_apercu_en'); localStorage.removeItem('beyrouth_lang'); }
+    if (/[?&]apercu-en=1/.test(q)) { localStorage.setItem('beyrouth_apercu_en', '1'); localStorage.setItem('beyrouth_lang', 'en'); }
+    APERCU = localStorage.getItem('beyrouth_apercu_en') === '1';
+  } catch (e) {}
+  if (!BILINGUE_ACTIF && !APERCU) return;
   try {
     initLanguage();
     if (document.readyState === 'loading') {

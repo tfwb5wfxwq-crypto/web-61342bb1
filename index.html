@@ -626,7 +626,7 @@ linear-gradient(var(--border-light),var(--border-light)) 100% 0/calc((100% - 48p
 <!-- Traductions. Le fichier ne fait que DEFINIR window.i18n : il n applique
      rien tant que window.i18n.init() n est pas appele. Charge ici pour que les
      appels window.i18n.t() du code cessent d etre des gardes mortes. -->
-<script src="i18n.js?v=20261103c"></script>
+<script src="i18n.js?v=20261104a"></script>
 <script>
 // Helper de traduction TOLERANT AUX PANNES (etape 6, 11/08/2026).
 // Regle : le site doit rester 100 % fonctionnel en francais meme si i18n.js
@@ -1351,7 +1351,7 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
 <div class="bottom-bar" id="bottomBar">
   <div class="bottom-bar-inner">
     <button class="bottom-bar-btn" onclick="toggleCart()">
-      <span>Voir le panier <span class="bottom-bar-count" id="bottomCount">0</span></span>
+      <span><span data-i18n="cart.viewCart">Voir le panier</span> <span class="bottom-bar-count" id="bottomCount">0</span></span>
       <span class="bottom-bar-total" id="bottomTotal">0,00 €</span>
     </button>
   </div>
@@ -1394,12 +1394,12 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
       <form class="cart-form" id="cartCustomerForm" novalidate onsubmit="event.preventDefault(); submitOrder();">
         <input type="hidden" id="pickupTime" value="">
         <div class="cart-field">
-          <input type="text" id="clientName" placeholder="Prénom" aria-label="Prénom" required minlength="2" maxlength="50" aria-describedby="clientNameError">
+          <input type="text" id="clientName" placeholder="Prénom" data-i18n="cart.namePh" data-i18n-placeholder aria-label="Prénom" required minlength="2" maxlength="50" aria-describedby="clientNameError">
           <p class="cart-field-error" id="clientNameError" aria-live="polite"></p>
         </div>
         <div class="form-row">
           <div class="cart-field">
-            <input type="tel" id="clientPhone" placeholder="Téléphone (ex: 0612345678)" aria-label="Téléphone" required aria-describedby="clientPhoneError">
+            <input type="tel" id="clientPhone" placeholder="Téléphone (ex: 0612345678)" data-i18n="cart.phonePh" data-i18n-placeholder aria-label="Téléphone" required aria-describedby="clientPhoneError">
             <p class="cart-field-error" id="clientPhoneError" aria-live="polite"></p>
           </div>
           <div class="cart-field">
@@ -2291,7 +2291,7 @@ function openFormuleModal(formuleItem) {
     return `
       <div class="formule-component">
         <div class="formule-component-title">
-          ${comp.name}
+          ${escapeHtml(nomCompo(comp.name))}
           <span id="formuleCounter${idx}" style="font-size:.75rem;color:var(--text-muted);font-weight:400;margin-left:6px;">0/${comp.qty}</span>
         </div>
         <div class="formule-options" id="formuleComp${idx}">
@@ -2486,8 +2486,13 @@ function nomCategorie(cat) {
   if (!cat) return '';
   return (estAnglais() && cat.nom_en) ? cat.nom_en : cat.nom;
 }
+// Noms des composantes de formule / Box (ce sont des CLÉS stockées dans la commande) : traduits à l'affichage seulement
+const COMPO_EN = {'Feuilletés': 'Pastries', 'Boisson': 'Drink', 'Sandwich': 'Sandwich', 'Sauce': 'Sauce', 'Entrée froide': 'Cold starter', 'Dessert': 'Dessert',
+  'Fromage': 'Cheese', 'Boeuf': 'Beef', 'Épinard': 'Spinach', 'Falafel': 'Falafel', "Sauce à l'ail": 'Garlic sauce', 'Ketchup': 'Ketchup'};
+function nomCompo(n) { return (estAnglais() && COMPO_EN[n]) ? COMPO_EN[n] : n; }
 function nomPlat(item) {
   if (!item) return '';
+  if (estAnglais() && !item.nom_en && COMPO_EN[item.nom]) return COMPO_EN[item.nom];
   return (estAnglais() && item.nom_en) ? item.nom_en : item.nom;
 }
 function descPlat(item) {
@@ -2501,6 +2506,7 @@ function descPlat(item) {
 // statut d ouverture) doit etre redessine, sinon on obtiendrait une page a
 // moitie traduite. C est fait ici, une fois pour toutes.
 function rafraichirApresLangue() {
+  try { var cpd0 = document.getElementById('cartPickupDisplay'); if (cpd0 && /^(Dès que possible|As soon as possible)$/.test(cpd0.textContent.trim())) cpd0.textContent = T('timepicker.asap', 'Dès que possible'); } catch (e) {}
   try { if (typeof renderMenu === 'function') renderMenu(); } catch (e) {}
   try { if (typeof updateCartUI === 'function') updateCartUI(); } catch (e) {}
   try { if (typeof updateOpenStatus === 'function') updateOpenStatus(); } catch (e) {}
@@ -2516,6 +2522,7 @@ function rafraichirApresLangue() {
   } catch (e) {}
 }
 
+window.addEventListener('load', function () { try { if (estAnglais()) { var c = document.getElementById('cartPickupDisplay'); if (c && c.textContent.trim() === 'Dès que possible') c.textContent = T('timepicker.asap', 'Dès que possible'); } } catch (e) {} });
 function choisirLangue(code) {
   try {
     if (window.i18n && window.i18n.set) window.i18n.set(code);   // memorise + applique les data-i18n
@@ -2582,8 +2589,8 @@ function updateCartUI() {
         }
       }
 
-      document.getElementById('timingPickLabel').textContent = `${dayLabel} ${asapTime}`;
-      document.getElementById('cartPickupDisplay').innerHTML = `${dayLabel} ${asapTime}`;
+      document.getElementById('timingPickLabel').textContent = afficherRetrait(`${dayLabel} ${asapTime}`);
+      document.getElementById('cartPickupDisplay').textContent = afficherRetrait(`${dayLabel} ${asapTime}`);
       document.getElementById('pickupTime').value = 'asap';
     } else {
       // Si fermé : prochaine ouverture
@@ -2611,7 +2618,7 @@ function updateCartUI() {
 
     // Si c'est une formule, afficher les composants
     const componentsHtml = c.isFormule && c.components
-      ? `<div style="font-size:.7rem;color:var(--text-soft);margin-top:2px;">${c.components.join(', ')}</div>`
+      ? `<div style="font-size:.7rem;color:var(--text-soft);margin-top:2px;">${c.components.map(n => { const it = menuItems.find(i => i.nom === n); return escapeHtml(it ? nomPlat(it) : nomCompo(n)); }).join(', ')}</div>`
       : '';
 
     div.innerHTML = `
@@ -4473,7 +4480,7 @@ function updateTimingBar() {
     // Affiche automatiquement le créneau ASAP dans le bouton
     const asapTime = getAsapTime();
     selectedPickup = 'asap';
-    document.getElementById('timingPickLabel').textContent = `Aujourd'hui ${asapTime}`;
+    document.getElementById('timingPickLabel').textContent = afficherRetrait(`Aujourd'hui ${asapTime}`);
     document.getElementById('pickupTime').value = 'asap';
   } else {
     if (dot) dot.classList.add('closed');
@@ -4542,7 +4549,7 @@ function buildTimePicker() {
     const slot = `${dayLabel} ${asapTime}`;
     asapBtn.disabled = false;
     asapBtn.onclick = () => selectTime('asap');
-    asapBtn.innerHTML = `${T('timepicker.nextSlot', 'Créneau le plus proche')}<span class="timepicker-asap-sub">${slot}</span>`;
+    asapBtn.innerHTML = `${T('timepicker.nextSlot', 'Créneau le plus proche')}<span class="timepicker-asap-sub">${afficherRetrait(slot)}</span>`;
   } else {
     // Si fermé : proposer la prochaine ouverture
     const next = getNextOpenSlot();
@@ -4736,7 +4743,7 @@ function updateAsapAfterPause() {
   const currentLabel = document.getElementById('timingPickLabel').textContent;
   const isAsapDisplayed = selectedPickup === 'asap' ||
                           document.getElementById('pickupTime').value === 'asap' ||
-                          currentLabel.startsWith('Aujourd\'hui') ||
+                          currentLabel.startsWith('Aujourd\'hui') || currentLabel.startsWith(T('timepicker.today', 'Aujourd\'hui')) ||
                           document.getElementById('pickupTime').value.startsWith('Aujourd\'hui');
 
   if (isAsapDisplayed) {
@@ -4764,8 +4771,8 @@ function updateAsapAfterPause() {
         }
       }
 
-      document.getElementById('timingPickLabel').textContent = `${dayLabel} ${asapTime}`;
-      document.getElementById('cartPickupDisplay').innerHTML = `${dayLabel} ${asapTime}`;
+      document.getElementById('timingPickLabel').textContent = afficherRetrait(`${dayLabel} ${asapTime}`);
+      document.getElementById('cartPickupDisplay').textContent = afficherRetrait(`${dayLabel} ${asapTime}`);
       document.getElementById('pickupTime').value = 'asap';
     } else {
       // Si fermé, passer au prochain créneau disponible
