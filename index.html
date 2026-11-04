@@ -4847,7 +4847,10 @@ window.addEventListener('beforeunload', () => {
 (function () {
   var NOM = 'Box Exclu Web', DEBUT = 14 * 60, FIN = 20 * 60 + 30;
   var NOUVEAU_JUSQUA = new Date('2026-12-04T00:00:00+01:00').getTime();
-  document.head.insertAdjacentHTML('beforeend', '<style>.box-nouveau{position:absolute;left:10px;top:10px;z-index:3;padding:4px 8px;background:#B45C12;color:#FFF8EC;font:500 11px/1.2 \'DM Sans\',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;pointer-events:none}</style>');
+  // Précommande (choix de Paco, 04/11 15h17) : commandable à toute heure, RETRAIT entre 14h et 20h30, aujourd'hui ou demain.
+  // Mettre false pour revenir à « commandable seulement de 14h à 20h20, pour aujourd'hui ».
+  var PRECOMMANDE = true;
+  document.head.insertAdjacentHTML('beforeend', '<style>.box-horaire{display:block;margin-top:4px;font-size:12px;font-weight:600;color:var(--sage-dark)}.box-nouveau{position:absolute;left:10px;top:10px;z-index:3;padding:4px 8px;background:#B45C12;color:#FFF8EC;font:500 11px/1.2 \'DM Sans\',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;pointer-events:none}</style>');
   var EN = function () { var l = (typeof currentLang === 'string' && currentLang) || document.documentElement.lang || ''; return l.indexOf('en') === 0; };
   var ID_BOX = 82; // id fixe en base : le nom peut changer sans rien casser
   var COMPOSANTS = [
@@ -4897,6 +4900,11 @@ window.addEventListener('beforeunload', () => {
     // Badge « Nouveau » (choix de Ludo, 04/11) : s'enlève tout seul le 4 décembre 2026.
     var vis = carte.querySelector('.menu-card-visual');
     if (Date.now() < NOUVEAU_JUSQUA && vis && !vis.querySelector('.box-nouveau')) vis.insertAdjacentHTML('beforeend', '<span class="box-nouveau">' + (EN() ? 'New' : 'Nouveau') + '</span>');
+    if (PRECOMMANDE) {
+      var desc = carte.querySelector('.menu-card-desc');
+      if (desc && !desc.querySelector('.box-horaire')) desc.insertAdjacentHTML('beforeend', '<span class="box-horaire">' + (EN() ? 'Pick-up 2pm to 8:30pm' : 'Retrait de 14h à 20h30') + '</span>');
+      return;
+    }
     if (!item.disponible || ouverteMaintenant()) return;
     carte.classList.add('menu-card-unavailable');
     carte.removeAttribute('onclick');
@@ -4908,7 +4916,7 @@ window.addEventListener('beforeunload', () => {
   var ajouterOrig = addToCart;
   addToCart = function (id) {
     var item = menuItems.find(function (i) { return i.id === id; });
-    if (estBox(item) && !ouverteMaintenant()) {
+    if (estBox(item) && !PRECOMMANDE && !ouverteMaintenant()) {
       showToast(EN() ? 'This box can be ordered from 2pm to 8:20pm.' : 'La ' + nomBox() + ' se commande de 14h à 20h20.', 'error');
       return;
     }
@@ -4918,13 +4926,15 @@ window.addEventListener('beforeunload', () => {
   // Heure de retrait réellement choisie : jour (aujourd'hui ou non) et minutes.
   var retraitChoisi = function () {
     var v = (document.getElementById('pickupTime') || {}).value || '';
-    var auj = function (d) { return new Date().toDateString() === d.toDateString(); };
-    if (v === 'asap') { getAsapTime(); var d = new Date(lastAsapDateTime || new Date()); return { auj: auj(d), min: d.getHours() * 60 + d.getMinutes() }; }
-    if (creneauAuto && v === creneauAuto.valeur) { var c = creneauAuto.date; return { auj: auj(c), min: c.getHours() * 60 + c.getMinutes() }; }
-    // Créneau d'aujourd'hui = « 18h30 » tout court ; autre jour = « Demain 18h30 ».
+    // jour : 0 = aujourd'hui, 1 = demain, 2 = plus tard
+    var ecartJ = function (d) { var j0 = function (x) { return new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime(); }; return Math.round((j0(d) - j0(new Date())) / 86400000); };
+    var res = function (jour, min) { return { jour: jour, auj: jour === 0, min: min }; };
+    if (v === 'asap') { getAsapTime(); var d = new Date(lastAsapDateTime || new Date()); return res(ecartJ(d), d.getHours() * 60 + d.getMinutes()); }
+    if (creneauAuto && v === creneauAuto.valeur) { var c = creneauAuto.date; return res(ecartJ(c), c.getHours() * 60 + c.getMinutes()); }
+    // Créneau d'aujourd'hui = « 18h30 » tout court ; autre jour = « Demain 18h30 » / « Lundi 18h30 ».
     var m = v.match(/^(?:(\S+)\s+)?(\d{1,2})h(\d{2})?$/);
     if (!m) return null;
-    return { auj: !m[1] || m[1] === "Aujourd'hui", min: (+m[2]) * 60 + (+(m[3] || 0)) };
+    return res(!m[1] || m[1] === "Aujourd'hui" ? 0 : m[1] === 'Demain' ? 1 : 2, (+m[2]) * 60 + (+(m[3] || 0)));
   };
   var boxDansLePanier = function () { return cart.some(estBox); };
 
@@ -4932,9 +4942,13 @@ window.addEventListener('beforeunload', () => {
   submitOrder = async function () {
     if (boxDansLePanier()) {
       var r = retraitChoisi();
-      if (!ouverteMaintenant() || !r || !r.auj || r.min < DEBUT || r.min > FIN) {
-        showToast(EN() ? 'This box is picked up today between 2pm and 8:30pm.\nChoose a time in that range, or remove the box from your cart.'
-                       : 'La ' + nomBox() + " se retire aujourd'hui entre 14h et 20h30.\nChoisissez un créneau dans cette plage, ou retirez la box du panier.", 'error');
+      var jourOk = r && (r.jour === 0 || (PRECOMMANDE && r.jour === 1));
+      if ((!PRECOMMANDE && !ouverteMaintenant()) || !jourOk || r.min < DEBUT || r.min > FIN) {
+        showToast(PRECOMMANDE
+          ? (EN() ? 'This box is picked up between 2pm and 8:30pm, today or tomorrow.\nChoose a time in that range, or remove the box from your cart.'
+                  : 'La ' + nomBox() + " se retire entre 14h et 20h30, aujourd'hui ou demain.\nChoisissez un créneau dans cette plage, ou retirez la box du panier.")
+          : (EN() ? 'This box is picked up today between 2pm and 8:30pm.\nChoose a time in that range, or remove the box from your cart.'
+                  : 'La ' + nomBox() + " se retire aujourd'hui entre 14h et 20h30.\nChoisissez un créneau dans cette plage, ou retirez la box du panier."), 'error');
         return;
       }
     }

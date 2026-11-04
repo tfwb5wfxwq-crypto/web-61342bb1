@@ -231,26 +231,33 @@ serve(async (req) => {
       )
     }
 
-    // ===== VALIDATION #3 : BOX EXCLU WEB (04/11/2026) =====
-    // Commandée ET retirée seulement le jour même entre 14h et 20h30 (heure de Paris).
+    // ===== VALIDATION #3 : BOX EXPRESS (04/11/2026) =====
+    // Retrait seulement entre 14h et 20h30 (heure de Paris). Précommande (choix de Paco 04/11) :
+    // commandable à toute heure pour un retrait aujourd'hui OU demain dans cette plage.
+    // PRECOMMANDE = false → retour à « commandée et retirée le jour même, de 14h à 20h30 ».
     // La page bloque déjà ; ce contrôle serveur ferme la porte à un panier forgé.
+    const PRECOMMANDE = true
     const boxHoraire = menuData.find((m: any) => m.id === 82) // id fixe : le nom peut changer
     if (boxHoraire) {
       const hm = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
         .format(new Date()).split(':').map((x: string) => parseInt(x, 10))
       const maintenant = hm[0] * 60 + hm[1]
       const DEBUT = 14 * 60, FIN = 20 * 60 + 30
-      let ok = maintenant >= DEBUT && maintenant <= FIN
-      if (ok && pickup && pickup !== 'asap') {
+      let ok = PRECOMMANDE || (maintenant >= DEBUT && maintenant <= FIN)
+      if (ok && (!pickup || pickup === 'asap')) {
+        // « Dès que possible » = prête dans ~10 min : doit tomber dans la plage
+        ok = maintenant + 10 >= DEBUT && maintenant + 10 <= FIN
+      } else if (ok) {
         // Créneau d'aujourd'hui = « 18h30 » tout court ; autre jour = « Demain 18h30 ».
         const m = String(pickup).match(/^(?:(\S+)\s+)?(\d{1,2})h(\d{2})?/)
         const minutes = m ? parseInt(m[2], 10) * 60 + parseInt(m[3] || '0', 10) : -1
-        ok = !!m && (!m[1] || m[1] === "Aujourd'hui") && minutes >= DEBUT && minutes <= FIN
+        const jourOk = !!m && (!m[1] || m[1] === "Aujourd'hui" || (PRECOMMANDE && m[1] === 'Demain'))
+        ok = jourOk && minutes >= DEBUT && minutes <= FIN
       }
       if (!ok) {
         await notifyAdminBlocked(`${boxHoraire.nom} hors créneau 14h-20h30`, { orderNum, name, phone, email, total })
         return new Response(
-          JSON.stringify({ error: `La ${boxHoraire.nom} se commande et se retire aujourd'hui entre 14h et 20h30. Retirez-la du panier ou choisissez un créneau dans cette plage.` }),
+          JSON.stringify({ error: `La ${boxHoraire.nom} se retire entre 14h et 20h30${PRECOMMANDE ? ", aujourd'hui ou demain" : " aujourd'hui"}. Retirez-la du panier ou choisissez un créneau dans cette plage.` }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
