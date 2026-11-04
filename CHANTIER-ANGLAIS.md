@@ -1,5 +1,13 @@
 # Chantier version anglaise — où on en est
 
+# Reprise du 4 novembre 2026
+
+- **Aperçu caché en ligne** : `https://beyrouth.express/?apercu-en=1` passe CE navigateur en anglais (mémorisé dans `beyrouth_apercu_en`, suit le visiteur et le retour de paiement), `?apercu-en=0` l'enlève. `BILINGUE_ACTIF` reste `false` : clients et Google voient le français.
+- Traduit et testé ce jour : panier (bouton, placeholders, « Dès que possible »), créneau (affichage seulement, la VALEUR reste « Aujourd'hui 17h40 », clé du serveur), composantes de formule/Box (`COMPO_EN` + `nomCompo()`, à l'affichage seulement), Box Express en base (`nom_en`, `description_en`), page 404.
+- Vérifié : scan automatique des textes français en mode anglais (`scratchpad/tests-encart/en-scan.js`), français identique en ligne/local (351/351 lignes, `fr-diff.js`), commande test anglaise enregistrée avec `language = en` puis supprimée.
+- Reste : formulaire de devis traiteur, bouton FR/EN, décision sur la détection automatique (proposition : visiteurs oui, robots non).
+
+
 Dernière session : **11 août 2026**.
 
 ## En une phrase
