@@ -4849,8 +4849,8 @@ window.addEventListener('beforeunload', () => {
   var NOUVEAU_JUSQUA = new Date('2026-12-04T00:00:00+01:00').getTime();
   // Précommande (choix de Paco, 04/11 15h17) : commandable à toute heure, RETRAIT entre 14h et 20h30, aujourd'hui ou demain.
   // Mettre false pour revenir à « commandable seulement de 14h à 20h20, pour aujourd'hui ».
-  var PRECOMMANDE = true;
-  document.head.insertAdjacentHTML('beforeend', '<style>.box-horaire{display:block;margin-top:4px;font-size:12px;font-weight:600;color:var(--sage-dark)}.box-nouveau{position:absolute;left:10px;top:10px;z-index:3;padding:4px 8px;background:#B45C12;color:#FFF8EC;font:500 11px/1.2 \'DM Sans\',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;pointer-events:none}</style>');
+  var PRECOMMANDE = false; // 04/11 15h23 : Ludo et Paco reviennent à « seulement à partir de 14h »
+  document.head.insertAdjacentHTML('beforeend', '<style>.box-horaire{display:block;margin-top:6px;font-size:14px;font-weight:700;color:var(--sage-dark)}.box-nouveau{position:absolute;left:10px;top:10px;z-index:3;padding:4px 8px;background:#B45C12;color:#FFF8EC;font:500 11px/1.2 \'DM Sans\',system-ui,sans-serif;border-radius:8px 10px 7px 9px / 7px 9px 8px 10px;pointer-events:none}</style>');
   var EN = function () { var l = (typeof currentLang === 'string' && currentLang) || document.documentElement.lang || ''; return l.indexOf('en') === 0; };
   var ID_BOX = 82; // id fixe en base : le nom peut changer sans rien casser
   var COMPOSANTS = [
@@ -4900,11 +4900,10 @@ window.addEventListener('beforeunload', () => {
     // Badge « Nouveau » (choix de Ludo, 04/11) : s'enlève tout seul le 4 décembre 2026.
     var vis = carte.querySelector('.menu-card-visual');
     if (Date.now() < NOUVEAU_JUSQUA && vis && !vis.querySelector('.box-nouveau')) vis.insertAdjacentHTML('beforeend', '<span class="box-nouveau">' + (EN() ? 'New' : 'Nouveau') + '</span>');
-    if (PRECOMMANDE) {
-      var desc = carte.querySelector('.menu-card-desc');
-      if (desc && !desc.querySelector('.box-horaire')) desc.insertAdjacentHTML('beforeend', '<span class="box-horaire">' + (EN() ? 'Pick-up 2pm to 8:30pm' : 'Retrait de 14h à 20h30') + '</span>');
-      return;
-    }
+    // Paco (04/11) : « écris en gros en description » → mention bien visible sur la carte
+    var desc = carte.querySelector('.menu-card-desc');
+    if (desc && !desc.querySelector('.box-horaire')) desc.insertAdjacentHTML('beforeend', '<span class="box-horaire">' + (PRECOMMANDE ? (EN() ? 'Pick-up 2pm to 8:30pm' : 'Retrait de 14h à 20h30') : (EN() ? 'Only from 2pm to 8:30pm' : 'Uniquement de 14h à 20h30')) + '</span>');
+    if (PRECOMMANDE) return;
     if (!item.disponible || ouverteMaintenant()) return;
     carte.classList.add('menu-card-unavailable');
     carte.removeAttribute('onclick');

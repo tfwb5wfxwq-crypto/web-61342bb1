@@ -236,7 +236,7 @@ serve(async (req) => {
     // commandable à toute heure pour un retrait aujourd'hui OU demain dans cette plage.
     // PRECOMMANDE = false → retour à « commandée et retirée le jour même, de 14h à 20h30 ».
     // La page bloque déjà ; ce contrôle serveur ferme la porte à un panier forgé.
-    const PRECOMMANDE = true
+    const PRECOMMANDE = false // 04/11 15h23 : retour à « seulement à partir de 14h, pour aujourd'hui »
     const boxHoraire = menuData.find((m: any) => m.id === 82) // id fixe : le nom peut changer
     if (boxHoraire) {
       const hm = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
