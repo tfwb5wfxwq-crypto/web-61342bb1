@@ -1242,12 +1242,15 @@ html body .header-pickup .info-time{grid-template-rows:auto auto!important;heigh
 (function () {
   var bandeau = document.querySelector('#announcementMount .announcement-shell');
   if (!bandeau || !('IntersectionObserver' in window)) return;
-  var titre = ((bandeau.querySelector('.announcement-title') || {}).textContent || 'Traiteur & événements').trim();
-  var sous = ((bandeau.querySelector('.announcement-text') || {}).textContent || 'Devis gratuit sous 48h').trim();
+  // Textes pris dans le dictionnaire (et non recopiés du bandeau au chargement, avant la traduction)
+  var titre = T('catering.promoTitle', 'Traiteur & événements');
+  var sous = T('catering.freeQuote', 'Devis gratuit sous 48h');
   var lien = bandeau.querySelector('.announcement-cta');
   var image = bandeau.querySelector('.announcement-image');
   var echap = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); };
-  var fermer = (document.documentElement.lang || '').indexOf('en') === 0 ? 'Close' : 'Fermer';
+  var fermer = T('aria.close', 'Fermer');
+  // Changement de langue : on remet les textes de la bulle à jour
+  window.addEventListener('languageChanged', function () { try { var t = document.querySelector('.rappel-traiteur-titre'), s = document.querySelector('.rappel-traiteur-sous'), b = document.querySelector('.rappel-traiteur-fermer'); if (t) t.textContent = T('catering.promoTitle', 'Traiteur & événements'); if (s) s.textContent = T('catering.freeQuote', 'Devis gratuit sous 48h'); if (b) b.setAttribute('aria-label', T('aria.close', 'Fermer')); } catch (e) {} });
 
   var encart = document.createElement('aside');
   encart.className = 'rappel-traiteur';
