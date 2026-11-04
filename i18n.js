@@ -1161,7 +1161,7 @@ const translations = {
 // État actuel de la langue
 let currentLang = 'fr';
 // ARABE (04/11/2026) : interrupteur. false = personne ne voit l'arabe, sauf l'aperçu caché ?apercu-ar=1 (?apercu-ar=0 pour sortir).
-var ARABE_ACTIF = false;
+var ARABE_ACTIF = true; // 04/11/2026 : ARABE OUVERT (accord de Ludo si 0 bug). Retour arrière : remettre false (et dans 404.html).
 var ARABE_OK = (function () {
   try {
     var q = location.search || '';

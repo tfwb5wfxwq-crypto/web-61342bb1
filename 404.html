@@ -98,7 +98,7 @@
 // Anglais : seulement si le visiteur a choisi l'anglais (même mémoire que le reste du site)
 (function(){try{
   // Même mémoire que le reste du site. Arabe : seulement si ouvert (ARABE_ACTIF, à garder comme dans i18n.js) ou en aperçu.
-  var ARABE_ACTIF=false;
+  var ARABE_ACTIF=true;
   var L=localStorage.getItem('beyrouth_lang');
   var ar=L==='ar'&&(ARABE_ACTIF||localStorage.getItem('beyrouth_apercu_ar')==='1');
   if(L!=='en'&&!ar)return;
