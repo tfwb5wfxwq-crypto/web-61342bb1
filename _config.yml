@@ -1,0 +1,13 @@
+# Sécurité (25/11/2026) : GitHub Pages ne publie PAS les documents techniques du dépôt
+# (audits, notes, schémas et migrations SQL, code des fonctions serveur, scripts).
+# Ils restent dans le dépôt, seulement plus servis sur beyrouth.express.
+# Rien d'autre n'est modifié : les pages sans en-tête YAML sont copiées telles quelles.
+exclude:
+  - "*.md"
+  - "*.sql"
+  - "*.sh"
+  - "*.py"
+  - "*.toml"
+  - "*.bak*"
+  - supabase
+  - scripts
