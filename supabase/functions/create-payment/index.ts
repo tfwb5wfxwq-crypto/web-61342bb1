@@ -267,6 +267,22 @@ serve(async (req) => {
       }
     }
 
+    // SÉCURITÉ (25/11/2026, audit failles) : quantités entières de 1 à 50, 40 lignes max.
+    // Avant : -1, 0,5 ou 99999 passaient (une ligne négative faisait baisser le total).
+    // Vraies commandes : qty 1 à 8, 12 lignes max → aucun vrai client concerné.
+    const qtyInvalide = items.length > 40 || items.some((item: any) => {
+      const q = item.qty ?? 1
+      return typeof q !== 'number' || !Number.isInteger(q) || q < 1 || q > 50
+    })
+    if (qtyInvalide) {
+      console.error('QUANTITÉ INVALIDE:', JSON.stringify(items.map((i: any) => i.qty)))
+      await notifyAdminBlocked('Quantité invalide dans le panier (paiement refusé, possible tentative de fraude)', { orderNum, name, phone, email, total })
+      return new Response(
+        JSON.stringify({ error: 'Quantité invalide dans le panier. Actualisez la page et réessayez.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // VALIDATION CRITIQUE : Recalculer le montant côté serveur pour éviter manipulation
     let serverTotal = 0
     items.forEach((item: any) => {

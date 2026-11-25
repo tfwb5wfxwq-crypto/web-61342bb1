@@ -1,6 +1,7 @@
 // Edge Function: Synchroniser statut email depuis Brevo
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { validateAdminJWT } from '../_shared/admin-auth-check.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://beyrouth.express',
@@ -13,6 +14,16 @@ serve(async (req) => {
   }
 
   try {
+    // SECURITE (25/11/2026, audit) : reserve a l'admin connecte et aux fonctions serveur.
+    // Avant, n'importe quel visiteur (cle publique) pouvait reecrire le statut mail d'une commande.
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    const bearer = (req.headers.get('Authorization') ?? '').replace('Bearer ', '')
+    if (!serviceKey || bearer !== serviceKey) {
+      const sbAuth = createClient(Deno.env.get('SUPABASE_URL') ?? '', serviceKey)
+      const { errorResponse } = await validateAdminJWT(req, sbAuth)
+      if (errorResponse) return errorResponse
+    }
+
     const { orderId, messageId } = await req.json()
 
     if (!orderId || !messageId) {

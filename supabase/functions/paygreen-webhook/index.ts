@@ -161,7 +161,7 @@ function extractPlatform(po: any): string | null {
   } catch (_) { return null }
 }
 
-async function verifyPaymentWithPaygreen(paymentOrderId: string): Promise<{ status: string; amount: number; platform: string | null } | null> {
+async function verifyPaymentWithPaygreen(paymentOrderId: string): Promise<{ status: string; amount: number; platform: string | null; reference: string | null } | null> {
   try {
     const jwt = await getPaygreenJWT()
     const res = await fetch(`https://api.paygreen.fr/payment/payment-orders/${paymentOrderId}`, {
@@ -172,7 +172,8 @@ async function verifyPaymentWithPaygreen(paymentOrderId: string): Promise<{ stat
     return {
       status: data.data?.status ?? '',
       amount: data.data?.amount ?? 0,
-      platform: extractPlatform(data.data)
+      platform: extractPlatform(data.data),
+      reference: data.data?.reference != null ? String(data.data.reference) : null
     }
   } catch (e) {
     console.error('Erreur vérification PayGreen:', e)
@@ -286,6 +287,36 @@ serve(async (req) => {
       })
     }
 
+    // SECURITE (25/11/2026, audit 14 failles) : sans signature HMAC valide, on n'accepte
+    // RIEN sans identifiant de paiement PayGreen. Avant, un POST anonyme sans `id`
+    // sautait toute verification et passait la commande en « payee ». Les vrais webhooks
+    // PayGreen contiennent toujours `id` : aucun impact sur les paiements reels.
+    if (!hmacValid && !paymentOrderId) {
+      console.warn(`🚫 Webhook non signe ET sans id pour ${orderNum} (${event}) — rejete`)
+      return new Response(
+        JSON.stringify({ error: 'Webhook non signe sans identifiant de paiement' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Sans signature valide, un echec ou un remboursement doit aussi etre confirme par
+    // PayGreen (avant : n'importe qui pouvait marquer une commande payee « remboursee »).
+    if (!hmacValid && (isFailure || isRefund)) {
+      const pgCheck = await verifyPaymentWithPaygreen(paymentOrderId)
+      if (!pgCheck) {
+        return new Response(JSON.stringify({ error: 'Vérification PayGreen impossible' }),
+          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+      const st = pgCheck.status
+      const refOk = !pgCheck.reference || pgCheck.reference === String(orderNum)
+      const coherent = isRefund ? st.includes('refund') : !(st.includes('successed') || st.includes('authorized') || st.includes('paid'))
+      if (!refOk || !coherent) {
+        console.warn(`🚫 ${event} non confirme par PayGreen pour ${orderNum} (statut PG ${st}, ref PG ${pgCheck.reference}) — rejete`)
+        return new Response(JSON.stringify({ error: 'Evenement non confirme par PayGreen' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -358,6 +389,17 @@ serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
+
+      // Le paiement doit appartenir A CETTE commande (sinon : rejouer l'id d'un vrai paiement
+      // sur une autre commande). Si PayGreen ne renvoie pas de reference, on journalise.
+      if (pgVerification.reference && pgVerification.reference !== String(orderNum)) {
+        console.warn(`🚫 Paiement ${paymentOrderId} appartient a ${pgVerification.reference}, pas a ${orderNum} — rejete`)
+        return new Response(
+          JSON.stringify({ error: 'Paiement rattache a une autre commande' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      if (!pgVerification.reference) console.warn(`⚠️ PayGreen n'a pas renvoye de reference pour ${paymentOrderId}`)
 
       console.log(`✅ PayGreen confirme le paiement ${paymentOrderId}: ${pgVerification.status} (${pgVerification.platform ?? 'moyen inconnu'})`)
       paymentPlatform = pgVerification.platform

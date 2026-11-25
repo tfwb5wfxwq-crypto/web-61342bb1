@@ -225,6 +225,19 @@ serve(async (req) => {
 
     console.log(`Order ${orderNum} — PayGreen status: ${pgStatus}`)
 
+    // SECURITE (25/11/2026, audit) : le paiement PayGreen doit appartenir a CETTE commande.
+    // L'identifiant de paiement est ecrit dans la commande ; sans ce controle, un paiement
+    // reussi d'une autre commande (ex. 3 EUR a soi) pouvait valider une grosse commande.
+    // create-payment envoie toujours reference = numero : aucun impact sur les vrais paiements.
+    const pgReference = pgData.data?.reference != null ? String(pgData.data.reference) : null
+    if (pgReference && pgReference !== String(order.numero)) {
+      console.warn(`🚫 Paiement ${pgRef} appartient a ${pgReference}, pas a ${order.numero} — ignore`)
+      return new Response(JSON.stringify({ statut: 'pending', updated: false, reason: 'reference_mismatch' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+    if (!pgReference) console.warn(`⚠️ PayGreen n'a pas renvoye de reference pour ${pgRef}`)
+
     // Mapping PayGreen → notre statut
     // `authorized` = argent garanti par la banque (Conecs peut y rester, cf. 2713 CR du 28/09/2026).
     // PayGreen ecrit `canceled` (un seul L) : l'ancien test `cancelled` ne l'attrapait jamais.

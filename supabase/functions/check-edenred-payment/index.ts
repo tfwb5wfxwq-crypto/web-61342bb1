@@ -24,6 +24,37 @@ serve(async (req) => {
 
     console.log(`🔍 Vérification paiement Edenred: ${transaction_id} (commande ${order_num})`)
 
+    // SÉCURITÉ (25/11/2026, audit failles) : la transaction doit être CELLE de la commande.
+    // Avant : n'importe quelle transaction Edenred réussie (ex. un petit paiement à soi) pouvait
+    // marquer n'importe quelle commande « payée ». Le site lit edenred_payment_id en base avant
+    // d'appeler cette fonction : un vrai client envoie toujours l'identifiant enregistré.
+    const sbCheck = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+    const { data: lien } = await sbCheck
+      .from('orders')
+      .select('statut, edenred_payment_id')
+      .eq('numero', order_num)
+      .maybeSingle()
+    if (!lien || !lien.edenred_payment_id || lien.edenred_payment_id !== transaction_id) {
+      console.error('❌ Transaction Edenred non liée à la commande:', { order_num, transaction_id, enBase: lien?.edenred_payment_id })
+      return new Response(
+        JSON.stringify({ error: 'Transaction non associée à cette commande' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    // Commande déjà traitée (payée, acceptée, prête, récupérée, annulée, remboursée) :
+    // on renvoie son état sans rien réécrire (pas de retour en arrière possible par cette route).
+    const DEJA_PAYEE = ['payee', 'acceptee', 'en_preparation', 'prete', 'recuperee']
+    if (lien.statut !== 'pending') {
+      const paye = DEJA_PAYEE.includes(lien.statut)
+      return new Response(
+        JSON.stringify({ status: paye ? 'SUCCEEDED' : lien.statut, order_status: paye ? 'payee' : lien.statut, order_num, success: paye }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // Récupérer les credentials Edenred depuis Supabase Secrets
     const clientId = Deno.env.get('EDENRED_PAYMENT_CLIENT_ID')
     const clientSecret = Deno.env.get('EDENRED_PAYMENT_CLIENT_SECRET')
