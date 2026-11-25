@@ -32,3 +32,8 @@ verify_jwt = true
 
 [functions.send-telegram-notification]
 verify_jwt = true
+
+# 25/11/2026 : état constaté en prod (supabase functions list, version 31) avant l'ajout
+# de la durée de coupure. La fonction vérifie elle-même le JWT admin.
+[functions.toggle-menu-item]
+verify_jwt = false

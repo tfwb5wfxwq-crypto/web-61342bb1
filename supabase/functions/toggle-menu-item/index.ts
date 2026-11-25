@@ -39,20 +39,42 @@ serve(async (req) => {
       )
     }
 
-    const { item_id, disponible } = await req.json()
+    const { item_id, disponible, jours } = await req.json()
 
     // Vérification des paramètres
-    if (!item_id || disponible === undefined) {
+    if (!item_id || typeof disponible !== 'boolean') {
       return new Response(
         JSON.stringify({ error: 'Paramètres manquants (item_id, disponible)' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    // Durée de coupure (25/11/2026, Box Beyrouth) :
+    //   jours absent ou 0 -> revient à minuit ce soir (comportement historique)
+    //   jours = -1        -> « jusqu'à ce que je la rallume » (2999-12-31)
+    //   jours = 1 à 30    -> revient au minuit qui ouvre (aujourd'hui à Paris + jours)
+    // Rallumer (disponible = true) efface toujours la date.
+    let indispo_jusqu_au: string | null = null
+    if (!disponible && jours !== undefined && jours !== null && jours !== 0) {
+      if (jours === -1) {
+        indispo_jusqu_au = '2999-12-31'
+      } else if (Number.isInteger(jours) && jours >= 1 && jours <= 30) {
+        const auj = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date())
+        const d = new Date(auj + 'T00:00:00Z')
+        d.setUTCDate(d.getUTCDate() + jours)
+        indispo_jusqu_au = d.toISOString().slice(0, 10)
+      } else {
+        return new Response(
+          JSON.stringify({ error: 'Durée invalide (jours)' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
     // UPDATE sécurisé
     const { data, error } = await supabase
       .from('menu_items')
-      .update({ disponible })
+      .update({ disponible, indispo_jusqu_au })
       .eq('id', item_id)
       .select()
 
@@ -68,7 +90,7 @@ serve(async (req) => {
       )
     }
 
-    console.log(`✅ Menu item ${item_id} → disponible: ${disponible}`)
+    console.log(`✅ Menu item ${item_id} → disponible: ${disponible}, jusqu'au: ${indispo_jusqu_au}`)
 
     return new Response(
       JSON.stringify({ success: true, data: data[0] }),
