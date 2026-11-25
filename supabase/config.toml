@@ -19,3 +19,7 @@ verify_jwt = false
 # de la durée de coupure. La fonction vérifie elle-même le JWT admin.
 [functions.toggle-menu-item]
 verify_jwt = false
+
+# 25/11/2026 : état constaté en prod (verify_jwt true, appelée par le site avec la clé anon).
+[functions.send-quote-confirmation]
+verify_jwt = true

@@ -31,13 +31,20 @@ serve(async (req) => {
     }
 
     // Validation anti-spam basique
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[A-Za-z0-9._%+'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
     if (!emailRegex.test(email)) {
       return new Response(
         JSON.stringify({ error: 'Email invalide' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    // 🔒 25/11/2026 : tout ce que le visiteur tape est échappé avant d'aller dans les mails
+    // (sinon on pouvait glisser du HTML, des liens piégés, dans un mail envoyé au nom du restaurant)
+    const esc = (v: unknown, max = 300) => String(v ?? '').slice(0, max)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
+    const nameH = esc(name, 120), emailH = esc(email, 200), phoneH = esc(phone, 40), messageH = esc(message, 2000)
+    const eventTypeH = esc(eventType, 120), eventDateH = esc(eventDate, 60), guestCountH = esc(guestCount, 10)
 
     // Connexion Supabase pour vérifications
     const supabase = createClient(
@@ -58,6 +65,19 @@ serve(async (req) => {
     }
 
     if (recentRequests && recentRequests.length >= 3) {
+      return new Response(
+        JSON.stringify({ error: 'Trop de demandes. Veuillez réessayer dans 1 heure.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Protection 1 bis (25/11/2026) : plafond global, 10 demandes par heure toutes adresses confondues
+    // (le vrai volume : 2 devis en tout). Empêche d'utiliser le formulaire pour envoyer des mails en masse.
+    const { count: totalHeure } = await supabase
+      .from('quote_requests')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', oneHourAgo)
+    if ((totalHeure ?? 0) >= 10) {
       return new Response(
         JSON.stringify({ error: 'Trop de demandes. Veuillez réessayer dans 1 heure.' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -158,23 +178,23 @@ serve(async (req) => {
                   <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
                     <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:8px;">${L.quoteSummary}</div>
                     <div style="font-size:14px;color:#1F1B16;line-height:1.7;">
-                      ${eventType ? `<div class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:19px;line-height:1.3;color:#1F1B16;margin-bottom:2px;">${eventType}</div>` : ''}
-                      ${guestCount ? `<div>${guestCount} ${lang === 'en' ? 'guests' : lang === 'ar' ? 'أشخاص' : 'personnes'}</div>` : ''}
-                      ${eventDate ? `<div><a style="color:#1F1B16;text-decoration:none;">${eventDate}</a></div>` : ''}
-                      <div><a href="mailto:${email}" style="color:#1F1B16;text-decoration:none;">${email}</a></div>
-                      ${phone ? `<div><a href="tel:${phone}" style="color:#1F1B16;text-decoration:none;">${phone}</a></div>` : ''}
+                      ${eventTypeH ? `<div class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:19px;line-height:1.3;color:#1F1B16;margin-bottom:2px;">${eventTypeH}</div>` : ''}
+                      ${guestCountH ? `<div>${guestCountH} ${lang === 'en' ? 'guests' : lang === 'ar' ? 'أشخاص' : 'personnes'}</div>` : ''}
+                      ${eventDateH ? `<div><a style="color:#1F1B16;text-decoration:none;">${eventDateH}</a></div>` : ''}
+                      <div><a href="mailto:${emailH}" style="color:#1F1B16;text-decoration:none;">${emailH}</a></div>
+                      ${phoneH ? `<div><a href="tel:${phoneH}" style="color:#1F1B16;text-decoration:none;">${phoneH}</a></div>` : ''}
                     </div>
                   </td>
                 </tr>
               </table>
 
-              ${message ? `
+              ${messageH ? `
               <!-- Message -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
                 <tr>
                   <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
                     <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:8px;">${L.quoteYourMessage}</div>
-                    <div style="font-size:14px;color:#1F1B16;line-height:1.6;white-space:pre-wrap;">${message}</div>
+                    <div style="font-size:14px;color:#1F1B16;line-height:1.6;white-space:pre-wrap;">${messageH}</div>
                   </td>
                 </tr>
               </table>
@@ -235,7 +255,7 @@ serve(async (req) => {
       throw new Error('Erreur envoi email client')
     }
 
-    console.log(`✅ Email de confirmation devis envoyé à ${email}`)
+    console.log(`✅ Email de confirmation devis envoyé à ${emailH}`)
 
     // Envoyer aussi un email à l'admin avec les détails (Gmail-compatible - tables, solid colors, no flex/gradient)
     const adminEmailHtml = `
@@ -273,7 +293,7 @@ serve(async (req) => {
     .serif { font-family: Georgia, 'Times New Roman', serif !important; }
   </style>
   <![endif]-->
-  <title>Nouvelle demande de devis - ${name}</title>
+  <title>Nouvelle demande de devis - ${nameH}</title>
 </head>
 <body id="body" bgcolor="#F7F4EE" style="margin:0;padding:0;font-family:'DM Sans',Arial,Helvetica,sans-serif;background:#F7F4EE;-webkit-font-smoothing:antialiased;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F7F4EE" style="background:#F7F4EE;">
@@ -297,10 +317,10 @@ serve(async (req) => {
                 <tr>
                   <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
                     <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:6px;">Contact</div>
-                    <div class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:22px;line-height:1.25;color:#1F1B16;font-weight:400;margin-bottom:6px;">${name}</div>
+                    <div class="serif" style="font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:22px;line-height:1.25;color:#1F1B16;font-weight:400;margin-bottom:6px;">${nameH}</div>
                     <div style="font-size:14px;color:#1F1B16;line-height:1.7;">
-                      <a href="mailto:${email}" style="color:#304936;text-decoration:underline;">${email}</a><br>
-                      ${phone ? `<a href="tel:${phone}" style="color:#304936;text-decoration:underline;">${phone}</a>` : ''}
+                      <a href="mailto:${emailH}" style="color:#304936;text-decoration:underline;">${emailH}</a><br>
+                      ${phoneH ? `<a href="tel:${phoneH}" style="color:#304936;text-decoration:underline;">${phoneH}</a>` : ''}
                     </div>
                   </td>
                 </tr>
@@ -312,21 +332,21 @@ serve(async (req) => {
                   <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
                     <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:6px;">Événement</div>
                     <div style="font-size:14px;color:#1F1B16;line-height:1.7;">
-                      ${eventType ? `<div><strong style="font-weight:600;">${eventType}</strong></div>` : ''}
-                      ${guestCount ? `<div><strong style="font-weight:600;">${guestCount} personnes</strong></div>` : ''}
-                      ${eventDate ? `<div><a style="color:#1F1B16;text-decoration:none;">${eventDate}</a></div>` : ''}
+                      ${eventTypeH ? `<div><strong style="font-weight:600;">${eventTypeH}</strong></div>` : ''}
+                      ${guestCountH ? `<div><strong style="font-weight:600;">${guestCountH} personnes</strong></div>` : ''}
+                      ${eventDateH ? `<div><a style="color:#1F1B16;text-decoration:none;">${eventDateH}</a></div>` : ''}
                     </div>
                   </td>
                 </tr>
               </table>
 
-              ${message ? `
+              ${messageH ? `
               <!-- Message -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:16px;">
                 <tr>
                   <td bgcolor="#F7F4EE" style="background:#F7F4EE;border-radius:10px;padding:16px 20px;">
                     <div style="font-size:13px;line-height:1.4;color:#6B6256;font-weight:600;margin-bottom:6px;">Message</div>
-                    <div style="font-size:14px;color:#1F1B16;line-height:1.6;white-space:pre-wrap;">${message}</div>
+                    <div style="font-size:14px;color:#1F1B16;line-height:1.6;white-space:pre-wrap;">${messageH}</div>
                   </td>
                 </tr>
               </table>
@@ -359,7 +379,7 @@ serve(async (req) => {
     // ecrit directement au client, sans copier-coller son adresse.
     const adminEmailResult = await sendEmailViaBrevo({
       to: 'traiteur@beyrouth.express',
-      subject: `📋 Nouvelle demande de devis - ${name}`,
+      subject: `📋 Nouvelle demande de devis - ${String(name).replace(/[\r\n]+/g, " ").slice(0, 120)}`,
       html: adminEmailHtml,
       senderEmail: 'traiteur@beyrouth.express',
       replyTo: email
