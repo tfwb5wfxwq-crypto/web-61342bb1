@@ -5706,7 +5706,7 @@ function renderClientCard(c) {
   if ((c.nombre_commandes || 0) >= 10) badges.push('<span style="color:#D4A853;margin-left:4px">🏆</span>');
   if (c.optin_promo) badges.push('<span style="display:inline-flex;align-items:center;background:#10b981;color:#fff;font-size:.65rem;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:600">📧 Promo</span>');
   return `
-    <div class="client-card" style="margin-bottom:8px;" onclick="showClientDetail('${c.email}')">
+    <div class="client-card" style="margin-bottom:8px;" data-email="${escapeHtml(c.email || '')}" onclick="showClientDetail(this.dataset.email)">
       <div class="client-info">
         <div class="client-name">${escapeHtml(c.prenom) || 'Client'}${badges.join('')}</div>
         <div class="client-contact">${escapeHtml(c.email) || ''} ${c.telephone ? '· ' + escapeHtml(c.telephone) : ''}</div>
@@ -5836,7 +5836,7 @@ async function showClientDetail(clientEmail) {
       <div class="client-order-item">
         <div>
           <div style="font-weight:600;margin-bottom:4px">${statusEmoji} Commande ${escapeHtml(o.numero)}</div>
-          <div class="client-order-date">${dateStr} · ${o.heure_retrait || 'ASAP'}</div>
+          <div class="client-order-date">${dateStr} · ${escapeHtml(o.heure_retrait || 'ASAP')}</div>
         </div>
         <div class="client-order-amount">${o.total.toFixed(2).replace('.', ',')} €</div>
       </div>
