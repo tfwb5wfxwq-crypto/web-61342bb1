@@ -3155,7 +3155,7 @@ function renderOrderCard(order, statusClass, dateStr, timeStr, statusEmoji, stat
       groups.get(key).items.push(i);
     });
     const gs = [...groups.values()].sort((x, y) => x.ordre - y.ordre);
-    const qtyOf = i => i.qty || i.quantite || 1;
+    const qtyOf = i => Math.max(1, parseInt(i.qty || i.quantite, 10) || 1);
     const nArt = items.reduce((t, i) => t + qtyOf(i), 0);
     const cols = items.length > 12 ? 'c3' : items.length > 3 ? 'c2' : '';
     // Mêmes pastilles de couleur qu'avant pour les catégories (Paco a ses repères)
@@ -4582,7 +4582,7 @@ async function showCompletedOrderDetails(orderId) {
 
   // Items HTML
   const itemsHtml = items.map(item => {
-    const qty = item.quantite || item.qty || 1;
+    const qty = Math.max(1, parseInt(item.quantite || item.qty, 10) || 1);
     const prix = item.prix || 0;
     return `
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;">
