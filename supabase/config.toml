@@ -14,3 +14,8 @@ verify_jwt = false
 # vérifie elle-même le jeton (service role ou JWT admin), ne pas la remettre en verify_jwt=true.
 [functions.send-order-confirmation]
 verify_jwt = false
+
+# 25/11/2026 : état constaté en prod (supabase functions list, version 31) avant l'ajout
+# de la durée de coupure. La fonction vérifie elle-même le JWT admin.
+[functions.toggle-menu-item]
+verify_jwt = false

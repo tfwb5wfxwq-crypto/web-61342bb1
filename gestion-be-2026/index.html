@@ -420,6 +420,19 @@ button{cursor:pointer;font-family:inherit;border:none}
 .menu-item-info{flex:1;min-width:0}
 .menu-item-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .menu-item-price{font-size:.8rem;color:#888}
+/* Box Beyrouth : coupure sur plusieurs jours (25/11/2026) */
+.menu-item-card.box-duree{grid-column:1/-1;display:block}
+.menu-item-card.box-duree.off{opacity:1}
+.menu-item-card.box-duree.off .menu-item-name{text-decoration:none}
+.box-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.box-zone{margin-top:14px;padding-top:14px;border-top:1px solid #f3f4f6}
+.box-lbl{font-size:.8rem;color:#6b7280;font-weight:600;margin-bottom:8px}
+.box-pills{display:flex;gap:8px;flex-wrap:wrap}
+.box-pill{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;padding:10px 16px;font-weight:600;font-size:.9rem;color:#374151}
+.box-pill.sel{background:#1f2937;border-color:#1f2937;color:#fff}
+.box-pills.busy{opacity:.5;pointer-events:none}
+.box-status{margin-top:12px;font-size:.85rem;font-weight:600}
+.box-status.ok{color:#047857}.box-status.ko{color:#b91c1c}
 
 /* ========= STATS ========= */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
@@ -3720,6 +3733,7 @@ function renderMenuItems() {
     html += `<div class="menu-cat-header">${cat.emoji || ''} ${cat.nom} (${items.filter(i => i.disponible).length}/${items.length})</div>`;
     html += '<div class="menu-items-grid">';
     items.forEach(item => {
+      if (BOX_DUREE_IDS.includes(item.id)) { html += renderBoxDuree(item); return; }
       html += `
         <div class="menu-item-card ${item.disponible ? '' : 'off'}" id="menu-${item.id}">
           <div class="menu-item-info">
@@ -3734,7 +3748,80 @@ function renderMenuItems() {
   container.innerHTML = html;
 }
 
-async function toggleMenuItem(id, newValue) {
+// ===== BOX BEYROUTH : pas dispo pendant plusieurs jours (25/11/2026) =====
+// Seule la Box (id 79) a ce réglage. jours : 0 = aujourd'hui (revient à minuit),
+// 2 / 3 = revient au matin du jour J+2 / J+3, -1 = jusqu'à ce que Paco la rallume.
+const BOX_DUREE_IDS = [79];
+const BOX_JAMAIS = '2999-12-31';
+
+function parisAujourdhui() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date());
+}
+
+function boxJoursRestants(jusqu) {
+  const a = new Date(parisAujourdhui() + 'T00:00:00Z');
+  const b = new Date(jusqu + 'T00:00:00Z');
+  return Math.round((b - a) / 86400000);
+}
+
+function boxChoixActuel(item) {
+  if (item.disponible) return null;
+  const j = item.indispo_jusqu_au;
+  if (!j) return 0;
+  if (j >= BOX_JAMAIS) return -1;
+  const n = boxJoursRestants(j);
+  return (n === 2 || n === 3) ? n : null;
+}
+
+function boxStatut(item) {
+  if (item.disponible) return { cls: 'ok', txt: '✓ En vente' };
+  const j = item.indispo_jusqu_au;
+  if (!j) return { cls: 'ko', txt: '⏸ Pas dispo, revient en vente demain matin' };
+  if (j >= BOX_JAMAIS) return { cls: 'ko', txt: "⏸ Pas dispo jusqu'à ce que tu la rallumes" };
+  const n = boxJoursRestants(j);
+  if (n <= 0) return { cls: 'ko', txt: '⏸ Pas dispo, revient en vente cette nuit' };
+  if (n === 1) return { cls: 'ko', txt: '⏸ Pas dispo, revient en vente demain matin' };
+  const d = new Date(j + 'T12:00:00Z');
+  const jour = d.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+  return { cls: 'ko', txt: `⏸ Pas dispo, revient en vente ${jour} au matin` };
+}
+
+function renderBoxDuree(item) {
+  const choix = boxChoixActuel(item);
+  const st = boxStatut(item);
+  const pill = (val, label) =>
+    `<button type="button" class="box-pill ${choix === val ? 'sel' : ''}" onclick="couperBox(${item.id},${val})">${label}</button>`;
+  return `
+    <div class="menu-item-card box-duree ${item.disponible ? '' : 'off'}" id="menu-${item.id}">
+      <div class="box-top">
+        <div class="menu-item-info">
+          <div class="menu-item-name">${item.emoji || ''} ${item.nom}</div>
+          <div class="menu-item-price">${(item.prix || 0).toFixed(2).replace('.',',')} €</div>
+        </div>
+        <div class="toggle ${item.disponible ? 'on' : ''}" onclick="toggleMenuItem(${item.id},${item.disponible ? 'false' : 'true'})"></div>
+      </div>
+      <div class="box-zone">
+        <div class="box-lbl">${item.disponible ? 'Couper pour :' : 'Pas dispo pendant :'}</div>
+        <div class="box-pills" id="box-pills-${item.id}">
+          ${pill(0, "Aujourd'hui")}${pill(2, '2 jours')}${pill(3, '3 jours')}${pill(-1, "Jusqu'à ce que je la rallume")}
+        </div>
+        <div class="box-status ${st.cls}">${st.txt}</div>
+      </div>
+    </div>`;
+}
+
+async function couperBox(id, jours) {
+  const item = menuItemsList.find(i => i.id === id);
+  if (!item) return;
+  if (boxChoixActuel(item) === jours) return; // déjà ce réglage
+  const pills = document.getElementById('box-pills-' + id);
+  if (pills) pills.classList.add('busy');
+  await toggleMenuItem(id, false, jours);
+  const p = document.getElementById('box-pills-' + id);
+  if (p) p.classList.remove('busy');
+}
+
+async function toggleMenuItem(id, newValue, jours) {
   console.log('🔄 Toggle menu item:', id, 'to', newValue);
   const numId = parseInt(id, 10);
   const boolValue = newValue === 'true' || newValue === true;
@@ -3753,7 +3840,7 @@ async function toggleMenuItem(id, newValue) {
       headers: {
         Authorization: `Bearer ${adminToken}`
       },
-      body: { item_id: numId, disponible: boolValue }
+      body: (jours === undefined) ? { item_id: numId, disponible: boolValue } : { item_id: numId, disponible: boolValue, jours }
     });
     if (!response.error || response.error.name !== 'FunctionsFetchError') break;
     await new Promise(r => setTimeout(r, 1200 * (essai + 1)));
@@ -3782,7 +3869,10 @@ async function toggleMenuItem(id, newValue) {
   haptic.trigger('success'); // Vibration confirmation
   console.log('🎯 Ligne modifiée avec succès:', data.data);
   const item = menuItemsList.find(i => i.id === numId);
-  if (item) item.disponible = boolValue;
+  if (item) {
+    item.disponible = boolValue;
+    item.indispo_jusqu_au = (data.data && 'indispo_jusqu_au' in data.data) ? data.data.indispo_jusqu_au : null;
+  }
   renderMenuItems();
 }
 
