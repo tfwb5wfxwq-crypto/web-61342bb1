@@ -851,6 +851,35 @@ button{cursor:pointer;font-family:inherit;border:none}
     padding:3px 8px!important;
   }
 }
+
+/* ===== Passe design légère (25/11/2026) : moins d'effets, même mise en page ===== */
+button:hover,.order-action:hover,.login-btn:hover,.stat-card:hover,.client-card:hover,.toggle-label:hover,.tab:hover{transform:none!important}
+.btn-accept::before{display:none}
+.btn-accept:hover{box-shadow:none}
+.order-num{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+.status-badge{letter-spacing:0;font-size:.72rem;box-shadow:none;padding:4px 10px}
+.client-stat-label{text-transform:none;letter-spacing:0}
+
+/* Articles des commandes en liste « ticket » (25/11/2026) */
+.tk{margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.07)}
+.tk-sum{font-size:.75rem;color:#6b7280;font-weight:600;margin-bottom:8px;font-variant-numeric:tabular-nums}
+.tk-cols{column-gap:28px}
+.tk-cols.c2{column-count:2}.tk-cols.c3{column-count:3}
+.tk-grp{break-inside:avoid-column;margin-bottom:10px}
+.tk-cat{margin-bottom:4px;break-after:avoid}
+.tk-pill{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;line-height:1.8;white-space:nowrap}
+.tk-row{display:grid;grid-template-columns:32px 1fr;column-gap:6px;padding:3px 0;break-inside:avoid;border-bottom:1px solid rgba(0,0,0,.04)}
+.tk-q{font-weight:800;color:#b45309;text-align:right;font-variant-numeric:tabular-nums;font-size:1rem;line-height:1.3}
+.tk-q.one{color:#9ca3af;font-weight:700}
+.tk-n{font-size:.95rem;color:#111;font-weight:600;line-height:1.3}
+.tk-c{grid-column:2;font-size:.8rem;color:#4b5563;line-height:1.35;margin-top:1px}
+@media (max-width:900px){.tk-cols.c3{column-count:2}}
+@media (max-width:600px){.tk-cols.c2,.tk-cols.c3{column-count:1}}
+
+/* Passe unslop complète (25/11/2026) : même mise en page, moins de bruit */
+.completed-order-num{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;letter-spacing:.3px;font-variant-numeric:tabular-nums}
+.completed-order-line:hover{transform:none}
+.order-time-badge{font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -859,13 +888,7 @@ button{cursor:pointer;font-family:inherit;border:none}
 <div class="login-page" id="loginPage">
   <div class="login-box">
     <div style="background:#1a1a1a;border-radius:12px;padding:20px;display:inline-block;margin-bottom:20px;">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <img src="../img/logo-admin.svg" alt="Falafels" style="height:50px;filter:drop-shadow(0 0 8px rgba(212,175,55,0.25));">
-        <div style="display:flex;flex-direction:column;gap:2px;">
-          <div style="font-family:'Impact',sans-serif;font-size:20px;font-weight:900;letter-spacing:1.5px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.3),0 0 8px rgba(255,255,255,0.2);line-height:1;">BEYROUTH</div>
-          <div style="font-family:'Impact',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;color:#f8af2f;text-shadow:0 2px 4px rgba(0,0,0,0.2);line-height:1;">EXPRESS</div>
-        </div>
-      </div>
+      <img src="../img/logo-beyrouth-express-2026-clair.svg" alt="Beyrouth Express" style="height:56px;width:auto;display:block;">
     </div>
     <p>Interface de gestion</p>
     <input class="login-input" type="email" id="loginEmail" placeholder="Email" autocomplete="email">
@@ -882,12 +905,8 @@ button{cursor:pointer;font-family:inherit;border:none}
 <div class="dashboard" id="dashboard">
   <div class="topbar">
     <div style="display:flex;align-items:center;">
-      <a href="https://beyrouth.express" style="display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-        <img src="../img/logo-admin.svg" alt="Falafels" style="height:46px;filter:drop-shadow(0 0 8px rgba(212,175,55,0.25));">
-        <div style="display:flex;flex-direction:column;gap:2px;">
-          <div style="font-family:'Impact',sans-serif;font-size:18px;font-weight:900;letter-spacing:1.5px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.3),0 0 8px rgba(255,255,255,0.2);line-height:1;">BEYROUTH</div>
-          <div style="font-family:'Impact',sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;color:#f8af2f;text-shadow:0 2px 4px rgba(0,0,0,0.2);line-height:1;">EXPRESS</div>
-        </div>
+      <a href="https://beyrouth.express" style="display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;transition:transform 0.2s;" >
+        <img src="../img/logo-beyrouth-express-2026-clair.svg" alt="Beyrouth Express" style="height:40px;width:auto;display:block;">
       </a>
     </div>
     <div class="topbar-right">
@@ -1028,11 +1047,11 @@ button{cursor:pointer;font-family:inherit;border:none}
         <!-- Dates + Filtres rapides -->
         <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
           <div style="flex:1;min-width:200px;display:flex;gap:8px;align-items:center;">
-            <span style="font-size:0.9rem;color:#666;white-space:nowrap;">📅 Du:</span>
+            <span style="font-size:0.9rem;color:#666;white-space:nowrap;">Du</span>
             <input type="date" id="archiveDateFrom" style="flex:1;padding:10px;border:2px solid #e0e0e0;border-radius:6px;font-size:0.9rem;">
           </div>
           <div style="flex:1;min-width:200px;display:flex;gap:8px;align-items:center;">
-            <span style="font-size:0.9rem;color:#666;white-space:nowrap;">au:</span>
+            <span style="font-size:0.9rem;color:#666;white-space:nowrap;">au</span>
             <input type="date" id="archiveDateTo" style="flex:1;padding:10px;border:2px solid #e0e0e0;border-radius:6px;font-size:0.9rem;">
           </div>
         </div>
@@ -1048,7 +1067,7 @@ button{cursor:pointer;font-family:inherit;border:none}
 
         <!-- Filtre statut -->
         <div style="display:flex;gap:12px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
-          <span style="font-size:0.9rem;color:#666;font-weight:600;">📊 Statut:</span>
+          <span style="font-size:0.9rem;color:#666;font-weight:600;">Statut</span>
           <select id="archiveStatusFilter" style="padding:10px 16px;border:2px solid #e0e0e0;border-radius:6px;font-size:0.9rem;min-width:150px;">
             <option value="all">Toutes</option>
             <option value="recuperee">✅ Récupérées</option>
@@ -1058,8 +1077,8 @@ button{cursor:pointer;font-family:inherit;border:none}
         </div>
 
         <!-- Bouton recherche -->
-        <button onclick="searchArchives()" style="width:100%;padding:14px;background:linear-gradient(135deg,#2C3E50,#34495e);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:1rem;cursor:pointer;box-shadow:0 4px 12px rgba(44,62,80,0.3);transition:all 0.3s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 16px rgba(44,62,80,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 12px rgba(44,62,80,0.3)'">
-          RECHERCHER
+        <button onclick="searchArchives()" style="width:100%;padding:14px;background:#1f2937;color:#fff;border:none;border-radius:10px;font-weight:600;font-size:1rem;cursor:pointer;">
+          Rechercher
         </button>
       </div>
 
@@ -1217,7 +1236,7 @@ button{cursor:pointer;font-family:inherit;border:none}
     </button>
 
     <!-- Pause indéfinie (vacances/urgence) -->
-    <button onclick="showIndefinitePauseConfirm(); closeSlotPauseModal()" class="pause-btn" style="width:100%;padding:9px;font-size:.85rem;margin-bottom:8px;background:linear-gradient(135deg,#f97316,#ea580c);border:none;color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;">
+    <button onclick="showIndefinitePauseConfirm(); closeSlotPauseModal()" class="pause-btn" style="width:100%;padding:9px;font-size:.85rem;margin-bottom:8px;background:#f97316;border:none;color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Pause indéfinie
     </button>
@@ -2296,7 +2315,7 @@ async function renameSession(sessionKey, defaultName) {
 
         <div style="display:flex;gap:10px;">
           <button onclick="document.getElementById('renameModal').remove()" style="flex:1;padding:12px;background:#f5f5f5;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;color:#666;">Annuler</button>
-          <button onclick="saveSessionName('${sessionKey}')" style="flex:1;padding:12px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">💾 Enregistrer</button>
+          <button onclick="saveSessionName('${sessionKey}')" style="flex:1;padding:12px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.9rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">💾 Enregistrer</button>
         </div>
       </div>
     </div>
@@ -2610,7 +2629,7 @@ function isFuture(order) {
 const JOURS_FR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 function libelleRetrait(order) {
   if ((order.heure_retrait || '') === 'asap') return '\u26A1 ASAP';
-  if (!order.heure_retrait) return '\uD83D\uDD50 N/A';
+  if (!order.heure_retrait) return 'N/A';
   const d  = parsePickupTime(order);
   const j0 = new Date(); j0.setHours(0, 0, 0, 0);
   const dj = new Date(d); dj.setHours(0, 0, 0, 0);
@@ -2623,7 +2642,7 @@ function libelleRetrait(order) {
              : `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
   const hh = String(d.getHours()).padStart(2, '0');
   const mm = String(d.getMinutes()).padStart(2, '0');
-  return `\uD83D\uDD50 ${jour} ${hh}h${mm}`;
+  return `${jour} ${hh}h${mm}`;
 }
 
 // Helper: get urgency level (only for today's orders)
@@ -2926,7 +2945,7 @@ async function showEmailDetails(orderId) {
         ` : ''}
 
         <!-- Boutons actions -->
-        <button onclick="resendEmailWithCorrection(${order.id})" style="width:100%;padding:14px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;margin-top:8px;box-shadow:0 4px 12px rgba(59,130,246,0.3);">📧 Renvoyer l'email</button>
+        <button onclick="resendEmailWithCorrection(${order.id})" style="width:100%;padding:14px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;margin-top:8px;box-shadow:0 4px 12px rgba(59,130,246,0.3);">📧 Renvoyer l'email</button>
         <button onclick="document.getElementById('emailModal').remove()" style="width:100%;padding:14px;background:#f5f5f5;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;color:#666;margin-top:8px;">Fermer</button>
       </div>
     </div>
@@ -3026,7 +3045,7 @@ async function resendEmailWithCorrection(orderId) {
         <!-- Boutons -->
         <div style="display:flex;gap:12px;">
           <button onclick="document.getElementById('resendModal').remove()" style="flex:1;padding:14px;background:#f5f5f5;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;color:#666;">Annuler</button>
-          <button onclick="confirmResendEmail(${order.id})" style="flex:1;padding:14px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">Envoyer</button>
+          <button onclick="confirmResendEmail(${order.id})" style="flex:1;padding:14px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">Envoyer</button>
         </div>
       </div>
     </div>
@@ -3101,86 +3120,57 @@ function renderOrderCard(order, statusClass, dateStr, timeStr, statusEmoji, stat
 
   // Status badge (NOUVELLE, EN RETARD, URGENTE, EN COURS, FUTURE)
   const statusBadges = {
-    new: { text: '🆕 NOUVELLE', bg: '#B8860B', color: '#fff' },
-    late: { text: '⏰ RETARD', bg: '#8B4513', color: '#fff' },
-    urgent: { text: '⚠️ URGENTE', bg: '#D4A853', color: '#fff' },
-    normal: { text: '✅ EN COURS', bg: '#6B7B4C', color: '#fff' },
-    future: { text: '📅 FUTURE', bg: '#A0958B', color: '#fff' }
+    new: { text: 'Nouvelle', bg: '#B8860B', color: '#fff' },
+    late: { text: 'En retard', bg: '#8B4513', color: '#fff' },
+    urgent: { text: 'Urgente', bg: '#D4A853', color: '#fff' },
+    normal: { text: 'En cours', bg: '#6B7B4C', color: '#fff' },
+    future: { text: 'Future', bg: '#A0958B', color: '#fff' }
   };
 
   // Background color for card (très léger)
   const cardBgColors = {
     new: '#FFF8DC',      // Beige or léger
     late: '#FFF0F0',     // Rose très clair
-    urgent: '#FFFBF0',   // Ambre très clair
-    normal: '#F5F8F0',   // Vert olive très clair
-    future: '#F8F8F8'    // Gris très clair
+    urgent: '#fff',
+    normal: '#fff',      // blanc (le statut se lit au badge et au trait gauche)
+    future: '#fff'
   };
 
   const badge = !isHistory && statusBadges[statusClass] ? statusBadges[statusClass] : null;
   const cardBg = !isHistory && cardBgColors[statusClass] ? cardBgColors[statusClass] : '#fff';
 
-  // Format items groupés par catégorie - 🔒 SÉCURISÉ contre XSS
+  // Articles : liste « ticket », jamais repliée (25/11/2026, demande de Paco : « dans le jus il doit voir direct »)
+  // 1 ligne par plat, quantité en gros à gauche, rangé par catégorie (ordre du menu), compositions des formules dessous.
+  // Les grosses commandes passent en 2 ou 3 colonnes pour tenir dans la carte. 🔒 Tout est échappé (XSS).
   const itemsBlockHtml = (() => {
     if (items.length === 0) return '';
-    const grouped = new Map();
+    const groups = new Map();
     items.forEach(i => {
-      let catNom = i.categorie || null;
-      let catEmoji = i.categorie_emoji || '🍽️';
-      // Fallback pour anciennes commandes : lookup via menuItemsList
-      if (!catNom && i.id) {
-        const mi = menuItemsList.find(m => m.id === i.id);
-        if (mi) {
-          const mc = menuCategories.find(c => c.id === mi.categorie_id);
-          if (mc) { catNom = mc.nom; catEmoji = mc.emoji || '🍽️'; }
-        }
-      }
-      const key = catNom || '__none__';
-      if (!grouped.has(key)) grouped.set(key, { nom: catNom, emoji: catEmoji, items: [] });
-      grouped.get(key).items.push(i);
+      let catNom = i.categorie || null, ordre = 99;
+      const mi = i.id ? menuItemsList.find(m => m.id === i.id) : null;
+      const mc = mi ? menuCategories.find(c => c.id === mi.categorie_id) : null;
+      if (mc) { catNom = catNom || mc.nom; ordre = mc.ordre ?? 99; }
+      const key = catNom || 'Autres';
+      if (!groups.has(key)) groups.set(key, { nom: key, ordre, items: [] });
+      groups.get(key).items.push(i);
     });
-    const hasCats = !(grouped.size === 1 && grouped.has('__none__'));
-
-    // Couleurs pastel par catégorie
+    const gs = [...groups.values()].sort((x, y) => x.ordre - y.ordre);
+    const qtyOf = i => i.qty || i.quantite || 1;
+    const nArt = items.reduce((t, i) => t + qtyOf(i), 0);
+    const cols = items.length > 12 ? 'c3' : items.length > 3 ? 'c2' : '';
+    // Mêmes pastilles de couleur qu'avant pour les catégories (Paco a ses repères)
     const catBg = {'Exclu Web':'#ffedd5','Formules':'#fef9c3','Sandwichs':'#fef3c7','Grillades':'#fee2e2','Plateaux':'#fff7ed','Entrées Froides':'#ecfdf5','Entrées Chaudes':'#fff1f2','Desserts':'#fdf4ff','Boissons':'#dbeafe','Sauces':'#f0fdf4'};
     const catColor = {'Exclu Web':'#9a3412','Formules':'#854d0e','Sandwichs':'#92400e','Grillades':'#991b1b','Plateaux':'#9a3412','Entrées Froides':'#065f46','Entrées Chaudes':'#9f1239','Desserts':'#7e22ce','Boissons':'#1e40af','Sauces':'#14532d'};
-
-    const renderItem = i => {
-      const qty = i.qty || i.quantite || 1;
-      const comps = (i.isFormule && i.components && i.components.length > 0)
-        ? `<span style="display:block;font-size:0.75rem;color:#6b7280;margin-left:18px;margin-top:1px;">↳ ${i.components.map(c => escapeHtml(c)).join(' · ')}</span>`
-        : '';
-      return `<span style="display:inline-flex;flex-direction:column;vertical-align:top;margin-right:8px;margin-bottom:2px;"><span style="font-size:0.83rem;color:#1a1a1a;"><span style="font-weight:800;color:#d97706;">${qty}×</span> ${escapeHtml(i.nom)}</span>${comps}</span>`;
-    };
-    const dot = `<span style="color:#d1d5db;margin:0 5px;font-size:0.75rem;vertical-align:middle;">·</span>`;
-
-    const renderGroup = ([k, g]) => {
-      const bg = catBg[g.nom] || '#f3f4f6';
-      const col = catColor[g.nom] || '#374151';
-      return `<div style="display:flex;align-items:baseline;flex-wrap:wrap;row-gap:3px;margin-bottom:6px;">
-        <span style="flex-shrink:0;font-size:0.72rem;font-weight:700;padding:2px 9px;background:${bg};border-radius:20px;margin-right:8px;color:${col};white-space:nowrap;line-height:1.8;">${g.emoji} ${escapeHtml(g.nom || '')}</span>${g.items.map(renderItem).join(dot)}</div>`;
-    };
-    const renderFlat = list => list.map(renderItem).join(dot);
-
-    const wrap = content => `<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.07);">${content}</div>`;
-
-    // Grosse commande : accordéon
-    if (items.length >= 10) {
-      const uid = 'acc-' + order.id;
-      const summary = hasCats
-        ? [...grouped.values()].map(g => {
-            const bg = catBg[g.nom] || '#f3f4f6';
-            const col = catColor[g.nom] || '#374151';
-            const total = g.items.reduce((s,i) => s + (i.qty||i.quantite||1), 0);
-            return `<span style="font-size:0.72rem;font-weight:700;padding:2px 8px;background:${bg};border-radius:20px;color:${col};">${g.emoji} ×${total}</span>`;
-          }).join(' ')
-        : `<span style="font-size:0.8rem;color:#6b7280;">${items.length} articles</span>`;
-      const full = hasCats ? [...grouped.entries()].map(renderGroup).join('') : renderFlat(items);
-      return wrap(`<div onclick="var d=document.getElementById('${uid}');var a=document.getElementById('${uid}-a');d.style.display=d.style.display==='none'?'block':'none';a.textContent=d.style.display==='none'?'▼':'▲';" style="cursor:pointer;display:flex;align-items:center;flex-wrap:wrap;gap:6px;user-select:none;">${summary}<span style="color:#9ca3af;font-size:0.7rem;margin-left:2px;">— ${items.length} articles</span><span id="${uid}-a" style="color:#bbb;font-size:0.65rem;">▼</span></div><div id="${uid}" style="display:none;margin-top:8px;">${full}</div>`);
-    }
-    // Commande normale : groupé si catégories dispo, sinon flat
-    if (hasCats) return wrap([...grouped.entries()].map(renderGroup).join(''));
-    return wrap(renderFlat(items));
+    const catEmoji = nom => { const c = menuCategories.find(x => x.nom === nom); return c && c.emoji ? c.emoji + ' ' : ''; };
+    const html = gs.map(g => `<div class="tk-grp"><div class="tk-cat"><span class="tk-pill" style="background:${catBg[g.nom] || '#f3f4f6'};color:${catColor[g.nom] || '#374151'}">${catEmoji(g.nom)}${escapeHtml(g.nom)} · ${g.items.reduce((t, i) => t + qtyOf(i), 0)}</span></div>${
+      g.items.map(i => {
+        const q = qtyOf(i);
+        const comps = (i.isFormule && i.components && i.components.length > 0)
+          ? `<span class="tk-c">${i.components.map(c => escapeHtml(c)).join(' · ')}</span>` : '';
+        return `<div class="tk-row"><span class="tk-q ${q === 1 ? 'one' : ''}">${q}×</span><span class="tk-n">${escapeHtml(i.nom)}</span>${comps}</div>`;
+      }).join('')
+    }</div>`).join('');
+    return `<div class="tk"><div class="tk-sum">${items.length} ligne${items.length > 1 ? 's' : ''} · ${nArt} article${nArt > 1 ? 's' : ''}</div><div class="tk-cols ${cols}">${html}</div></div>`;
   })();
 
   // Notes client (allergies, sans oignons, etc.) - ULTRA VISIBLE
@@ -3196,17 +3186,16 @@ function renderOrderCard(order, statusClass, dateStr, timeStr, statusEmoji, stat
         <span class="order-num" style="flex-shrink:0;">${escapeHtml(order.numero)}</span>
 
         ${(() => {
-          if (!order.email_status || order.email_status === 'pending') {
-            return `<span onclick="showEmailDetails(${order.id})" style="cursor:pointer;font-size:1.2rem;opacity:0.3;flex-shrink:0;" title="Email pas encore envoyé">📧</span>`;
-          }
-          const emailIcons = {
-            sent: { icon: '📧', color: '#999', title: 'Email envoyé' },
-            delivered: { icon: '✅', color: '#22c55e', title: 'Email livré' },
-            opened: { icon: '👁️', color: '#3b82f6', title: 'Email ouvert' },
-            error: { icon: '❌', color: '#ef4444', title: 'Erreur email' }
-          };
-          const config = emailIcons[order.email_status] || emailIcons.sent;
-          return `<span onclick="showEmailDetails(${order.id})" style="cursor:pointer;font-size:1.2rem;filter:drop-shadow(0 0 2px ${config.color});flex-shrink:0;" title="${config.title}">${config.icon}</span>`;
+          // Petite enveloppe au trait, couleur = état du mail client (gris : pas envoyé / envoyé, vert : livré, bleu : ouvert, rouge : erreur)
+          const st = order.email_status || 'pending';
+          const mailCfg = {
+            pending: { c: '#d1d5db', t: 'Email pas encore envoyé' },
+            sent: { c: '#9ca3af', t: 'Email envoyé' },
+            delivered: { c: '#16a34a', t: 'Email livré' },
+            opened: { c: '#2563eb', t: 'Email ouvert' },
+            error: { c: '#dc2626', t: 'Erreur email' }
+          }[st] || { c: '#9ca3af', t: 'Email envoyé' };
+          return `<span onclick="showEmailDetails(${order.id})" style="cursor:pointer;flex-shrink:0;display:inline-flex;padding:4px;" title="${mailCfg.t}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${mailCfg.c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>`;
         })()}
 
         <!-- Nom client : flex:1 pour pousser le reste à droite -->
@@ -3250,7 +3239,7 @@ function renderOrderCard(order, statusClass, dateStr, timeStr, statusEmoji, stat
       <!-- Note client (allergies, précisions) -->
       ${hasNotes ? `
       <div style="background:#fef2f2;border-left:3px solid #f87171;border-radius:4px;padding:6px 12px;margin-top:6px;font-size:0.82rem;color:#7f1d1d;line-height:1.4;">
-        <span style="font-weight:700;">💬 Note :</span> ${escapeHtml(order.note)}
+        <span style="font-weight:700;">Note :</span> ${escapeHtml(order.note)}
       </div>
       ` : ''}
 
@@ -3275,7 +3264,7 @@ function getActionButtons(order) {
 
       // Bouton Relancer si en retard
       if (isLate) {
-        buttons += `<button class="order-action btn-remind" onclick="remindOrder(${order.id})" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);">Relancer</button>`;
+        buttons += `<button class="order-action btn-remind" onclick="remindOrder(${order.id})" style="background:#f97316;">Relancer</button>`;
       }
 
       // Boutons secondaires (archiver, annuler)
@@ -3287,7 +3276,7 @@ function getActionButtons(order) {
     case 'prete':
       buttons = `<button class="order-action btn-done" onclick="updateStatus(${order.id},'recuperee')">📦 Récupérée</button>`;
       if (isLate) {
-        buttons += `<button class="order-action btn-remind" onclick="remindOrder(${order.id})" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);">📧 Relancer</button>`;
+        buttons += `<button class="order-action btn-remind" onclick="remindOrder(${order.id})" style="background:#f97316;">📧 Relancer</button>`;
       }
       break;
     case 'recuperee':
@@ -3297,7 +3286,7 @@ function getActionButtons(order) {
           id="resend-${order.id}"
           class="order-action btn-secondary"
           onclick="resendInvoice(${order.id}, '${escapeHtml(order.client_email || 'client')}')"
-          style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); margin-left: 8px;">
+          style="background:#6366f1; margin-left: 8px;">
           📧 Renvoyer facture
         </button>
       `;
@@ -3494,7 +3483,7 @@ function resendInvoice(orderId, clientEmail) {
 
         <div style="display:flex;gap:12px;">
           <button onclick="document.getElementById('resendModal').remove()" style="flex:1;padding:14px;background:#f5f5f5;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;color:#666;">Annuler</button>
-          <button id="resendConfirmBtn" onclick="confirmResendInvoice(${orderId})" style="flex:1;padding:14px;background:linear-gradient(135deg, #6366f1, #4f46e5);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(99,102,241,0.3);">📧 Envoyer</button>
+          <button id="resendConfirmBtn" onclick="confirmResendInvoice(${orderId})" style="flex:1;padding:14px;background:#6366f1;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(99,102,241,0.3);">📧 Envoyer</button>
         </div>
       </div>
     </div>
@@ -3639,7 +3628,7 @@ async function cancelOrder(orderId) {
 
         <div style="display:flex;gap:12px;">
           <button onclick="document.getElementById('cancelModal').remove()" style="flex:1;padding:14px;background:#f5f5f5;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;color:#666;">Annuler</button>
-          <button onclick="confirmCancelOrder(${orderId})" style="flex:1;padding:14px;background:linear-gradient(135deg, #dc2626, #b91c1c);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(220,38,38,0.3);">Confirmer l'annulation</button>
+          <button onclick="confirmCancelOrder(${orderId})" style="flex:1;padding:14px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(220,38,38,0.3);">Confirmer l'annulation</button>
         </div>
       </div>
     </div>
@@ -4497,22 +4486,22 @@ function formatGroupDate(dateKey) {
   const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const diffDays = Math.floor((today - targetDate) / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return '📅 Aujourd\'hui';
-  if (diffDays === 1) return '📅 Hier';
+  if (diffDays === 0) return 'Aujourd\'hui';
+  if (diffDays === 1) return 'Hier';
 
   // Cette semaine (lundi à aujourd'hui-2)
   const weekStart = new Date(today);
   weekStart.setDate(today.getDate() - today.getDay() + 1); // Lundi
   if (targetDate >= weekStart && targetDate < today) {
     const dayName = date.toLocaleDateString('fr-FR', { weekday: 'long' });
-    return '📅 ' + dayName.charAt(0).toUpperCase() + dayName.slice(1);
+    return dayName.charAt(0).toUpperCase() + dayName.slice(1);
   }
 
   // ⚠️ FIX: Afficher toujours le jour précis au lieu de "Semaine dernière"
   // Format: "Lun 23 mars" pour clarté maximale
   const dayName = date.toLocaleDateString('fr-FR', { weekday: 'short' });
   const dateStr = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-  return '📅 ' + dayName.charAt(0).toUpperCase() + dayName.slice(1) + ' ' + dateStr;
+  return dayName.charAt(0).toUpperCase() + dayName.slice(1) + ' ' + dateStr;
 }
 
 // Afficher les détails d'une commande terminée (modal cliquable)
@@ -4634,7 +4623,7 @@ async function showCompletedOrderDetails(orderId) {
 
         <!-- Détails commande -->
         <div style="margin-bottom:24px;">
-          <div style="font-size:0.85rem;color:#888;margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📦 Détails</div>
+          <div style="font-size:0.85rem;color:#888;margin-bottom:12px;font-weight:600;">📦 Détails</div>
           <div style="background:#fafafa;padding:16px;border-radius:8px;">
             ${itemsHtml}
             <div style="display:flex;justify-content:space-between;padding-top:12px;margin-top:8px;border-top:2px solid #e0e0e0;">
@@ -4646,7 +4635,7 @@ async function showCompletedOrderDetails(orderId) {
 
         <!-- Infos client -->
         <div style="margin-bottom:24px;">
-          <div style="font-size:0.85rem;color:#888;margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">👤 Client</div>
+          <div style="font-size:0.85rem;color:#888;margin-bottom:12px;font-weight:600;">👤 Client</div>
           <div style="background:#fafafa;padding:16px;border-radius:8px;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
               <span style="font-weight:600;color:#1a1a1a;">${escapeHtml(order.client_prenom || 'Client')}</span>
@@ -4693,11 +4682,11 @@ async function showCompletedOrderDetails(orderId) {
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:24px;">
           ${isNotRecuperee ? `
           <!-- Actions pour commandes PAS RÉCUPÉRÉES (client pas venu) -->
-          ${order.client_email ? `<button onclick="remindClient(${order.id})" style="padding:14px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">📧 Relancer le client</button>` : ''}
-          <button onclick="markAsRecuperee(${order.id})" style="padding:14px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(16,185,129,0.3);">✅ Marquer comme récupérée</button>
+          ${order.client_email ? `<button onclick="remindClient(${order.id})" style="padding:14px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">📧 Relancer le client</button>` : ''}
+          <button onclick="markAsRecuperee(${order.id})" style="padding:14px;background:#10b981;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(16,185,129,0.3);">✅ Marquer comme récupérée</button>
           ` : isRecuperee ? `
           <!-- Actions pour commandes RÉCUPÉRÉES -->
-          ${order.client_email ? `<button onclick="resendCompletedOrderEmail(${order.id})" style="padding:14px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">📧 Renvoyer le ticket</button>` : ''}
+          ${order.client_email ? `<button onclick="resendCompletedOrderEmail(${order.id})" style="padding:14px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">📧 Renvoyer le ticket</button>` : ''}
           ` : isCancelled ? `
           <!-- Actions pour commandes ANNULÉES (pas de renvoie de ticket) -->
           ` : ''}
@@ -4708,15 +4697,15 @@ async function showCompletedOrderDetails(orderId) {
         <!-- Action remboursement (discrète, séparée) -->
         ${(isNotRecuperee || (isRecuperee && canRefund)) ? `
         <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0;">
-          <button onclick="cancelAndRefundCompletedOrder(${order.id})" style="width:100%;padding:14px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(245,158,11,0.3);">⚠️ Annuler & Rembourser</button>
+          <button onclick="cancelAndRefundCompletedOrder(${order.id})" style="width:100%;padding:14px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(245,158,11,0.3);">⚠️ Annuler & Rembourser</button>
         </div>
         ` : ''}
 
         <!-- Infos supplémentaires -->
         <div style="margin-top:20px;padding-top:20px;border-top:1px solid #e0e0e0;">
           <div style="font-size:0.75rem;color:#999;line-height:1.5;">
-            📅 Créée le ${formatDate(order.created_at)}<br>
-            🕐 Retrait : ${escapeHtml(order.heure_retrait || 'N/A')}
+            Créée le ${formatDate(order.created_at)}<br>
+            Retrait : ${escapeHtml(order.heure_retrait || 'N/A')}
           </div>
         </div>
 
@@ -4807,7 +4796,7 @@ async function cancelAndRefundCompletedOrder(orderId) {
 
         <div style="display:flex;gap:12px;">
           <button onclick="document.getElementById('refundModal').remove()" style="flex:1;padding:14px;background:#f5f5f5;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;color:#666;">Annuler</button>
-          <button onclick="confirmCancelAndRefundCompleted(${orderId})" style="flex:1;padding:14px;background:linear-gradient(135deg, #dc2626, #b91c1c);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(220,38,38,0.3);">Confirmer le remboursement</button>
+          <button onclick="confirmCancelAndRefundCompleted(${orderId})" style="flex:1;padding:14px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.95rem;box-shadow:0 4px 12px rgba(220,38,38,0.3);">Confirmer le remboursement</button>
         </div>
       </div>
     </div>
@@ -5753,7 +5742,7 @@ function renderAllClients(clientList) {
     const topClients = displayedClients.slice(0, topCount);
     const otherClients = displayedClients.slice(topCount);
 
-    html += `<div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin:0 0 8px 2px;">🏆 Top</div>`;
+    html += `<div style="font-size:.8rem;font-weight:600;color:#6b7280;margin:0 0 8px 2px;">Meilleurs clients</div>`;
     html += topClients.map(renderClientCard).join('');
 
     if (otherClients.length > 0) {
@@ -5881,7 +5870,7 @@ async function showClientDetail(clientEmail) {
       <div style="color:#888;font-size:.9rem">
         📧 ${escapeHtml(client.email)}<br>
         ${client.telephone ? '📱 ' + escapeHtml(client.telephone) + '<br>' : ''}
-        📅 Client depuis ${new Date(client.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}<br>
+        Client depuis ${new Date(client.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}<br>
         ${client.optin_promo ? '✉️ Inscrit à la newsletter' : ''}
       </div>
     </div>
