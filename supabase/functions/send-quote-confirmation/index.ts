@@ -158,7 +158,7 @@ serve(async (req) => {
           <tr>
             <td bgcolor="#FFFFFF" class="px round" style="background:#FFFFFF;padding:36px 32px 36px 32px;border-radius:0 0 12px 12px;">
 <h1 class="serif h1" style="margin:0 0 6px 0;font-family:'DM Serif Display',Georgia,'Times New Roman',serif;font-size:32px;line-height:1.15;font-weight:400;color:#1F1B16;">${L.quoteTitle}</h1>
-              <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#5E554A;">${L.quoteThanks(name.split(' ')[0])}</p>
+              <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#5E554A;">${L.quoteThanks(esc(String(name).trim().split(/\s+/)[0], 60))}</p>
 
               <!-- Info principale -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">

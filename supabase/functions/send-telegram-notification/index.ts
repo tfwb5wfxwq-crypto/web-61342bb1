@@ -85,6 +85,16 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // SECURITE (25/11/2026, audit 14 failles) : seules nos fonctions serveur (cle service_role)
+  // peuvent annoncer une commande a la cuisine. Avant, la cle publique « anon » du site suffisait
+  // pour envoyer une fausse « NOUVELLE COMMANDE ».
+  const cleServeur = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  if (!cleServeur || (req.headers.get('Authorization') ?? '') !== `Bearer ${cleServeur}`) {
+    console.warn('🚫 Appel send-telegram-notification sans cle serveur — rejete')
+    return new Response(JSON.stringify({ error: 'Non autorise' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+  }
+
   try {
     const { orderNumber, pickupTime, total, paymentMethod, items, note } = await req.json()
 
