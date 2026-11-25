@@ -59,8 +59,16 @@ function parsePickupTime(pickup: string): Date | null {
 // Alerte INTERNE (14/07/2026) : prévient l'admin sur Telegram quand un client n'a PAS pu payer,
 // avec son nom + téléphone + la raison, pour qu'on puisse le rappeler et sauver la vente.
 // Rien de plus n'est montré au client (aucune surface d'attaque en plus). Jamais bloquant.
+// SÉCURITÉ (25/11/2026, audit) : anti-spam. Champs coupés courts, et au plus 15 alertes
+// par tranche de 10 min par instance (un vrai incident en donne 1 à 3).
+let alertesFenetre = 0, alertesDebut = 0
 async function notifyAdminBlocked(reason: string, info: { orderNum?: string, name?: string, phone?: string, email?: string, total?: number }) {
   try {
+    const maintenant = Date.now()
+    if (maintenant - alertesDebut > 10 * 60 * 1000) { alertesDebut = maintenant; alertesFenetre = 0 }
+    if (++alertesFenetre > 15) return
+    const court = (v: any, n: number) => v == null ? v : String(v).slice(0, n)
+    info = { ...info, name: court(info.name, 40), phone: court(info.phone, 20), email: court(info.email, 60), orderNum: court(info.orderNum, 12) }
     const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
     const chatId = Deno.env.get('TELEGRAM_ADMIN_CHAT_ID')
     if (!botToken || !chatId) return
@@ -336,6 +344,24 @@ serve(async (req) => {
         JSON.stringify({ error: 'Votre commande a changé entre-temps. Veuillez actualiser la page et réessayer.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
+    }
+
+    // SÉCURITÉ (25/11/2026, audit) : noms et prix affichés à Paco (tablette, Telegram, mails)
+    // = ceux du MENU, jamais ceux écrits par le navigateur. Avant, une sauce à 0,70 € pouvait
+    // s'afficher « Plateau royal ». Un vrai client voit exactement la même chose qu'avant.
+    try {
+      const propre = (Array.isArray(ordreEnBase.items) ? ordreEnBase.items : []).map((i: any) => {
+        const m = menuData.find((x: any) => x.id === Number(i?.id))
+        const comps = Array.isArray(i?.components)
+          ? i.components.slice(0, 12).map((c: any) => String(c ?? '').slice(0, 80))
+          : null
+        const img = typeof i?.image_url === 'string' && /^img\/[A-Za-z0-9_\-\/.]+$/.test(i.image_url) ? i.image_url : null
+        return { ...i, id: Number(i?.id), nom: m ? m.nom : String(i?.nom ?? '').slice(0, 80), prix: m ? m.prix : 0,
+                 qty: Number(i?.qty || i?.quantite || 1), components: comps, image_url: img }
+      })
+      await supabase.from('orders').update({ items: propre }).eq('numero', orderNum).eq('statut', 'pending')
+    } catch (e) {
+      console.error('Nettoyage des articles (non bloquant):', e)
     }
 
     // Étape 1 : Obtenir un JWT token depuis l'Auth API

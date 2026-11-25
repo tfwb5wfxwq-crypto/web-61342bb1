@@ -156,7 +156,7 @@ serve(async (req) => {
     // ===== VALIDATION MONTANT : Recalculer côté serveur pour éviter manipulation =====
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
-      .select('items, client_prenom, client_email, client_telephone')
+      .select('items, client_prenom, client_email, client_telephone, total, statut')
       .eq('numero', orderNum)
       .maybeSingle()
 
@@ -172,6 +172,28 @@ serve(async (req) => {
     const cInfo = { orderNum, name: orderData.client_prenom, phone: orderData.client_telephone, email: orderData.client_email, total }
 
     const items = orderData.items
+    // SÉCURITÉ (25/11/2026, audit) : une commande sans article, déjà traitée, ou dont le total
+    // enregistré (celui que voit Paco) diffère du montant payé est refusée. Avant, un panier vide
+    // sautait le contrôle et le total affiché pouvait être faux.
+    const qtyKo = !Array.isArray(items) || items.length === 0 || items.length > 40 || items.some((i: any) => {
+      const q = i?.qty ?? 1
+      return typeof q !== 'number' || !Number.isInteger(q) || q < 1 || q > 50
+    })
+    if (orderData.statut !== 'pending') {
+      // Rechargement de page / double appel : déjà traitée, pas d'alerte « fraude »
+      return new Response(
+        JSON.stringify({ error: 'Commande déjà traitée', statut: orderData.statut }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    if (qtyKo || Math.abs(Math.round(Number(orderData.total) * 100) - Number(total)) > 1) {
+      console.error('❌ Commande Edenred incohérente:', { orderNum, statut: orderData.statut, totalBase: orderData.total, total })
+      await notifyAdminBlocked('Commande enregistrée différente du montant Edenred (paiement refusé, possible tentative de fraude)', cInfo)
+      return new Response(
+        JSON.stringify({ error: 'Votre commande a changé entre-temps. Veuillez actualiser la page et réessayer.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
     if (items && items.length > 0) {
       // Récupérer les prix des items depuis menu_items
       // FIX (14/07/2026) : dédoublonner les ids (2 formules identiques = même id → .in()

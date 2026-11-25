@@ -686,14 +686,14 @@ function updateDisplay(order) {
       heureText = T('confirmation.asapLower', 'dès que possible');
     } else if (/^Aujourd'hui\s+/i.test(rawHeure)) {
       const heure = rawHeure.replace(/^Aujourd'hui\s+/i, '');
-      heureText = `à <strong>${heureAffichee(heure)}</strong>`;
+      heureText = `à <strong>${escapeHtml(heureAffichee(heure))}</strong>`;
     } else {
       // "Lundi 11h30", "Demain 12h00" etc. → "lundi à 11h30"
       const match = rawHeure.match(/^(\S+)\s+(.+)$/);
       if (match) {
-        heureText = `<strong>${match[1].toLowerCase()}</strong> à <strong>${heureAffichee(match[2])}</strong>`;
+        heureText = `<strong>${escapeHtml(match[1].toLowerCase())}</strong> à <strong>${escapeHtml(heureAffichee(match[2]))}</strong>`;
       } else {
-        heureText = `<strong>${heureAffichee(rawHeure)}</strong>`;
+        heureText = `<strong>${escapeHtml(heureAffichee(rawHeure))}</strong>`;
       }
     }
     banner.innerHTML = `
@@ -833,7 +833,8 @@ async function loadOrder() {
 
     // Items - 🔒 SÉCURISÉ contre XSS
     const itemsHtml = data.items.map(item => {
-      const total = (item.prix * item.qty).toFixed(2).replace('.', ',');
+      const qte = Math.max(1, parseInt(item.qty, 10) || 1);
+      const total = ((Number(item.prix) || 0) * qte).toFixed(2).replace('.', ',');
       const safeImageUrl = escapeHtml(item.image_url);
       const safeName = escapeHtml(item.nom);
 
@@ -844,7 +845,7 @@ async function loadOrder() {
         <div class="item" style="display:flex;align-items:center;margin-bottom:12px;">
           ${imgHtml}
           <div style="flex:1;display:flex;justify-content:space-between;align-items:center;">
-            <span>${item.qty}x ${safeName}</span>
+            <span>${qte}x ${safeName}</span>
             <span class="item-price">${total} €</span>
           </div>
         </div>

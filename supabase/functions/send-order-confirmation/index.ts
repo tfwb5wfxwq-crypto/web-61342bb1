@@ -72,6 +72,15 @@ serve(async (req) => {
       throw new Error('Commande introuvable')
     }
 
+    // SÉCURITÉ (25/11/2026, audit) : textes venant du visiteur nettoyés avant d'entrer dans le mail
+    const nettoie = (v: any) => v == null ? v : String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    order.client_prenom = nettoie(order.client_prenom)
+    order.heure_retrait = nettoie(order.heure_retrait)
+    order.numero = nettoie(order.numero)
+    if (Array.isArray(order.items)) order.items = order.items.map((i: any) => ({ ...i, nom: nettoie(i?.nom),
+      qty: Math.max(1, parseInt(i?.qty ?? i?.quantite ?? 1, 10) || 1),
+      components: Array.isArray(i?.components) ? i.components.map((c: any) => nettoie(c)) : i?.components }))
+
     // Vérifier que la commande est bien acceptée
     if (order.statut !== 'acceptee') {
       return new Response(

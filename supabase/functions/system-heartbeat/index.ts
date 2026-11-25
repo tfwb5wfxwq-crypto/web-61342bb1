@@ -11,7 +11,26 @@ const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') ?? ''
 // 20 laisse une marge confortable sans jamais declencher a tort.
 const SEUIL_MAILS_24H = 20
 
-serve(async (_req) => {
+serve(async (req) => {
+  // SÉCURITÉ (25/11/2026, audit) : réservé à la tâche planifiée (clé serveur) ou à CRON_SECRET.
+  // Avant, n'importe quel visiteur (clé publique) pouvait la déclencher en boucle (alertes Telegram).
+  {
+    const bearer = (req.headers.get('Authorization') ?? '').replace('Bearer ', '').trim()
+    const autorises = [Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'), Deno.env.get('CRON_SECRET')].filter(Boolean)
+    let ok = autorises.includes(bearer)
+    if (!ok && bearer) {
+      // La tâche planifiée envoie une clé serveur (service_role) : seule une clé serveur peut lire
+      // archive_logs (fermée aux visiteurs). Une clé publique ou fausse est refusée par la base.
+      try {
+        const { error } = await createClient(Deno.env.get('SUPABASE_URL') ?? '', bearer)
+          .from('archive_logs').select('id', { head: true, count: 'exact' }).limit(1)
+        ok = !error
+      } catch (_) { ok = false }
+    }
+    if (!ok) {
+      return new Response(JSON.stringify({ error: 'Non autorisé' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+    }
+  }
   const results: Record<string, boolean> = {}
 
   // 1. Check site beyrouth.express
